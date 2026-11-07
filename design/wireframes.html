@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Wireframe Jagra</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EEF2F4; --surface:#FFFFFF; --ink:#15222E; --muted:#56636F; --line:#CBD5DC;
+  --accent:#0B7A66; --accent-soft:#DDF0EB; --later:#8F5400; --fail:#B3261E; --fail-soft:#F8E1DF;
+  --wire:#DCE3E8; --wire-strong:#B9C5CD;
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F171D; --surface:#16212A; --ink:#E3EAEE; --muted:#9AA8B3; --line:#2A3843;
+    --accent:#4CC3A8; --accent-soft:#163A33; --later:#E0A54A; --fail:#F2857B; --fail-soft:#3A1F1D;
+    --wire:#26333D; --wire-strong:#3A4A56;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F171D; --surface:#16212A; --ink:#E3EAEE; --muted:#9AA8B3; --line:#2A3843;
+  --accent:#4CC3A8; --accent-soft:#163A33; --later:#E0A54A; --fail:#F2857B; --fail-soft:#3A1F1D;
+  --wire:#26333D; --wire-strong:#3A4A56;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:17px;line-height:1.6}
+code{font-family:"JetBrains Mono",ui-monospace,Consolas,monospace;font-size:.86em;background:var(--wire);padding:.1em .35em;border-radius:4px}
+pre{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:14px 16px;overflow-x:auto;font-size:.95rem;line-height:1.5;margin:0 0 14px}
+pre code{background:none;padding:0}
+.col{max-width:760px;margin:0 auto;padding:0 24px}
+.wide{max-width:1080px;margin:0 auto;padding:0 24px}
+header{padding:64px 0 40px;border-bottom:1px solid var(--line)}
+h1{font-size:clamp(2.2rem,5vw,3.4rem);line-height:1.05;letter-spacing:-.02em;margin:0 0 18px;font-weight:700}
+.lead{font-size:1.18rem;color:var(--muted);margin:0;max-width:60ch}
+.updated{margin:22px 0 0;font-size:.9rem;color:var(--muted)}
+section{padding:48px 0 8px}
+h2{font-size:1.55rem;letter-spacing:-.01em;margin:0 0 14px;font-weight:700}
+h3{font-size:1.05rem;margin:0 0 4px;font-weight:600}
+p{margin:0 0 14px}
+ul{margin:0 0 14px;padding-left:1.2em}
+li{margin:0 0 8px}
+.table-wrap{overflow-x:auto;margin:6px 0 10px}
+table{border-collapse:collapse;width:100%;min-width:520px;font-size:.96rem}
+th,td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.88rem}
+td:first-child{font-weight:600}
+td.later{color:var(--later)}
+
+/* Wireframe flow */
+.flow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:36px 28px;margin:24px 0 8px;counter-reset:screen}
+.step{position:relative}
+.win{background:var(--surface);border:1.5px solid var(--wire-strong);border-radius:6px;overflow:hidden;min-height:228px;display:flex;flex-direction:column}
+.step.main .win{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.titlebar{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-bottom:1.5px solid var(--wire-strong);font-size:.78rem;color:var(--muted)}
+.ctrls{display:flex;gap:7px}
+.ctrls i{display:block;width:9px;height:9px;border:1.5px solid var(--wire-strong)}
+.ctrls i:last-child{position:relative}
+.ctrls i:last-child::before,.ctrls i:last-child::after{content:"";position:absolute;left:-1px;top:2.5px;width:8px;height:1.5px;background:var(--wire-strong);transform:rotate(45deg)}
+.ctrls i:last-child::after{transform:rotate(-45deg)}
+.body{padding:12px;display:flex;flex-direction:column;gap:8px;flex:1;font-size:.8rem}
+.bar{height:9px;border-radius:3px;background:var(--wire)}
+.row{display:flex;align-items:center;gap:8px}
+.row .bar{flex:1}
+.lbl{font-size:.74rem;color:var(--muted)}
+.field{border:1.5px solid var(--wire-strong);border-radius:4px;padding:5px 8px;color:var(--muted);font-size:.76rem;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.btn{border:1.5px solid var(--wire-strong);border-radius:4px;padding:5px 9px;font-size:.74rem;white-space:nowrap;color:var(--ink)}
+.btn.solid{background:var(--ink);border-color:var(--ink);color:var(--surface);align-self:flex-start}
+.step.main .btn.solid{background:var(--accent);border-color:var(--accent)}
+.pill{align-self:flex-start;font-size:.72rem;padding:2px 8px;border-radius:99px;background:var(--accent-soft);color:var(--accent);font-weight:600}
+.mark{width:14px;text-align:center;font-weight:700;flex:none}
+.ok{color:var(--accent)} .no{color:var(--fail)} .wait{color:var(--muted)}
+.failrow{background:var(--fail-soft);border-radius:4px;padding:3px 4px}
+.progress{height:8px;border-radius:99px;background:var(--wire);overflow:hidden}
+.progress span{display:block;height:100%;width:55%;background:var(--accent)}
+.big{font-size:1.05rem;font-weight:700}
+.shot{flex:1;min-height:70px;border:1.5px dashed var(--wire-strong);border-radius:4px;display:grid;place-items:center;color:var(--muted);font-size:.74rem}
+.cap{margin-top:12px;font-size:.92rem;color:var(--muted);line-height:1.45}
+.cap h3{color:var(--ink);counter-increment:screen}
+.cap h3::before{content:counter(screen) ". ";color:var(--muted);font-weight:500}
+.flow-note{font-size:.95rem;color:var(--muted);max-width:70ch}
+
+/* Checklist */
+.checklist{list-style:none;padding:0;margin:8px 0 0}
+.checklist li{margin:0;border-bottom:1px solid var(--line)}
+.checklist label{display:flex;gap:14px;align-items:flex-start;padding:12px 2px;cursor:pointer}
+.checklist input{appearance:none;flex:none;width:20px;height:20px;margin-top:3px;border:1.5px solid var(--wire-strong);border-radius:5px;background:var(--surface);display:grid;place-items:center;cursor:pointer}
+.checklist input:checked{background:var(--accent);border-color:var(--accent)}
+.checklist input:checked::after{content:"";width:6px;height:11px;border:solid var(--surface);border-width:0 2px 2px 0;transform:rotate(45deg) translate(-1px,-1px)}
+.checklist input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.checklist input:checked + span{color:var(--muted)}
+.checklist b{font-weight:600}
+.count{font-size:.95rem;color:var(--muted);margin:0}
+
+.rule{border-left:3px solid var(--accent);padding:4px 0 4px 16px;margin:18px 0}
+ol.plan{padding-left:1.3em}
+footer{padding:56px 0 64px;color:var(--muted);font-size:.9rem}
+
+@media (max-width:900px){.flow{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:560px){
+  body{font-size:16px}
+  header{padding-top:40px}
+  .flow{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="col">
+    <h1>Wireframe Jagra</h1>
+    <p class="lead">Wireframe versi 1, 14 layar. Sengaja low fidelity: isinya posisi dan fungsi tiap elemen, bukan tampilan akhir. Tampilan akhir dibikin sebagai mockup setelah tema dari tweakcn masuk.</p>
+    <p class="updated">Terakhir diperbarui 5 November 2026 · Pasangan dari halaman Catatan Jagra</p>
+  </div>
+</header>
+
+<main>
+  <section>
+    <div class="col">
+      <h2>Alur pemakaian</h2>
+      <p>Proyek dibuat sekali per aplikasi. Tiap ada build baru, APK terbaru diambil otomatis, user pilih perangkat, lalu jalankan.</p>
+    </div>
+    <div class="wide">
+      <div class="flow">
+
+        <div class="step">
+          <div class="win" role="img" aria-label="Wireframe layar Cek lingkungan">
+            <div class="titlebar"><span>Cek lingkungan</span><span class="ctrls"><i></i><i></i><i></i></span></div>
+            <div class="body">
+              <div class="row"><span class="mark ok">✓</span><span>Java 17+</span></div>
+              <div class="row"><span class="mark ok">✓</span><span>adb</span></div>
+              <div class="row failrow"><span class="mark no">✕</span><span>Maestro</span><span class="lbl" style="margin-left:auto">Cara install</span></div>
+              <div class="row"><span class="mark wait">○</span><span>Mockoon CLI</span><span class="lbl" style="margin-left:auto">opsional</span></div>
+              <div class="row"><span class="mark wait">○</span><span>Agent AI</span><span class="lbl" style="margin-left:auto">opsional</span></div>
+              <div class="row" style="margin-top:auto;flex-wrap:wrap"><span class="btn solid">Cek ulang</span><span class="btn">Atur lokasi manual</span></div>
+            </div>
+          </div>
+          <div class="cap"><h3>Cek lingkungan</h3>Muncul waktu software pertama dibuka. Tool wajib harus hijau, yang opsional boleh kosong.</div>
+        </div>
+
+        <div class="step">
+          <div class="win" role="img" aria-label="Wireframe layar Daftar proyek">
+            <div class="titlebar"><span>Daftar proyek</span><span class="ctrls"><i></i><i></i><i></i></span></div>
+            <div class="body">
+              <div class="row"><span class="pill">Lingkungan siap</span><span class="lbl" style="margin-left:auto">Pengaturan · Tentang</span></div>
+              <div class="row"><div class="bar"></div><span class="lbl">2 hari lalu</span></div>
+              <div class="row"><div class="bar" style="flex:.7"></div><span class="lbl">minggu lalu</span></div>
+              <div class="row"><div class="bar" style="flex:.85"></div><span class="lbl">bulan lalu</span></div>
+              <span class="btn solid" style="margin-top:auto">Proyek baru</span>
+            </div>
+          </div>
+          <div class="cap"><h3>Daftar proyek</h3>Status cek lingkungan, daftar proyek yang ada, tombol bikin proyek baru.</div>
+        </div>
+
+        <div class="step">
+          <div class="win" role="img" aria-label="Wireframe layar Buat proyek">
+            <div class="titlebar"><span>Buat proyek</span><span class="ctrls"><i></i><i></i><i></i></span></div>
+            <div class="body">
+              <span class="lbl">Folder kode aplikasi</span>
+              <div class="row"><span class="field">D:\proyek\aplikasi-a</span><span class="btn">Pilih</span></div>
+              <span class="pill">Folder .jagra belum ada, nanti dibuat</span>
+              <span class="lbl">Nama proyek</span>
+              <div class="row"><span class="field">aplikasi-a</span></div>
+              <span class="lbl">APK</span>
+              <div class="row"><span class="field">Otomatis dari build debug terbaru</span><span class="btn">Ubah</span></div>
+              <span class="lbl">File Mockoon (opsional)</span>
+              <div class="row"><span class="field">Belum dipilih</span><span class="btn">Pilih</span></div>
+              <span class="btn solid">Simpan proyek</span>
+            </div>
+          </div>
+          <div class="cap"><h3>Buat proyek</h3>Cukup pilih folder kode aplikasi. Kalau folder .jagra udah ada, misalnya dari teman satu tim, isinya langsung dibaca.</div>
+        </div>
+
+        <div class="step main">
+          <div class="win" role="img" aria-label="Wireframe layar Halaman proyek">
+            <div class="titlebar"><span>Aplikasi A</span><span class="ctrls"><i></i><i></i><i></i></span></div>
+            <div class="body">
+              <span class="lbl">Build yang dites</span>
+              <div class="row"><span class="field">app-debug.apk (terbaru)</span><span class="btn">Ubah</span></div>
+              <span class="lbl">Perangkat</span>
+              <div class="row"><span class="field">Pilih emulator atau HP ▾</span></div>
+              <div class="row"><span class="lbl">Flow dipilih: 9 dari 9</span><span class="btn" style="margin-left:auto">Pilih flow</span></div>
+              <div class="row"><span class="lbl">Run terakhir: 8 lolos, 1 gagal</span><span class="btn" style="margin-left:auto">Riwayat</span></div>
+              <div class="row" style="margin-top:auto;flex-wrap:wrap"><span class="btn solid">Jalankan</span><span class="btn">Bikin flow baru</span><span class="btn">Bikin flow dengan AI</span></div>
+            </div>
+          </div>
+          <div class="cap"><h3>Halaman proyek</h3>Layar yang paling sering dipakai. Proyek yang udah ada langsung masuk ke sini dari daftar. Dari sini juga bisa bikin flow baru, manual atau dengan AI.</div>
+        </div>
+
+        <div class="step">
+          <div class="win" role="img" aria-label="Wireframe layar Sedang berjalan">
+            <div class="titlebar"><span>Sedang berjalan</span><span class="ctrls"><i></i><i></i><i></i></span></div>
+            <div class="body">
+              <span class="lbl">APK terpasang, Mockoon nyala</span>
+              <div class="progress"><span></span></div>
+              <div class="row"><span class="mark ok">✓</span><span>login.yaml</span></div>
+              <div class="row"><span class="mark ok">✓</span><span>beranda.yaml</span></div>
+              <div class="row"><span class="mark no">✕</span><span>profil.yaml</span></div>
+              <div class="row"><span class="mark ok">●</span><span>riwayat.yaml</span></div>
+              <div class="row"><span class="mark wait">○</span><span class="lbl">4 flow lagi antre</span></div>
+              <span class="btn" style="margin-top:auto;align-self:flex-start">Batal</span>
+            </div>
+          </div>
+          <div class="cap"><h3>Sedang berjalan</h3>Install APK, nyalain Mockoon, lalu flow dijalanin satu per satu. Status tiap flow kelihatan langsung, dan run bisa dibatalkan kapan aja.</div>
+        </div>
+
+        <div class="step">
+          <div class="win" role="img" aria-label="Wireframe layar Hasil">
+            <div class="titlebar"><span>Hasil</span><span class="ctrls"><i></i><i></i><i></i></span></div>
+            <div class="body">
+              <span class="big"><span class="ok">8 lolos</span>, <span class="no">1 gagal</span></span>
+              <span class="lbl">Mockoon udah dimatiin</span>
+              <div class="row"><span class="mark ok">✓</span><span>login.yaml</span></div>
+              <div class="row failrow"><span class="mark no">✕</span><span>profil.yaml</span><span class="lbl" style="margin-left:auto">Lihat</span></div>
+              <div class="row"><span class="mark ok">✓</span><span>beranda.yaml</span></div>
+              <div class="row"><span class="mark wait"></span><span class="lbl">6 flow lain lolos</span></div>
+              <div class="row" style="margin-top:auto;flex-wrap:wrap"><span class="btn">Jalankan lagi</span><span class="btn">Buka laporan</span></div>
+            </div>
+          </div>
+          <div class="cap"><h3>Hasil</h3>Ringkasan lolos dan gagal, plus versi APK dan perangkat. Klik flow yang gagal buat lihat detailnya. Laporan HTML bisa dibuka dan dikirim ke QA.</div>
+        </div>
+
+        <div class="step">
+          <div class="win" role="img" aria-label="Wireframe layar Detail flow gagal">
+            <div class="titlebar"><span>profil.yaml</span><span class="ctrls"><i></i><i></i><i></i></span></div>
+            <div class="body">
+              <span class="no" style="font-weight:600">Gagal di langkah 4 dari 7</span>
+              <span class="lbl">Teks “Simpan” nggak ditemukan</span>
+              <div class="shot">Screenshot terakhir</div>
+            </div>
+          </div>
+          <div class="cap"><h3>Detail flow gagal</h3>Langkah mana yang gagal dan screenshot layar terakhir waktu gagal.</div>
+        </div>
+
+        <div class="step">
+          <div class="win" role="img" aria-label="Wireframe layar Bikin flow dengan AI">
+            <div class="titlebar"><span>Bikin flow dengan AI</span><span class="ctrls"><i></i><i></i><i></i></span></div>
+            <div class="body">
+              <span class="lbl">Skenario, pakai bahasa biasa</span>
+              <div class="field" style="white-space:normal;min-height:44px">Login pakai password salah, harus muncul pesan error</div>
+              <span class="btn solid">Buat flow</span>
+              <div class="shot" style="place-items:start;padding:8px;border-style:solid;text-align:left;color:var(--ink)"><span><span class="ok">✓</span> Buka aplikasi (bersih)<br><span class="ok">✓</span> Tap “Sign In”<br><span class="no">✕</span> <b>Cek:</b> muncul “Password salah”<br><span class="lbl">Kemungkinan bug aplikasi: semua aksi lolos</span></span></div>
+              <div class="row" style="flex-wrap:wrap"><span class="btn">Simpan</span><span class="btn">Minta agent benerin</span><span class="btn">Buang</span></div>
+            </div>
+          </div>
+          <div class="cap"><h3>Bikin flow dengan AI</h3>Cabang dari Halaman proyek. User nulis skenario, agent nulis flow, lalu software ngejalanin dan nampilin hasil per langkah plus tebakan jenis kesalahannya.</div>
+        </div>
+
+        <div class="step">
+          <div class="win" role="img" aria-label="Wireframe Daftar proyek kosong">
+            <div class="titlebar"><span>Jagra</span><span class="ctrls"><i></i><i></i><i></i></span></div>
+            <div class="body" style="align-items:center;justify-content:center;text-align:center">
+              <span class="pill" style="align-self:center">Lingkungan siap</span>
+              <span style="font-weight:600;font-size:.9rem;margin-top:6px">Belum ada proyek</span>
+              <span class="lbl">Coba dulu pakai aplikasi contoh, atau langsung pilih folder aplikasi lu.</span>
+              <span class="btn solid" style="align-self:center;margin-top:6px">Coba pakai aplikasi contoh</span>
+              <span class="btn" style="align-self:center">Buat proyek</span>
+            </div>
+          </div>
+          <div class="cap"><h3>Daftar proyek kosong</h3>Yang dilihat user baru setelah cek lingkungan. Aplikasi contoh disiapin sekali klik.</div>
+        </div>
+
+        <div class="step">
+          <div class="win" role="img" aria-label="Wireframe Riwayat run">
+            <div class="titlebar"><span>Riwayat: aplikasi-a</span><span class="ctrls"><i></i><i></i><i></i></span></div>
+            <div class="body">
+              <span class="lbl">20 run terakhir</span>
+              <div class="row"><span class="mark no">✕</span><span>Hari ini, 14.20</span><span class="lbl" style="margin-left:auto">v2.3.1 · 8 lolos, 1 gagal</span></div>
+              <div class="row"><span class="mark ok">✓</span><span>Hari ini, 10.05</span><span class="lbl" style="margin-left:auto">v2.3.0 · 9 lolos</span></div>
+              <div class="row"><span class="mark wait">!</span><span>Kemarin, 16.40</span><span class="lbl" style="margin-left:auto">v2.3.0 · terputus</span></div>
+              <div class="row"><span class="mark wait">–</span><span>Kemarin, 11.12</span><span class="lbl" style="margin-left:auto">v2.2.9 · dibatalkan</span></div>
+              <div class="row"><span class="mark ok">✓</span><span>Senin, 09.30</span><span class="lbl" style="margin-left:auto">v2.2.9 · 9 lolos</span></div>
+            </div>
+          </div>
+          <div class="cap"><h3>Riwayat run</h3>Dibuka dari Halaman proyek. Tiap baris nunjukin versi APK dan hasilnya, termasuk run yang terputus atau dibatalkan. Klik buat buka layar Hasil.</div>
+        </div>
+
+        <div class="step">
+          <div class="win" role="img" aria-label="Wireframe Pengaturan">
+            <div class="titlebar"><span>Pengaturan</span><span class="ctrls"><i></i><i></i><i></i></span></div>
+            <div class="body" style="flex-direction:row;gap:12px">
+              <div style="display:flex;flex-direction:column;gap:6px;min-width:78px;border-right:1.5px solid var(--wire-strong);padding-right:10px">
+                <span style="font-weight:600">Agent AI</span>
+                <span class="lbl">Data rahasia</span>
+                <span class="lbl">Bahasa</span>
+                <span class="lbl">Lokasi tool</span>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:7px;flex:1;min-width:0">
+                <span class="lbl">Agent yang dipakai</span>
+                <div class="row"><span class="field">Claude Code ▾</span></div>
+                <div class="row"><span class="mark ok">✓</span><span>Claude Code</span></div>
+                <div class="row"><span class="mark ok">✓</span><span>OpenCode</span></div>
+                <div class="row"><span class="mark wait">○</span><span class="lbl">Codex belum ada</span></div>
+                <span class="btn" style="align-self:flex-start">Tambah agent custom</span>
+                <span class="lbl">Aturan tiap provider beda-beda. Baca dulu.</span>
+              </div>
+            </div>
+          </div>
+          <div class="cap"><h3>Pengaturan</h3>Agent AI, data rahasia per proyek (disimpan di brankas sistem), bahasa tampilan, dan lokasi tool yang diatur manual.</div>
+        </div>
+
+        <div class="step">
+          <div class="win" role="img" aria-label="Wireframe About">
+            <div class="titlebar"><span>Tentang Jagra</span><span class="ctrls"><i></i><i></i><i></i></span></div>
+            <div class="body" style="align-items:center;text-align:center">
+              <div class="shot" style="flex:none;width:48px;min-height:48px;border-radius:12px">logo</div>
+              <span style="font-weight:600;font-size:.95rem">Jagra 0.1.0</span>
+              <span class="lbl">Dibuat oleh Rifan Setiadi</span>
+              <span class="lbl">Lisensi MIT</span>
+              <div class="row" style="flex-wrap:wrap;justify-content:center;margin-top:auto"><span class="btn">Cek update</span><span class="btn">GitHub</span></div>
+              <span class="btn" style="align-self:center">Salin info buat laporan bug</span>
+            </div>
+          </div>
+          <div class="cap"><h3>Tentang Jagra</h3>Versi, nama pembuat, lisensi, link GitHub, cek update, dan tombol salin info buat laporan bug.</div>
+        </div>
+
+        <div class="step">
+          <div class="win" role="img" aria-label="Wireframe pemberitahuan pertama pakai AI">
+            <div class="titlebar"><span>Sebelum pakai AI</span><span class="ctrls"><i></i><i></i><i></i></span></div>
+            <div class="body">
+              <span style="font-weight:600">Agent bakal baca kode proyek ini</span>
+              <span class="lbl">Claude Code bakal baca kode di folder aplikasi-a dan ngirimnya ke provider-nya buat nulis flow. Jagra sendiri nggak ngirim apa pun.</span>
+              <span class="lbl">Kalau ini aplikasi kantor, pastiin aturan kantor ngizinin.</span>
+              <div class="row" style="flex-wrap:wrap;margin-top:auto"><span class="btn solid">Lanjut</span><span class="btn">Batal</span></div>
+            </div>
+          </div>
+          <div class="cap"><h3>Pemberitahuan pertama pakai AI</h3>Muncul sekali per proyek, waktu pertama kali nekan Bikin flow dengan AI.</div>
+        </div>
+
+        <div class="step">
+          <div class="win" role="img" aria-label="Wireframe peringatan perubahan file">
+            <div class="titlebar"><span>Peringatan</span><span class="ctrls"><i></i><i></i><i></i></span></div>
+            <div class="body">
+              <span class="no" style="font-weight:600">Agent ngubah file di luar folder flow</span>
+              <div class="row failrow"><span class="mark no">!</span><span style="font-family:'JetBrains Mono',ui-monospace,monospace;font-size:.72rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">app/src/main/res/values/strings.xml</span></div>
+              <span class="lbl">File ini diubah setelah agent mulai kerja. Perubahan yang lu bikin sebelumnya nggak ikut dihitung.</span>
+              <div class="row" style="flex-wrap:wrap;margin-top:auto"><span class="btn">Lihat perubahan</span><span class="btn solid">Kembalikan</span><span class="btn">Biarkan</span></div>
+            </div>
+          </div>
+          <div class="cap"><h3>Peringatan perubahan file</h3>Muncul setelah agent selesai kalau ada file di luar folder flow yang berubah. Tombol utama Kembalikan.</div>
+        </div>
+
+      </div>
+    </div>
+    <div class="col">
+      <p class="flow-note">Layar 1 sampai 8 itu alur utama: dari cek lingkungan sampai bikin flow dengan AI. Layar 9 sampai 14 itu layar pendukung dan jendela kecil yang muncul di kondisi tertentu. Isi di dalam layar (nama file, angka, teks error) cuma contoh buat ngebayangin. Versi 1 belum punya build dari folder.</p>
+    </div>
+  </section>
+</main>
+
+<footer><div class="col">Kalau ada perubahan keputusan di halaman Catatan Jagra yang ngaruh ke layar, wireframe ini ikut diupdate.</div></footer>
+</body>
+</html>
