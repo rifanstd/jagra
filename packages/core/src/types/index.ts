@@ -2,13 +2,19 @@
 
 export type ToolName = "java" | "adb" | "maestro" | "emulator" | "mockoon";
 
-export type ToolState = "ready" | "untested-version" | "too-old" | "missing";
+export type ToolState =
+  "ready" | "untested-version" | "too-old" | "missing" | "cant-start";
+
+/** Why a tool that was found cannot start (D-35). */
+export type ToolProblem = "needs-java" | "needs-node" | "timed-out" | "failed";
 
 export interface ToolStatus {
   tool: ToolName;
   state: ToolState;
+  required: boolean;
   version?: string;
   path?: string;
+  problem?: ToolProblem;
 }
 
 export type DeviceKind = "emulator" | "phone";

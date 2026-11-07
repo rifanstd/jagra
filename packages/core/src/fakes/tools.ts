@@ -1,17 +1,21 @@
-import type { ToolProbe } from "../ports/tool-probe.js";
-import type { ToolName, ToolStatus } from "../types/index.js";
+import type {
+  ProbeRequest,
+  ToolFinding,
+  ToolProbe,
+} from "../ports/tool-probe.js";
+import type { ToolName } from "../types/index.js";
 
 /** Every tool is missing until a test says otherwise. */
 export class FakeToolProbe implements ToolProbe {
-  private readonly statuses = new Map<ToolName, ToolStatus>();
+  readonly requests: { tool: ToolName; request: ProbeRequest }[] = [];
+  private readonly findings = new Map<ToolName, ToolFinding>();
 
-  set(status: ToolStatus): void {
-    this.statuses.set(status.tool, status);
+  set(tool: ToolName, finding: ToolFinding): void {
+    this.findings.set(tool, finding);
   }
 
-  probe(tool: ToolName): Promise<ToolStatus> {
-    return Promise.resolve(
-      this.statuses.get(tool) ?? { tool, state: "missing" },
-    );
+  probe(tool: ToolName, request: ProbeRequest): Promise<ToolFinding> {
+    this.requests.push({ tool, request });
+    return Promise.resolve(this.findings.get(tool) ?? { found: false });
   }
 }
