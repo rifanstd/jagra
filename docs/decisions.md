@@ -172,3 +172,21 @@ Format of each entry: what was decided, why, and what was considered instead.
 **Decided:** A flow that uses `assertWithAI`, `assertNoDefectsWithAI` or `extractTextWithAI` fails the format check and is left out of runs (`FLOW-10`). The same applies to helper flows and hooks.
 **Why:** Pass or fail must come from Maestro's own checks, so the same build gives the same result every time (`product.md`). These commands let an AI model decide a result or supply a value that a check then uses, and they send screenshots to an AI service.
 **Instead:** Running them with a warning, or treating them as normal checks (both rejected: the result would no longer be repeatable).
+
+### D-34. Maestro and Mockoon CLI are started through their runtimes on Windows
+**Decided:** On Windows, Jagra finds `maestro.bat` and starts the Java that Maestro's launcher would use (`JAVA_HOME`, then `PATH`, or the path set in Settings) with `--enable-native-access=ALL-UNNAMED -classpath <maestro>\lib\* maestro.cli.AppKt` and the arguments. For Mockoon CLI it finds `mockoon-cli.cmd`, reads the entry file from the `bin` field of `node_modules\@mockoon\cli\package.json` next to it, and starts Node with that file, preferring a `node.exe` next to the shim as npm's shim does. On macOS the Maestro script is started directly, and Mockoon CLI's npm link is followed to the entry file, which Node starts.
+**Why:** D-31 refuses `.bat` and `.cmd`. Maestro 2.12.1's `maestro.bat` does nothing more than this Java call, and npm's shim nothing more than this Node call (both read on 2026-11-07). Going through the runtimes keeps every argument out of `cmd.exe`.
+**Consequence:** Maestro's launcher options `JAVA_OPTS` and `MAESTRO_OPTS` are not read on Windows. If a future Maestro release changes its launcher, this call must follow; the tested version range (`ENV-3`) is where that shows up.
+**Instead:** Allowing `cmd.exe` for these two tools (rejected: D-21).
+
+### D-35. A fifth tool state: Can't start
+**Decided:** `ToolStatus` gains the state Can't start, for a tool that is found but does not run, with a reason: needs Java, needs Node, timed out, or failed. It also says whether the tool is required. `ToolProbe` returns what it saw (`ToolFinding`), and the `environment` module turns that into a state with the version rules. When Maestro fails and Java is missing or too old, the reason given is needs Java.
+**Why:** Maestro installed without Java, a broken install or a tool that hangs fit none of the four states in `ENV-2`. Calling them Missing would send the user to reinstall the wrong tool.
+
+### D-36. Maestro runs without analytics and without its update check
+**Decided:** Every Maestro process Jagra starts gets `MAESTRO_CLI_NO_ANALYTICS=1`, `MAESTRO_DISABLE_UPDATE_CHECK=true` and `MAESTRO_CLI_ANALYSIS_NOTIFICATION_DISABLED=true`. The user's own Maestro settings are not touched.
+**Why:** By default Maestro sends anonymous analytics and checks for a newer version on every start (Maestro 2.12.1 source). Jagra promises no telemetry (`SEC-1`), and the notices would mix into the output Jagra reads.
+
+### D-37. Where Jagra looks for tools
+**Decided:** A path set in Settings wins (`ENV-6`). Otherwise: Java in `JAVA_HOME`, then `PATH`. `adb` and `emulator` in `ANDROID_HOME`, then `ANDROID_SDK_ROOT`, then `PATH`, then the default SDK folder (`%LOCALAPPDATA%\Android\Sdk`, `~/Library/Android/sdk`). Maestro and Mockoon CLI on `PATH`, plus `~/.maestro/bin` for Maestro. On macOS `/opt/homebrew/bin` and `/usr/local/bin` are searched after `PATH`. On Windows, every check reads `PATH` and the other variables again from the registry with `reg.exe`.
+**Why:** The SDK's own `adb` comes before a copy on `PATH` (scrcpy ships one), so the SDK that Android Studio updates is the one used. A running program keeps the environment it started with, so without the registry read a tool installed while Jagra is open would stay invisible to Check again (`ENV-5`). Apps opened from the Finder get a short `PATH` without Homebrew.
