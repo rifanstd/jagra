@@ -143,3 +143,32 @@ Format of each entry: what was decided, why, and what was considered instead.
 ### D-28. The repository's docs are the source of truth
 **Decided:** Once the repository exists, `docs/` and `design/` in the repository are the only source of truth. Design discussions outside the repository end in a change to these files.
 **Why:** Decisions that live only in a chat never reach the code.
+
+---
+
+## Added during implementation
+
+### D-29. `yaml` for reading YAML
+**Decided:** `config.yaml` and flow files are read with the `yaml` package.
+**Why:** It keeps the position of every node, so errors can name the file, line and column (`PRJ-10`, `FLOW-6`). It reads a flow's header and steps as two YAML documents, follows YAML 1.2 like Maestro, and reports duplicate keys.
+**Instead:** `js-yaml` (rejected: no positions for values, only for syntax errors).
+
+### D-30. `zod` for the `config.yaml` schema
+**Decided:** The `config.yaml` schema is written once with `zod`, which reads, fills defaults and explains errors.
+**Why:** One definition covers types, defaults and messages. Its loose objects keep unknown fields, as the format rules require (`architecture.md` section 3).
+**Instead:** Hand-written checks (rejected: defaults and checks drift apart).
+
+### D-31. `.bat` and `.cmd` programs are refused on Windows
+**Decided:** On Windows, `ProcessRunner` only starts `.exe` and `.com` files. A program that turns out to be a `.bat`, `.cmd` or other script returns the error code `PROGRAM_IS_SCRIPT`. Programs are found on `PATH` only, never in the working folder.
+**Why:** Node.js refuses to start `.bat` and `.cmd` files without a shell since the fix for CVE-2024-27980, and starting them through `cmd.exe` brings back the argument injection that D-21 rules out. Searching the working folder, as Windows does by default, would let a project plant a program called `maestro.exe`.
+**Consequence:** Maestro installs as `maestro.bat` on Windows, and tools installed with npm (Mockoon CLI, several agents) are `.cmd` shims. How each one is started without a shell is decided per tool in M2, once the install layout is confirmed (`to-verify.md`).
+**Instead:** `cmd.exe /d /s /c` with escaped arguments (rejected: the escaping rules are the source of the CVE).
+
+### D-32. Steps carry the command, not a sentence
+**Decided:** A parsed `Step` holds its kind (`action` or `check`), the Maestro command, its arguments as written and its line. The renderer and the CLI write the plain language text.
+**Why:** D-20. A sentence built in `core` would only ever be in English.
+
+### D-33. Flows may not use Maestro's AI commands
+**Decided:** A flow that uses `assertWithAI`, `assertNoDefectsWithAI` or `extractTextWithAI` fails the format check and is left out of runs (`FLOW-10`). The same applies to helper flows and hooks.
+**Why:** Pass or fail must come from Maestro's own checks, so the same build gives the same result every time (`product.md`). These commands let an AI model decide a result or supply a value that a check then uses, and they send screenshots to an AI service.
+**Instead:** Running them with a warning, or treating them as normal checks (both rejected: the result would no longer be repeatable).

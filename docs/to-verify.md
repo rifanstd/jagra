@@ -28,6 +28,8 @@ This file lists everything the design depends on but nobody has confirmed yet: e
 | Error text `adb` gives when an install fails because of a signature mismatch | `RUN-3` | |
 | What clearing app data does to runtime permissions, and whether flows need to grant them again | `RUN-4` | |
 | A Node library that reads package name, version name and version code from an APK | `PRJ-5` | |
+| Whether Node can start `.bat` and `.cmd` files without a shell | `SEC-8`, D-21 | 2026-11-07. No. Since the fix for CVE-2024-27980 (nodejs.org April 2024 security releases), `spawn` throws `EINVAL` for them without `shell: true`; tried on Node 24.22.1 on Windows. Led to D-31. |
+| How Maestro, Mockoon CLI and each agent are installed on Windows: a real `.exe`, a `.bat`, or an npm `.cmd` shim, and how to start each without a shell | `ENV-1`, D-31 | Not yet, M2. |
 
 ## Maestro
 
@@ -41,7 +43,11 @@ This file lists everything the design depends on but nobody has confirmed yet: e
 | Whether Maestro has a command to check flow syntax | `FLOW-6` | |
 | The command to capture the texts and elements on screen | `AGT-25` | |
 | How Maestro behaves on apps with `FLAG_SECURE`: does it still read the screen, and are screenshots black | `RES-5` | |
-| How to stop a running flow cleanly on Windows and macOS, including child processes | `RUN-7`, `RUN-9` | |
+| How to stop a running flow cleanly on Windows and macOS, including child processes | `RUN-7`, `RUN-9` | Partly, 2026-11-07. Stopping a process tree works with `taskkill /PID <pid> /T /F` on Windows and a signal to the process group (`detached: true`, then `process.kill(-pid)`) on macOS, shown by the `NodeProcessRunner` tests in CI on both systems. Whether Maestro shuts down cleanly this way, and what it leaves in the output folder, is still open for M5. |
+| Which keys a flow header accepts | `FLOW-2`, `FLOW-4` | 2026-11-07, Maestro source `maestro-orchestra/.../yaml/YamlConfig.kt` (release cli-2.12.1): `name`, `appId` (or `url` for web), `tags`, `env`, `onFlowStart`, `onFlowComplete`, `properties` (a map of strings). `appId` or `url` is required. Other keys are accepted and kept. The docs site does not list `name` or `properties`. |
+| Maestro's commands, and which of them are checks | `AGT-22`, `AGT-24` | 2026-11-07, `YamlFluentCommand.kt` and docs.maestro.dev/reference/commands-available. Checks: `assertVisible`, `assertNotVisible`, `assertTrue`, `assertScreenshot`, `assertDarkMode`, `assertLightMode`. AI commands: `assertWithAI`, `assertNoDefectsWithAI`, `extractTextWithAI` (D-33). Nested commands sit under `commands:` in `runFlow`, `repeat` and `retry`; `runFlow` and `retry` can take `file:` instead. |
+| How variables are defined and which names are Maestro's own | `RUN-10` | 2026-11-07, docs.maestro.dev parameters-and-constants and JavaScript pages. `${NAME}` comes from `-e NAME=value`, the header `env:` or a `runFlow` `env:`. Built-in: `MAESTRO_FILENAME`, `MAESTRO_DEVICE_UDID`, `MAESTRO_SHARD_ID`, `MAESTRO_SHARD_INDEX`, shell variables starting with `MAESTRO_`, `output.*`, `maestro.copiedText`, `maestro.platform`. `${...}` may hold JavaScript; Jagra only counts a plain name as a variable. |
+| Whether a helper flow called with `runFlow` also needs a header with `appId` | `FLOW-3`, `FLOW-6` | Not yet. Jagra checks helpers like flows for now. Confirm with plain `maestro test` in M3. |
 
 ## Agents
 
