@@ -53,6 +53,28 @@ export default defineConfig(
   ]),
   forbid("desktop", [[CLI, "cli"]]),
   {
+    // Modules call ports, not programs. Only the ProcessRunner adapter may start one (SEC-8).
+    files: ["packages/**/*.ts"],
+    ignores: ["packages/core/src/adapters/process/**", "**/*.test.ts"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          paths: [
+            {
+              name: "child_process",
+              message: "Start programs through the ProcessRunner port.",
+            },
+            {
+              name: "node:child_process",
+              message: "Start programs through the ProcessRunner port.",
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
     // A dynamic import() would slip past the dependency rules above.
     files: ["packages/core/**/*.ts", "packages/cli/**/*.ts"],
     rules: {
