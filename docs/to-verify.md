@@ -11,25 +11,30 @@ This file lists everything the design depends on but nobody has confirmed yet: e
 | Item | Why it matters | Found |
 |---|---|---|
 | Lowest Windows and macOS versions supported by the Electron version we pick | `COMP-1`, `COMP-2` | |
-| Lowest Android version Maestro supports on a device | `DEV-7`, `COMP-3` | |
-| Java version Maestro needs | `ENV-3` | |
-| Smoothest way to install Maestro on Windows: native or through WSL | `ENV-4`, the most likely place for new users to get stuck | |
+| Lowest Android version Maestro supports on a device | `DEV-7`, `COMP-3` | Partly, 2026-11-07. The CLI docs state no minimum. docs.maestro.dev/getting-started/installing-maestro lists API levels 29, 30, 31, 33 and 34 as supported, without calling 29 a minimum. Try older images in M4. |
+| Java version Maestro needs | `ENV-3` | 2026-11-07. Java 17 or newer: docs.maestro.dev/maestro-cli/how-to-install-maestro-cli, and the 2.12.1 launcher refuses older versions. |
+| Smoothest way to install Maestro on Windows: native or through WSL | `ENV-4`, the most likely place for new users to get stuck | 2026-11-07. Native. The docs say to use WSL "only if it is strictly necessary": download `maestro.zip` from GitHub releases, extract it (for example to `C:\maestro`) and add its `bin` to `PATH`. Done this way on the owner's machine. The docs' `setx PATH "%PATH%;..."` can cut a long `PATH`, so Jagra's steps point to the Environment Variables window instead. |
 | Whether `jagra run` should work on Linux for CI, and what it costs | Users' CI and our own end-to-end job usually run on Linux (`test-plan.md`) | |
 
 ## Tools
 
 | Item | Why it matters | Found |
 |---|---|---|
-| Exact command and output format for reading the version of Java, `adb`, Maestro and Mockoon CLI on both systems | `ENV-1` | |
-| Name of the Mockoon CLI program and its flags for data file and port | `MCK-2` | |
+| Exact command and output format for reading the version of Java, `adb`, Maestro and Mockoon CLI on both systems | `ENV-1` | Windows, 2026-11-07, real output on the owner's machine: `java -version` on stderr, `java version "17.0.12" 2024-07-16 LTS` (OpenJDK says `openjdk version`). `adb version`, second line `Version 37.0.0-14910828`. `emulator -version`, `Android emulator version 36.5.11.0 (build_id ...)`. `maestro --version`, only `2.12.1` once D-36's variables are set (otherwise an analytics notice on stdout the first time and an update box on stderr; Maestro source). `mockoon-cli --version`, `@mockoon/cli/9.10.0 win32-x64 node-v24.22.1`. All five together take about 2 s. macOS output is expected to match (same programs) and is still to be seen. |
+| Name of the Mockoon CLI program and its flags for data file and port | `MCK-2` | Partly, 2026-11-07. npm package `@mockoon/cli` (9.10.0), program `mockoon-cli`, entry `bin/run.js`, Node 18 or newer (README: tested on 18 to 24). Other installs: Docker image and a GitHub Action, no standalone binary (mockoon.com/cli). Flags still open, M6. |
 | How to tell when Mockoon CLI is ready to accept requests | `MCK-2` | |
-| How to list existing emulators and detect when one has finished booting | `DEV-1`, `DEV-4` | |
+| How to list existing emulators and detect when one has finished booting | `DEV-1`, `DEV-4` | Partly, 2026-11-07. `emulator -list-avds` lists them (developer.android.com/studio/run/emulator-commandline). The same page now calls the `emulator` tool deprecated in favour of the Android CLI's `android emulator`. Decide which to use in M4. |
 | How to watch for devices being connected and disconnected | `DEV-2` | |
 | Error text `adb` gives when an install fails because of a signature mismatch | `RUN-3` | |
 | What clearing app data does to runtime permissions, and whether flows need to grant them again | `RUN-4` | |
 | A Node library that reads package name, version name and version code from an APK | `PRJ-5` | |
+| How long Maestro takes to start the first time after install | `ENV-1`, `PERF-2` | 2026-11-07, Windows: 11 s for the first `--version` after install (cold Java, many jars scanned by antivirus), about 1.9 s after that. The probe allows 20 s before reporting Timed out. |
+| Minimum and newest tested versions of Maestro and Mockoon CLI | `ENV-3` | Set to 2.12.1 and 9.10.0, the only versions tested so far. Review Maestro in M5 and Mockoon CLI in M6, once the flags Jagra needs are known. |
+| What `/usr/bin/java` does on a Mac without a JDK, and what the probe then reports | `ENV-2` | Not yet. Check on a Mac. |
+| Whether `/opt/homebrew/bin` and `/usr/local/bin` are enough for a Finder-opened app to find the tools, or the desktop app needs the user's full `PATH` some other way, without starting a shell | `ENV-1`, D-37 | Not yet, M7. |
 | Whether Node can start `.bat` and `.cmd` files without a shell | `SEC-8`, D-21 | 2026-11-07. No. Since the fix for CVE-2024-27980 (nodejs.org April 2024 security releases), `spawn` throws `EINVAL` for them without `shell: true`; tried on Node 24.22.1 on Windows. Led to D-31. |
-| How Maestro, Mockoon CLI and each agent are installed on Windows: a real `.exe`, a `.bat`, or an npm `.cmd` shim, and how to start each without a shell | `ENV-1`, D-31 | Not yet, M2. |
+| How Maestro, Mockoon CLI and each agent are installed on Windows: a real `.exe`, a `.bat`, or an npm `.cmd` shim, and how to start each without a shell | `ENV-1`, D-31 | Maestro and Mockoon CLI, 2026-11-07: Maestro 2.12.1 ships `bin\maestro.bat` (a Gradle launcher that runs Java with `lib\*`) and a Unix `bin/maestro`. Mockoon CLI is an npm `.cmd` shim that runs `node <shim folder>
+ode_modules\@mockoon\cliinun.js`. Both started without a shell as in D-34. Agents still open, M10. |
 
 ## Maestro
 

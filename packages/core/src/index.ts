@@ -34,3 +34,13 @@ export {
   type FlowList,
 } from "./project/flows.js";
 export { SUPPORTED_FORMAT } from "./project/format.js";
+export * from "./environment/index.js";
+export {
+  NodeToolProbe,
+  PROBE_TIMEOUT_MS,
+} from "./adapters/tools/node-tool-probe.js";
+export {
+  MAESTRO_ENV,
+  maestroLaunch,
+  mockoonLaunch,
+} from "./adapters/tools/launch.js";

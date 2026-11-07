@@ -7,3 +7,4 @@ export * from "./maestro.js";
 export * from "./mockoon.js";
 export * from "./process-runner.js";
 export * from "./tools.js";
+export * from "./tool-files.js";

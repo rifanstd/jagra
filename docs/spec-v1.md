@@ -84,7 +84,7 @@ Before a user can run anything, their machine needs a few tools. Jagra checks fo
 | Mockoon CLI | No | Only for projects that use Mockoon | Run `mockoon-cli --version` |
 | Agents | No | Only for writing flows with AI | See section 10 |
 
-The exact commands may differ by platform and tool version. Confirm them during implementation (see `to-verify.md`).
+The exact commands may differ by platform and tool version. Confirm them during implementation (see `to-verify.md`). On Windows, Maestro and Mockoon CLI are started through Java and Node, never through their `.bat` and `.cmd` files (D-34). Where Jagra looks for each tool is in D-37.
 
 ### Requirements
 
@@ -98,6 +98,7 @@ The exact commands may differ by platform and tool version. Confirm them during 
   | Too old | Found, below the minimum version | `destructive` |
   | Missing (required) | Not found | `destructive` |
   | Missing (optional) | Not found | `muted-foreground`, labelled "optional" |
+  | Can't start | Found, but it does not run: it needs Java or Node, it failed, or it did not answer in time. The reason is shown (D-35) | `destructive` |
 
 - **ENV-3** Jagra must keep, in code, the minimum and the newest tested version for Maestro and Mockoon CLI, and the minimum version for Java. An untested newer version is allowed to run.
 - **ENV-4** Every tool that is not Ready must show install or update instructions for the user's operating system, with a link to the official page. Windows instructions for Maestro need the most care, because that install is the most likely place for a new user to get stuck.

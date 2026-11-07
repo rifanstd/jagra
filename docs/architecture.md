@@ -67,7 +67,7 @@ core/src/
 | Port | What it does | Real adapter |
 |---|---|---|
 | `ProcessRunner` | Start a program with an argument list (never a shell string), stream its output, stop it and its children, record what is running | Node `child_process` with `shell: false`. On Windows only `.exe` and `.com`, found on `PATH` only (D-31). Stopping uses `taskkill /T /F` on Windows and the process group on macOS |
-| `ToolProbe` | Find a tool and read its version | `ProcessRunner` calls such as `java -version` |
+| `ToolProbe` | Find a tool and read its version, returning what it saw (`ToolFinding`) | `ProcessRunner` calls such as `java -version`. Maestro and Mockoon CLI through Java and Node on Windows (D-34). Search order and the Windows registry read in D-37 |
 | `DeviceBridge` | List devices and emulators, start an emulator, wait for boot, install and uninstall, clear app data, add and remove `adb reverse`, read the Android version | `adb` and the SDK `emulator` binary |
 | `ApkReader` | Read package name, version name and version code from an APK | A library that parses APK files (proposed, see `to-verify.md`) |
 | `MockServer` | Start Mockoon CLI with a file and port, wait until ready, stop | `mockoon-cli` |
@@ -105,7 +105,7 @@ These are the main shapes shared by all packages. Exact fields are decided in co
 | `Project` | `id` (local, random), `folder`, `config`, local settings |
 | `Flow` | `file`, `name`, `isHelper`, `steps`, `variables`, `properties`, parse problems |
 | `Step` | `kind` (`action` or `check`), the Maestro command, its arguments as written, its line, nested steps. The renderer and the CLI write the plain language text (D-32) |
-| `ToolStatus` | `tool`, `state` (Ready, Untested version, Too old, Missing), `version`, `path` |
+| `ToolStatus` | `tool`, `state` (Ready, Untested version, Too old, Missing, Can't start), `required`, `version`, `path`, `problem` (needs Java, needs Node, timed out, failed) (D-35) |
 | `Device` | `id`, `kind` (emulator or phone), `state`, `name`, `androidVersion` |
 | `Run` | `id`, `projectId`, `status`, start and end time, APK info, device, flow results |
 | `FlowResult` | `flow`, `status`, `duration`, failed step index, reason code, paths to screenshot, screen contents, crash report and Maestro report |
