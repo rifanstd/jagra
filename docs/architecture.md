@@ -66,7 +66,7 @@ core/src/
 
 | Port | What it does | Real adapter |
 |---|---|---|
-| `ProcessRunner` | Start a program with an argument list (never a shell string), stream its output, stop it and its children, record what is running | Node `child_process` with `shell: false` |
+| `ProcessRunner` | Start a program with an argument list (never a shell string), stream its output, stop it and its children, record what is running | Node `child_process` with `shell: false`. On Windows only `.exe` and `.com`, found on `PATH` only (D-31). Stopping uses `taskkill /T /F` on Windows and the process group on macOS |
 | `ToolProbe` | Find a tool and read its version | `ProcessRunner` calls such as `java -version` |
 | `DeviceBridge` | List devices and emulators, start an emulator, wait for boot, install and uninstall, clear app data, add and remove `adb reverse`, read the Android version | `adb` and the SDK `emulator` binary |
 | `ApkReader` | Read package name, version name and version code from an APK | A library that parses APK files (proposed, see `to-verify.md`) |
@@ -104,7 +104,7 @@ These are the main shapes shared by all packages. Exact fields are decided in co
 | `ProjectConfig` | `format`, `name`, `appId`, `apk.searchPath`, `mockoon.file`, `mockoon.port`, `run.flowTimeoutMinutes` |
 | `Project` | `id` (local, random), `folder`, `config`, local settings |
 | `Flow` | `file`, `name`, `isHelper`, `steps`, `variables`, `properties`, parse problems |
-| `Step` | `kind` (`action` or `check`), plain language text, the original Maestro command |
+| `Step` | `kind` (`action` or `check`), the Maestro command, its arguments as written, its line, nested steps. The renderer and the CLI write the plain language text (D-32) |
 | `ToolStatus` | `tool`, `state` (Ready, Untested version, Too old, Missing), `version`, `path` |
 | `Device` | `id`, `kind` (emulator or phone), `state`, `name`, `androidVersion` |
 | `Run` | `id`, `projectId`, `status`, start and end time, APK info, device, flow results |
@@ -127,7 +127,11 @@ The schema is defined once with a validation library (proposed: zod) and used to
 
 ## 4. Local data
 
-Local data lives in the operating system's app data folder. The desktop app and the CLI use the same folder.
+Local data lives in the operating system's app data folder. The desktop app and the CLI use the same folder:
+
+- Windows: `%LOCALAPPDATA%\jagra`. The local profile, not the roaming one, because runs and logs are large and tied to this machine.
+- macOS: `~/Library/Application Support/jagra`.
+- Linux, used only for CI so far: `$XDG_CONFIG_HOME/jagra`, or `~/.config/jagra`.
 
 ```
 <app data>/jagra/
@@ -143,7 +147,7 @@ Local data lives in the operating system's app data folder. The desktop app and 
   secrets/                 encrypted secret values (desktop only)
   backups/<session id>/    safety net copies (AGT-19)
   state/active.json        processes and adb reverse rules Jagra started (REL-2)
-  logs/                    technical logs, size limited (REL-7)
+  logs/                    technical logs: jagra.log, jagra.1.log, jagra.2.log, 5 MB each (REL-7)
 ```
 
 The project id is created by Jagra and kept only in `projects.json`. It is never written to `config.yaml`, so teammates do not share ids and Locate (`PRJ-8`) only has to update one path.
@@ -247,8 +251,8 @@ Packaging and updates use electron-builder and electron-updater (proposed) with 
 | Installers and updates | electron-builder and electron-updater (proposed) |
 | Unit and flow tests | Vitest |
 | Lint and format | ESLint and Prettier, plus the dependency rule check from section 1 |
-| Schemas | zod (proposed) |
-| YAML | a YAML library that reports line numbers for errors (proposed: `yaml`) |
+| Schemas | zod (D-30) |
+| YAML | `yaml`, which reports line numbers for errors (D-29) |
 | Translations | i18next and react-i18next (proposed) |
 | ACP | the official ACP TypeScript SDK |
 | CI | GitHub Actions on Windows and macOS runners |

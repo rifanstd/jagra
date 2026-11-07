@@ -352,12 +352,14 @@ properties:
 - **FLOW-7** Secrets are written in flows as variables (`${NAME}`). Values are set per project in Settings > Secrets and stored as in `SEC-3`. The Secrets page lists every variable name found in the project's flows, and marks the ones without a value.
 - **FLOW-8** Jagra watches `.jagra/flows` and refreshes the list when files are added, changed or removed, for example after a `git pull` or an edit in the user's editor.
 - **FLOW-9** The project page links to a short guide on finding element names with Maestro Studio, because guessing button text is the most common reason a new flow fails.
+- **FLOW-10** Flows must not use Maestro commands that hand a result to an AI model: `assertWithAI`, `assertNoDefectsWithAI` and `extractTextWithAI`. The format check (`FLOW-6`) shows such a flow with its file, line and command, and leaves it out of the run. This includes helper flows and the `onFlowStart` and `onFlowComplete` hooks (`decisions.md` D-33).
 
 ### Done when
 
 - A flow created with New flow has the template above, opens in the editor and runs.
 - The same flow runs with plain `maestro test` outside Jagra and gives the same result.
 - A flow with broken YAML is shown with its file and line and is skipped, while the other flows still run.
+- A flow using `assertWithAI` is shown with its file and line and is skipped.
 - A new flow file pulled from git appears in the list without restarting Jagra.
 - The Secrets page shows `WRONG_PASSWORD` as missing until a value is set.
 
@@ -408,7 +410,7 @@ ACP is the Agent Client Protocol, an open standard for apps to talk to coding ag
 - **AGT-12** The Create flow with AI screen has a text field for the scenario, in any language, and an optional flow name. Create flow starts the agent.
 - **AGT-13** While the agent works, Jagra shows that it is working, the time elapsed and a Cancel button. Cancel stops the agent process. If the agent is still working after 15 minutes, Jagra stops it and says so. The safety net (`AGT-19`) runs after any stop.
 - **AGT-14** Jagra builds the instructions from three parts: the built-in template that ships with Jagra (in English), the team's `.jagra/agent-rules.md` if it has content, and the request itself. The request contains the scenario, the `appId`, whether the project folder contains source code, the list of helper flows with their names, and the list of existing flows so the agent does not duplicate one.
-- **AGT-15** The built-in template tells the agent to: use plain Maestro format; start with `launchApp` and `clearState: true`; reuse helper flows when they fit; write secrets as variables and never as values; write only inside `.jagra/flows`; never run any command; read the source code, when there is any, to use the exact text of buttons and fields; keep every check that comes from the scenario; and, if the code shows the app does not do what the scenario expects, keep the check and report a possible bug instead of changing the check.
+- **AGT-15** The built-in template tells the agent to: use plain Maestro format; start with `launchApp` and `clearState: true`; reuse helper flows when they fit; write secrets as variables and never as values; write only inside `.jagra/flows`; never run any command; never use Maestro's AI commands (`FLOW-10`); read the source code, when there is any, to use the exact text of buttons and fields; keep every check that comes from the scenario; and, if the code shows the app does not do what the scenario expects, keep the check and report a possible bug instead of changing the check.
 - **AGT-16** The agent must end with a short report in a fixed JSON shape: the path of the flow it wrote, what the flow checks, any possible bug it noticed, and suggested extra tests. If Jagra cannot read the report, it still shows the flow file and the agent's raw final message.
 
 ### Requirements: sessions
@@ -535,7 +537,7 @@ Targets for a typical developer laptop. They are guides, not promises; missing o
 - **SEC-1** Jagra makes no network requests except the update check (`UPD-4`). Fonts and every other asset are bundled.
 - **SEC-2** No telemetry. If it is ever added, it must be off by default and turned on by the user.
 - **SEC-3** Secret values are stored in the operating system's credential store (Credential Manager on Windows, Keychain on macOS), never in plain files.
-- **SEC-4** Secret values are masked everywhere Jagra shows or saves text: screens, step lists, logs and reports.
+- **SEC-4** Secret values are masked everywhere Jagra shows or saves text: screens, step lists, logs and reports. A masked value is shown as `***` whatever its length, including where it appears inside longer text.
 - **SEC-5** Jagra runs as a normal user and never asks for admin rights.
 - **SEC-6** The Electron renderer is isolated: context isolation on, Node integration off, sandbox on. The preload script exposes a small set of named functions and nothing else. The main process checks every request from the renderer, for example that a file path is inside the project folder. Jagra never loads remote content into a window. These settings must never be turned off, not even to make development easier.
 - **SEC-7** Text from outside Jagra (flow files, Maestro output, agent messages, app error messages) is always shown as text, never as HTML.
@@ -549,7 +551,7 @@ Targets for a typical developer laptop. They are guides, not promises; missing o
 - **REL-4** Losing the device during a run ends the run cleanly (`DEV-9`).
 - **REL-5** Every error message says what happened and what the user can do, in plain words. Technical details are under "Show details".
 - **REL-6** A broken file in `.jagra` shows the file and the line and never crashes Jagra. The rest of the app stays usable.
-- **REL-7** Jagra keeps technical logs in its local data folder, with secrets masked and a size limit (old logs are removed first). Copy info for bug report copies the Jagra version, operating system, the version of each tool and the latest part of the log.
+- **REL-7** Jagra keeps technical logs in its local data folder, with secrets masked and a size limit of three files of 5 MB each (the oldest file is removed first). Copy info for bug report copies the Jagra version, operating system, the version of each tool and the latest part of the log.
 
 ---
 
