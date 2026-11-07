@@ -1,0 +1,19 @@
+{
+  "name": "jagra",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Run a project's Maestro flows from the command line.",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "jagra": "./dist/bin.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  }
+}
