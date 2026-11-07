@@ -52,6 +52,9 @@ The docs in this repository are the source of truth. If the code and the docs di
 
 - Talk to the project owner in Indonesian: plans, questions, explanations and summaries. Code, comments, commit messages, pull request titles and descriptions, and files in `docs/` stay in English.
 - One milestone at a time, in the order of `docs/plan.md`. Do not start the next milestone until the owner approves the current one.
+- Never commit to `main` directly. Work on a branch named after the milestone, for example `m0-repo-setup` or `m10-acp-agents`, and open a pull request to `main`.
+- Use the antislop skills in `during` mode for all work, when they are installed: `antislop` at the start of every task, `antislop-code` for code and comments, `antislop-copywriting` for docs, READMEs and interface text, and `antislop-ui`, `antislop-human` and `antislop-layoutmobile` for interface work.
+- antislop filters the owner's direction, it does not replace it. When antislop disagrees with `docs/` or `design/` (for example SET-2 has no theme switch, and shadcn/ui ships Lucide icons), name the element and the rule, ask the owner to keep or drop it, and record the answer in `docs/decisions.md`. Never change the owner's design on your own.
 - Every pull request lists the requirement IDs it covers.
 - Write tests with the code (layers in `docs/test-plan.md`). A feature without its tests is not done.
 - Do not add features, settings or dependencies the spec does not ask for. If one seems needed, ask.
@@ -65,11 +68,12 @@ Set up in M0. Keep this list correct as the repository grows.
 
 ```
 pnpm install
-pnpm lint
+pnpm lint                   ESLint, the package dependency rules, Prettier check
+pnpm format                 Prettier write
 pnpm typecheck
 pnpm test
-pnpm --filter desktop dev
-pnpm --filter cli build
+pnpm --filter jagra build   the CLI package is named `jagra` (CLI-6)
+pnpm --filter desktop dev   from M7
 ```
 
 ## Repository layout

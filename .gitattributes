@@ -1,0 +1,2 @@
+# Prettier expects LF, and Windows checkouts would otherwise turn files into CRLF.
+* text=auto eol=lf
