@@ -5,3 +5,8 @@ coverage/
 CLAUDE.md
 docs/
 design/
+
+# Gradle output of the sample app.
+sample-app/**/build/
+sample-app/.gradle/
+sample-app/.kotlin/
