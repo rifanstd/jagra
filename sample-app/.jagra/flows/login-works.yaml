@@ -1,0 +1,9 @@
+appId: dev.jagra.sample
+name: Login works
+properties:
+  condition: success
+---
+- launchApp:
+    clearState: true
+- runFlow: parts/login.yaml
+- assertVisible: "Stock"

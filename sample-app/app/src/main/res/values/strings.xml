@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Jagra Sample</string>
+
+    <string name="login_title">Stock room</string>
+    <string name="login_subtitle">Sign in to check and update the shop\'s stock.</string>
+    <string name="login_username">Username</string>
+    <string name="login_password">Password</string>
+    <string name="login_sign_in">Sign in</string>
+    <string name="login_wrong">Wrong username or password.</string>
+    <string name="login_demo_account">Demo account: demo / jagra123</string>
+
+    <string name="list_title">Stock</string>
+    <string name="list_built_in_data">Built-in data</string>
+    <string name="list_loading">Loading items…</string>
+    <string name="list_empty">No items in stock.</string>
+    <string name="list_quantity">%1$d in stock</string>
+
+    <string name="detail_back">Back</string>
+    <string name="detail_name">Name</string>
+    <string name="detail_quantity">Quantity</string>
+    <string name="detail_save">Save</string>
+    <string name="detail_saving">Saving…</string>
+    <string name="detail_saved">✓ Saved</string>
+    <string name="detail_save_failed">Could not save. Check that Mockoon is running and try again.</string>
+</resources>

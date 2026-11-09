@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1,
+    "name": "Arabica beans 1 kg",
+    "quantity": 12,
+    "description": "Medium roast. Reorder when fewer than 5 bags are left."
+  },
+  {
+    "id": 2,
+    "name": "Oat milk 1 L",
+    "quantity": 30,
+    "description": "Keep chilled after opening."
+  },
+  {
+    "id": 3,
+    "name": "Paper cups 8 oz",
+    "quantity": 500,
+    "description": "Sleeves of 50 cups."
+  },
+  {
+    "id": 4,
+    "name": "Filter papers",
+    "quantity": 40,
+    "description": "Size 02, packs of 100."
+  },
+  {
+    "id": 5,
+    "name": "Cane sugar syrup",
+    "quantity": 8,
+    "description": "750 ml bottles."
+  },
+  {
+    "id": 6,
+    "name": "Ceramic mug",
+    "quantity": 24,
+    "description": "For customers who stay in."
+  }
+]

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Only the window behind Compose. Colors come from ui/theme. -->
+    <style name="Theme.JagraSample" parent="android:Theme.Material.Light.NoActionBar" />
+</resources>

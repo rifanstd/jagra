@@ -1,0 +1,121 @@
+{
+  "uuid": "fd430f30-9519-484f-b6ea-c3d069b4a102",
+  "lastMigration": 33,
+  "name": "Jagra sample app",
+  "endpointPrefix": "",
+  "latency": 0,
+  "port": 3000,
+  "hostname": "127.0.0.1",
+  "folders": [],
+  "routes": [
+    {
+      "uuid": "c273e0b2-0b98-449e-9515-ea2ccc14e2d1",
+      "type": "http",
+      "documentation": "Item list",
+      "method": "get",
+      "endpoint": "items",
+      "responses": [
+        {
+          "uuid": "cbbe32b3-440c-441b-9563-6a5cfbedfc49",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "The same items as the app's built-in data",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "FILE",
+          "filePath": "../app/src/main/assets/items.json",
+          "databucketID": "",
+          "sendFileAsBody": true,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "07f9c2ff-44df-4f77-a497-2c523fc94805",
+      "type": "http",
+      "documentation": "Save one item",
+      "method": "put",
+      "endpoint": "items/:id",
+      "responses": [
+        {
+          "uuid": "a5cc4894-4d6f-443f-b30e-6bb1ad17d118",
+          "body": "{}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Accept the change",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    }
+  ],
+  "rootChildren": [
+    {
+      "type": "route",
+      "uuid": "c273e0b2-0b98-449e-9515-ea2ccc14e2d1"
+    },
+    {
+      "type": "route",
+      "uuid": "07f9c2ff-44df-4f77-a497-2c523fc94805"
+    }
+  ],
+  "proxyMode": false,
+  "proxyHost": "",
+  "proxyRemovePrefix": false,
+  "tlsOptions": {
+    "enabled": false,
+    "type": "CERT",
+    "pfxPath": "",
+    "certPath": "",
+    "keyPath": "",
+    "caPath": "",
+    "passphrase": ""
+  },
+  "cors": true,
+  "headers": [],
+  "proxyReqHeaders": [
+    {
+      "key": "",
+      "value": ""
+    }
+  ],
+  "proxyResHeaders": [
+    {
+      "key": "",
+      "value": ""
+    }
+  ],
+  "data": [],
+  "callbacks": []
+}
