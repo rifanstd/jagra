@@ -194,9 +194,11 @@ Tests run on an Android emulator or on an Android phone connected by USB. One de
 | State | Meaning | What Jagra does |
 |---|---|---|
 | Emulator running | Running and ready | Use it |
+| Emulator starting | Running, but Android has not finished booting (D-43) | Wait until it is ready, then run |
 | Emulator off | Exists on this machine, not running | Start it, wait until it is ready, then run |
 | Phone ready | Connected and USB debugging is authorised | Use it |
 | Phone not authorised | Connected, but the user has not accepted the USB debugging prompt | Tell the user to unlock the phone and accept the prompt |
+| Phone not responding | Connected, but `adb` cannot talk to it (D-43) | Tell the user to unplug the phone and plug it in again |
 | No device | No emulator exists and no phone is connected | Show how to create an emulator or connect a phone |
 
 ### Requirements
@@ -204,7 +206,7 @@ Tests run on an Android emulator or on an Android phone connected by USB. One de
 - **DEV-1** Jagra lists running devices from `adb` and existing emulators from the Android SDK, merged into one list with the states above.
 - **DEV-2** The list updates on its own when a phone is plugged in or out or an emulator starts or stops. A refresh button is also available.
 - **DEV-3** The device used last for a project is selected automatically. This is local data.
-- **DEV-4** When the chosen emulator is off, Jagra starts it and waits until Android has finished booting before installing the APK. The screen shows "Starting emulator" so the user does not think Jagra froze. If the emulator is not ready after 3 minutes, the run stops with a clear message.
+- **DEV-4** When the chosen emulator is off, Jagra starts it and waits until Android has finished booting and the emulator is no longer busy before installing the APK (D-44). The screen shows "Starting emulator" so the user does not think Jagra froze. If the emulator is not ready after 3 minutes, the run stops with a clear message.
 - **DEV-5** Jagra leaves an emulator it started running after the run ends, so the next run does not wait again.
 - **DEV-6** Jagra shows a checklist for phones: USB debugging on in Developer options, accept the prompt on the phone, keep the screen on and unlocked during the run, and on some brands (for example Xiaomi) turn on the extra developer option that allows simulated input.
 - **DEV-7** If the device's Android version is below what Maestro supports, Jagra shows a clear warning before the run instead of a confusing error later.

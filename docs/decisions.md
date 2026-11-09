@@ -209,3 +209,26 @@ Format of each entry: what was decided, why, and what was considered instead.
 **Decided:** Some of tweakcn's values in `theme.css` changed lightness only, keeping their hue and chroma: `primary` and `sidebar-primary` are darker, so white text on them reaches 4.5:1. In light mode `muted-foreground`, `destructive`, `success` and `warning` are darker, and `warning-foreground` is white. In dark mode `muted-foreground` and `destructive` are lighter, and `destructive-foreground` is dark like the other dark status foregrounds. `input` is darker in light mode and lighter in dark mode, and becomes the border of text fields, reaching 3:1. `border` stays light for cards and dividers. `design/system/README.md` lists the pairs that must pass.
 **Why:** Building the sample app showed white text on the orange button at 3.58:1, green "Saved" text at 3.73:1, dark mode secondary text at 4.13:1 and input borders at 1.6:1. These fail WCAG AA, which antislop's R-25 requires. The owner asked for the change that fixes them with the least visual difference.
 **Instead:** Keeping tweakcn's values (rejected: text and inputs that people with low vision cannot read). Darkening `border` everywhere (rejected: every card and divider would turn heavy).
+
+### D-42. Emulators are started with the SDK's `emulator` program
+**Decided:** Jagra lists emulators with `emulator -list-avds` and starts one with `emulator -avd <name>`, using the `emulator` that D-37 finds. It does not use the Android CLI's `android emulator`.
+**Why:** developer.android.com now calls `emulator` deprecated in favour of the Android CLI, but the Android CLI is a separate download that Android Studio does not install, and the owner's machine does not have it (2026-11-09). `emulator` ships with every SDK that has emulators, and the environment check already finds it.
+**Consequence:** If a future SDK removes `emulator`, this decision changes and the `DeviceBridge` adapter follows. `ENV-3`'s tested versions are where that shows up.
+
+### D-43. Two more device states: Emulator starting and Phone not responding
+**Decided:** Besides the five states in spec section 5, a device can be **Emulator starting** (an emulator `adb` sees but that has not finished booting, `adb` state `offline`) or **Phone not responding** (a phone `adb` sees as `offline`, `authorizing`, `connecting`, `no permissions` or in recovery). Phone not responding tells the user to unplug the phone and plug it in again.
+**Why:** `adb` reports these states, and none of the five fit them. An emulator that is booting is not off and not ready. A phone whose connection broke is not unauthorised, and telling the user to accept a prompt that is not there would mislead them.
+
+### D-44. When an emulator counts as ready
+**Decided:** After starting an emulator, Jagra waits for `sys.boot_completed` to be 1 and then for the 1-minute load average (`/proc/loadavg`) to drop below the number of CPU cores (`nproc`), checking every 2 seconds. The 3 minutes of `DEV-4` cover the whole wait. If Android has booted but the emulator is still busy when the 3 minutes are up, the run goes ahead. Only an emulator that has not booted stops the run. The same wait applies to an emulator the user started that is still booting. Jagra does not warn about emulators with little memory.
+**Why:** In M3 flows failed in the first minutes after boot on a 2 GB emulator, because Android's low memory killer stopped the app and Maestro's on-device server while Google services were busy (`to-verify.md`). Waiting for the load to settle avoids that without a fixed delay. A booted emulator that stays busy can still run flows, so stopping the run would be worse than trying.
+**Instead:** Waiting only for `sys.boot_completed` (rejected: flows failed). A warning for 2 GB emulators (dropped by the owner: the spec does not ask for it, and the wait already handles the problem).
+
+### D-45. Programs that outlive Jagra
+**Decided:** `ProcessRunner` has a second way to start a program, `launch`: detached, output ignored, not recorded in `state/active.json`, never stopped by Jagra. Only emulators use it.
+**Why:** `DEV-5` keeps an emulator running after the run so the next one does not wait again. A program started the normal way is recorded and stopped when Jagra cleans up after itself (`REL-2`, `REL-3`), which would close the emulator.
+
+### D-46. APKs are read with `@devicefarmer/adbkit-apkreader`
+**Decided:** The `ApkReader` adapter uses `@devicefarmer/adbkit-apkreader` 4.0.0 to read the package name, version name and version code from the APK's binary manifest. Installs use `adb install -r -d`.
+**Why:** It needs no Android build tools, so a user with only an APK (`PRJ-3`) can use Jagra. The library is Apache-2.0, maintained by the DeviceFarmer project, ships its own TypeScript types and has two dependencies. It read the sample APK in 11 ms (2026-11-09). `-d` lets an older build replace a newer one, so Jagra installs over any existing version (`RUN-3`).
+**Instead:** Writing a ZIP and binary XML parser in Jagra (rejected: more code to maintain for the same result). `aapt2 dump badging` or `apkanalyzer` (rejected: they need build tools or command line tools that an APK-only user may not have).

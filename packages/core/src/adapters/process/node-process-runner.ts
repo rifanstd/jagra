@@ -88,7 +88,7 @@ export class NodeProcessRunner implements ProcessRunner {
     if (!started.ok) return started;
     const pid = started.value;
 
-    const exited = this.watchExit(child, pid, onLine);
+    const exited = this.watchExit(child, pid, spec.output ?? "lines", onLine);
     const running: RunningProcess = {
       pid,
       exited,
@@ -121,15 +121,65 @@ export class NodeProcessRunner implements ProcessRunner {
     return ok(running);
   }
 
+  async launch(
+    spec: Omit<ProcessSpec, "signal" | "output">,
+  ): Promise<Result<void, JagraError>> {
+    const resolved =
+      this.platform === "win32"
+        ? resolveWindowsProgram(spec.program, this.env)
+        : ok(spec.program);
+    if (!resolved.ok) return resolved;
+
+    let child: ChildProcess;
+    try {
+      child = spawn(resolved.value, [...spec.args], {
+        cwd: spec.cwd,
+        env: { ...this.env, ...spec.env },
+        shell: false,
+        windowsHide: true,
+        // Its own process group, so it survives Jagra closing (DEV-5).
+        detached: true,
+        stdio: "ignore",
+      });
+    } catch (e) {
+      return fail({
+        code: "PROGRAM_START_FAILED",
+        program: spec.program,
+        detail: String(e),
+      });
+    }
+    const started = await new Promise<Result<void>>((resolve) => {
+      child.once("spawn", () => resolve(ok(undefined)));
+      child.once("error", (e: NodeJS.ErrnoException) =>
+        resolve(
+          e.code === "ENOENT"
+            ? fail({ code: "PROGRAM_NOT_FOUND", program: spec.program })
+            : fail({
+                code: "PROGRAM_START_FAILED",
+                program: spec.program,
+                detail: e.message,
+              }),
+        ),
+      );
+    });
+    child.unref();
+    return started;
+  }
+
   private watchExit(
     child: ChildProcess,
     pid: number,
+    output: "lines" | "chunks",
     onLine?: (line: OutputLine) => void,
   ): Promise<ProcessExit> {
     for (const stream of ["stdout", "stderr"] as const) {
       const source = child[stream];
       if (!source) continue;
       source.setEncoding("utf8");
+      if (output === "chunks") {
+        source.on("data", (text: string) => onLine?.({ stream, text }));
+        continue;
+      }
       const lines = createInterface({ input: source, crlfDelay: Infinity });
       lines.on("line", (text) => onLine?.({ stream, text }));
     }

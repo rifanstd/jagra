@@ -10,8 +10,14 @@ export interface ProcessSpec {
   env?: Readonly<Record<string, string>>;
   /** Aborting stops the program and its children. */
   signal?: AbortSignal;
+  /**
+   * `lines` (the default) hands output over one line at a time. `chunks` hands it over as it
+   * arrives, for output that is not split into lines, such as `adb track-devices`.
+   */
+  output?: "lines" | "chunks";
 }
 
+/** One line of output, or one piece of it when the spec asks for `chunks`. */
 export interface OutputLine {
   stream: "stdout" | "stderr";
   text: string;
@@ -36,4 +42,11 @@ export interface ProcessRunner {
     spec: ProcessSpec,
     onLine?: (line: OutputLine) => void,
   ): Promise<Result<RunningProcess, JagraError>>;
+  /**
+   * Starts a program that should keep running after Jagra closes, such as an emulator (DEV-5).
+   * Its output is ignored, it is not recorded in `state/active.json` and Jagra never stops it.
+   */
+  launch(
+    spec: Omit<ProcessSpec, "signal" | "output">,
+  ): Promise<Result<void, JagraError>>;
 }

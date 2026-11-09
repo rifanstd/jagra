@@ -6,9 +6,11 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:tools": "vitest run --config vitest.tools.config.js"
+    "test:tools": "vitest run --config vitest.tools.config.js",
+    "test:device": "vitest run --config vitest.device.config.js"
   },
   "dependencies": {
+    "@devicefarmer/adbkit-apkreader": "4.0.0",
     "yaml": "2.9.1",
     "zod": "4.6.7"
   }

@@ -35,6 +35,16 @@ export {
 } from "./project/flows.js";
 export { SUPPORTED_FORMAT } from "./project/format.js";
 export * from "./environment/index.js";
+export * from "./devices/index.js";
+export {
+  checkAppId,
+  fillAppId,
+  findApk,
+  type AppIdCheck,
+  type FoundApk,
+} from "./project/apk.js";
+export { AdbDeviceBridge } from "./adapters/devices/adb-device-bridge.js";
+export { AdbkitApkReader } from "./adapters/apk/adbkit-apk-reader.js";
 export {
   NodeToolProbe,
   PROBE_TIMEOUT_MS,
