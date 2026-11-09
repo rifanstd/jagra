@@ -4,7 +4,7 @@ Jagra is an open source desktop app (Windows and macOS) that tests Android build
 
 ## Current state
 
-- Current milestone: **M3** (see `docs/plan.md`). Update this line when a milestone is approved.
+- Current milestone: **M4** (see `docs/plan.md`). Update this line when a milestone is approved.
 
 ## Read before working
 
@@ -74,6 +74,7 @@ pnpm typecheck
 pnpm test
 pnpm --filter jagra build   the CLI package is named `jagra` (CLI-6)
 pnpm --filter @jagra/core test:tools   check the tools on this machine (not in CI)
+pnpm --filter @jagra/core test:device  start an emulator and install the sample APK (not in CI, close every emulator first)
 pnpm theme:sample           regenerate the sample app's theme after changing design/
 cd sample-app && ./gradlew assembleDebug   build the sample APK
 pnpm --filter desktop dev   from M7
