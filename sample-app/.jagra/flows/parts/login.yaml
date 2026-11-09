@@ -1,0 +1,11 @@
+appId: dev.jagra.sample
+name: Log in as the demo user
+---
+# The demo account only exists in this sample app, so it is written here as plain text.
+# In a real app, write the password as a variable such as ${PASSWORD}.
+- tapOn: "Username"
+- inputText: "demo"
+- tapOn: "Password"
+- inputText: "jagra123"
+- hideKeyboard
+- tapOn: "Sign in"

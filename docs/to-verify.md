@@ -21,10 +21,11 @@ This file lists everything the design depends on but nobody has confirmed yet: e
 | Item | Why it matters | Found |
 |---|---|---|
 | Exact command and output format for reading the version of Java, `adb`, Maestro and Mockoon CLI on both systems | `ENV-1` | Windows, 2026-11-07, real output on the owner's machine: `java -version` on stderr, `java version "17.0.12" 2024-07-16 LTS` (OpenJDK says `openjdk version`). `adb version`, second line `Version 37.0.0-14910828`. `emulator -version`, `Android emulator version 36.5.11.0 (build_id ...)`. `maestro --version`, only `2.12.1` once D-36's variables are set (otherwise an analytics notice on stdout the first time and an update box on stderr; Maestro source). `mockoon-cli --version`, `@mockoon/cli/9.10.0 win32-x64 node-v24.22.1`. All five together take about 2 s. macOS output is expected to match (same programs) and is still to be seen. |
-| Name of the Mockoon CLI program and its flags for data file and port | `MCK-2` | Partly, 2026-11-07. npm package `@mockoon/cli` (9.10.0), program `mockoon-cli`, entry `bin/run.js`, Node 18 or newer (README: tested on 18 to 24). Other installs: Docker image and a GitHub Action, no standalone binary (mockoon.com/cli). Flags still open, M6. |
-| How to tell when Mockoon CLI is ready to accept requests | `MCK-2` | |
+| Name of the Mockoon CLI program and its flags for data file and port | `MCK-2` | Partly, 2026-11-07. npm package `@mockoon/cli` (9.10.0), program `mockoon-cli`, entry `bin/run.js`, Node 18 or newer (README: tested on 18 to 24). Other installs: Docker image and a GitHub Action, no standalone binary (mockoon.com/cli). `mockoon-cli start -d <file> -p <port>` serves the sample's file (2026-11-09). Other flags still open, M6. |
+| How to tell when Mockoon CLI is ready to accept requests | `MCK-2` | Partly, 2026-11-09. It logs JSON lines on stdout, including `"message":"Server started on port 3000"` once it listens. It also logs an auto-generated admin API token at `warn` level, so its admin API is on by default; decide in M6 whether Jagra turns it off. |
 | How to list existing emulators and detect when one has finished booting | `DEV-1`, `DEV-4` | Partly, 2026-11-07. `emulator -list-avds` lists them (developer.android.com/studio/run/emulator-commandline). The same page now calls the `emulator` tool deprecated in favour of the Android CLI's `android emulator`. Decide which to use in M4. |
 | How to watch for devices being connected and disconnected | `DEV-2` | |
+| When a freshly booted emulator is ready for a run, beyond `sys.boot_completed` | `DEV-4`, `RUN-5` | Found a problem, 2026-11-09. On the owner's Pixel 8 AVD (API 35, 2 GB RAM), flows run in the first minutes after boot failed: the low memory killer stopped the app and Maestro's on-device server (`DeviceServerDiedException`, `device offline`) while Google services were still busy (load average about 11). The same flows passed once the load average dropped below 3. Decide in M4 how Jagra waits, and whether it warns about a 2 GB emulator. |
 | Error text `adb` gives when an install fails because of a signature mismatch | `RUN-3` | |
 | What clearing app data does to runtime permissions, and whether flows need to grant them again | `RUN-4` | |
 | A Node library that reads package name, version name and version code from an APK | `PRJ-5` | |
@@ -34,7 +35,8 @@ This file lists everything the design depends on but nobody has confirmed yet: e
 | Whether `/opt/homebrew/bin` and `/usr/local/bin` are enough for a Finder-opened app to find the tools, or the desktop app needs the user's full `PATH` some other way, without starting a shell | `ENV-1`, D-37 | Not yet, M7. |
 | Whether Node can start `.bat` and `.cmd` files without a shell | `SEC-8`, D-21 | 2026-11-07. No. Since the fix for CVE-2024-27980 (nodejs.org April 2024 security releases), `spawn` throws `EINVAL` for them without `shell: true`; tried on Node 24.22.1 on Windows. Led to D-31. |
 | How Maestro, Mockoon CLI and each agent are installed on Windows: a real `.exe`, a `.bat`, or an npm `.cmd` shim, and how to start each without a shell | `ENV-1`, D-31 | Maestro and Mockoon CLI, 2026-11-07: Maestro 2.12.1 ships `bin\maestro.bat` (a Gradle launcher that runs Java with `lib\*`) and a Unix `bin/maestro`. Mockoon CLI is an npm `.cmd` shim that runs `node <shim folder>
-ode_modules\@mockoon\cliinun.js`. Both started without a shell as in D-34. Agents still open, M10. |
+ode_modules\@mockoon\cliin
+un.js`. Both started without a shell as in D-34. Agents still open, M10. |
 
 ## Maestro
 
@@ -52,7 +54,7 @@ ode_modules\@mockoon\cliinun.js`. Both started without a shell as in D-34. Age
 | Which keys a flow header accepts | `FLOW-2`, `FLOW-4` | 2026-11-07, Maestro source `maestro-orchestra/.../yaml/YamlConfig.kt` (release cli-2.12.1): `name`, `appId` (or `url` for web), `tags`, `env`, `onFlowStart`, `onFlowComplete`, `properties` (a map of strings). `appId` or `url` is required. Other keys are accepted and kept. The docs site does not list `name` or `properties`. |
 | Maestro's commands, and which of them are checks | `AGT-22`, `AGT-24` | 2026-11-07, `YamlFluentCommand.kt` and docs.maestro.dev/reference/commands-available. Checks: `assertVisible`, `assertNotVisible`, `assertTrue`, `assertScreenshot`, `assertDarkMode`, `assertLightMode`. AI commands: `assertWithAI`, `assertNoDefectsWithAI`, `extractTextWithAI` (D-33). Nested commands sit under `commands:` in `runFlow`, `repeat` and `retry`; `runFlow` and `retry` can take `file:` instead. |
 | How variables are defined and which names are Maestro's own | `RUN-10` | 2026-11-07, docs.maestro.dev parameters-and-constants and JavaScript pages. `${NAME}` comes from `-e NAME=value`, the header `env:` or a `runFlow` `env:`. Built-in: `MAESTRO_FILENAME`, `MAESTRO_DEVICE_UDID`, `MAESTRO_SHARD_ID`, `MAESTRO_SHARD_INDEX`, shell variables starting with `MAESTRO_`, `output.*`, `maestro.copiedText`, `maestro.platform`. `${...}` may hold JavaScript; Jagra only counts a plain name as a variable. |
-| Whether a helper flow called with `runFlow` also needs a header with `appId` | `FLOW-3`, `FLOW-6` | Not yet. Jagra checks helpers like flows for now. Confirm with plain `maestro test` in M3. |
+| Whether a helper flow called with `runFlow` also needs a header with `appId` | `FLOW-3`, `FLOW-6` | Yes. 2026-11-09, Maestro 2.12.1: a helper without the header fails with `Config Section Required at <file>:<line>:<col>`. `maestro test <folder>` runs only the top-level flows, in file name order, and skips `parts/`. |
 
 ## Agents
 

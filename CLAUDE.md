@@ -4,7 +4,7 @@ Jagra is an open source desktop app (Windows and macOS) that tests Android build
 
 ## Current state
 
-- Current milestone: **M2** (see `docs/plan.md`). Update this line when a milestone is approved.
+- Current milestone: **M3** (see `docs/plan.md`). Update this line when a milestone is approved.
 
 ## Read before working
 
@@ -68,12 +68,14 @@ Set up in M0. Keep this list correct as the repository grows.
 
 ```
 pnpm install
-pnpm lint                   ESLint, the package dependency rules, Prettier check
+pnpm lint                   ESLint, the package dependency rules, Prettier check, sample theme check
 pnpm format                 Prettier write
 pnpm typecheck
 pnpm test
 pnpm --filter jagra build   the CLI package is named `jagra` (CLI-6)
 pnpm --filter @jagra/core test:tools   check the tools on this machine (not in CI)
+pnpm theme:sample           regenerate the sample app's theme after changing design/
+cd sample-app && ./gradlew assembleDebug   build the sample APK
 pnpm --filter desktop dev   from M7
 ```
 
@@ -84,6 +86,7 @@ packages/core      all of Jagra's work, no Electron
 packages/cli       the `jagra` command
 packages/desktop   Electron app: main, preload, renderer
 sample-app/        Android sample app (Kotlin), built with Gradle
-design/            theme, mockups, wireframes
+scripts/           repository scripts (the sample app's theme generator)
+design/            theme, fonts, mockups, wireframes
 docs/              product, spec, architecture, decisions, plan, tests, release, to-verify
 ```

@@ -1,0 +1,11 @@
+appId: dev.jagra.sample
+name: The item list shows items
+properties:
+  condition: success
+---
+- launchApp:
+    clearState: true
+- runFlow: parts/login.yaml
+- assertVisible: "Arabica beans 1 kg"
+- assertVisible: "12 in stock"
+- assertVisible: "Ceramic mug"

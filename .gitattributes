@@ -1,2 +1,4 @@
 # Prettier expects LF, and Windows checkouts would otherwise turn files into CRLF.
 * text=auto eol=lf
+# cmd.exe misreads batch labels in files with LF endings.
+*.bat text eol=crlf

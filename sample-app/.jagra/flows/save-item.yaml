@@ -1,0 +1,20 @@
+appId: dev.jagra.sample
+name: Renaming an item and saving it
+properties:
+  condition: success
+---
+# Fails on purpose: the planted bug hides Save for names longer than 20 characters.
+# See sample-app/README.md before changing this flow or the app.
+- launchApp:
+    clearState: true
+- runFlow: parts/login.yaml
+- tapOn: "Oat milk 1 L"
+# Tap the field itself, past the end of its text, so the cursor lands at the end.
+- tapOn:
+    text: "Oat milk 1 L"
+    below: "Keep chilled after opening."
+- eraseText
+- inputText: "Oat milk 1 L, barista edition"
+- hideKeyboard
+- tapOn: "Save"
+- assertVisible: "✓ Saved"

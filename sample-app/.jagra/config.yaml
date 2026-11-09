@@ -1,0 +1,10 @@
+format: 1
+name: Jagra sample app
+appId: dev.jagra.sample
+apk:
+  searchPath: app/build/outputs/apk/debug
+mockoon:
+  file: .jagra/mockoon.json
+  port: 3000
+run:
+  flowTimeoutMinutes: 5

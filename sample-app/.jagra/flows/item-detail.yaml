@@ -1,0 +1,12 @@
+appId: dev.jagra.sample
+name: Opening an item shows its detail
+properties:
+  condition: success
+---
+- launchApp:
+    clearState: true
+- runFlow: parts/login.yaml
+- tapOn: "Oat milk 1 L"
+- assertVisible: "Keep chilled after opening."
+- assertVisible: "Quantity"
+- assertVisible: "30"
