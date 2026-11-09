@@ -10,7 +10,7 @@ The theme is the tweakcn theme "AstroVista":
 pnpm dlx shadcn@latest add https://tweakcn.com/r/themes/cmlk6zefr000004lbe9jygsqc
 ```
 
-`theme.css` is that theme written out by hand, plus two Jagra additions (`success` and `warning`). If the theme is ever updated from tweakcn, keep the two additions.
+`theme.css` is that theme written out by hand, plus two Jagra additions (`success` and `warning`) and contrast fixes to some of tweakcn's values (`decisions.md` D-41). If the theme is ever updated from tweakcn, keep both.
 
 ## Rules
 
@@ -28,8 +28,13 @@ Use shadcn/ui components before writing custom ones. Buttons, dialogs, inputs, s
 | `success` (green) | Passed flows, healthy environment checks | Buttons |
 | `warning` (amber) | Tool versions not yet tested, interrupted runs, cancelled flows, soft warnings | Errors that block the user |
 | `muted`, `muted-foreground` | Secondary text, timestamps, flows waiting in the queue | Anything the user must read to act |
+| `input` | The border of text fields and selects | Card borders and dividers, which use `border` |
 
 Orange and red sit close together on the color wheel. That is why `primary` is never used to show status, and why a red failure mark never sits on an orange background.
+
+## Contrast
+
+Every text color reaches 4.5:1 against `background`, `card` and `muted`, and every `*-foreground` reaches 4.5:1 on its own color, in both modes. `input` and `ring` reach 3:1 against `background` and `card`. `border` is lighter on purpose, because cards and dividers are not controls. Check any new or changed token against these pairs before using it.
 
 ## Status is never color alone
 

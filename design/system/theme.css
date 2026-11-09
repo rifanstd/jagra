@@ -8,6 +8,9 @@
  * Light mode on :root, dark mode on .dark (shadcn/ui convention).
  * Jagra additions to the tweakcn theme: --success and --warning (with
  * foregrounds), used only for test status. See README.md.
+ * Jagra changes to the tweakcn values: primary, sidebar-primary, muted-foreground,
+ * destructive, input and the status colors are darker or lighter so text and
+ * input borders pass WCAG AA (docs/decisions.md D-41).
  * The @theme inline block is for Tailwind v4. Plain HTML mockups can link
  * this file too; browsers ignore the @theme block.
  */
@@ -19,22 +22,22 @@
   --card-foreground: oklch(0.3211 0 0);
   --popover: oklch(1.0000 0 0);
   --popover-foreground: oklch(0.3211 0 0);
-  --primary: oklch(0.6420 0.1691 38.5815);
+  --primary: oklch(0.5862 0.1691 38.5815);
   --primary-foreground: oklch(1.0000 0 0);
   --secondary: oklch(0.4138 0.0846 259.8759);
   --secondary-foreground: oklch(1.0000 0 0);
   --muted: oklch(0.9846 0.0017 247.8389);
-  --muted-foreground: oklch(0.5510 0.0234 264.3637);
+  --muted-foreground: oklch(0.5250 0.0234 264.3637);
   --accent: oklch(0.9119 0.0222 243.8174);
   --accent-foreground: oklch(0.3791 0.1378 265.5222);
-  --destructive: oklch(0.6368 0.2078 25.3313);
+  --destructive: oklch(0.5502 0.2078 25.3313);
   --destructive-foreground: oklch(1.0000 0 0);
-  --success: oklch(0.6000 0.1300 155.0000);
+  --success: oklch(0.5087 0.1300 155.0000);
   --success-foreground: oklch(1.0000 0 0);
-  --warning: oklch(0.7859 0.1342 83.6986);
-  --warning-foreground: oklch(0.3211 0 0);
+  --warning: oklch(0.5271 0.1342 83.6986);
+  --warning-foreground: oklch(1.0000 0 0);
   --border: oklch(0.8452 0 0);
-  --input: oklch(0.9700 0.0029 264.5420);
+  --input: oklch(0.6245 0.0029 264.5420);
   --ring: oklch(0.6397 0.1720 36.4421);
   --chart-1: oklch(0.6693 0.0706 248.9230);
   --chart-2: oklch(0.6678 0.1546 41.6200);
@@ -44,7 +47,7 @@
   --radius: 0.5rem;
   --sidebar: oklch(0.9030 0.0046 258.3257);
   --sidebar-foreground: oklch(0.3211 0 0);
-  --sidebar-primary: oklch(0.6397 0.1720 36.4421);
+  --sidebar-primary: oklch(0.5871 0.1720 36.4421);
   --sidebar-primary-foreground: oklch(1.0000 0 0);
   --sidebar-accent: oklch(0.9119 0.0222 243.8174);
   --sidebar-accent-foreground: oklch(0.3791 0.1378 265.5222);
@@ -79,22 +82,22 @@
   --card-foreground: oklch(0.9219 0 0);
   --popover: oklch(0.2435 0 0);
   --popover-foreground: oklch(0.9219 0 0);
-  --primary: oklch(0.6420 0.1691 38.5815);
+  --primary: oklch(0.5862 0.1691 38.5815);
   --primary-foreground: oklch(1.0000 0 0);
   --secondary: oklch(0.3743 0.0726 258.5213);
   --secondary-foreground: oklch(0.9219 0 0);
   --muted: oklch(0.2850 0 0);
-  --muted-foreground: oklch(0.5999 0 0);
+  --muted-foreground: oklch(0.6551 0 0);
   --accent: oklch(0.3380 0.0589 267.5867);
   --accent-foreground: oklch(0.8823 0.0571 254.1284);
-  --destructive: oklch(0.6368 0.2078 25.3313);
-  --destructive-foreground: oklch(1.0000 0 0);
+  --destructive: oklch(0.6792 0.2078 25.3313);
+  --destructive-foreground: oklch(0.2178 0 0);
   --success: oklch(0.6800 0.1400 155.0000);
   --success-foreground: oklch(0.2178 0 0);
   --warning: oklch(0.7859 0.1342 83.6986);
   --warning-foreground: oklch(0.2178 0 0);
   --border: oklch(0.3290 0 0);
-  --input: oklch(0.3092 0 0);
+  --input: oklch(0.5226 0 0);
   --ring: oklch(0.6397 0.1720 36.4421);
   --chart-1: oklch(0.7124 0.0606 248.6896);
   --chart-2: oklch(0.6678 0.1546 41.6200);
@@ -104,7 +107,7 @@
   --radius: 0.5rem;
   --sidebar: oklch(0.2393 0 0);
   --sidebar-foreground: oklch(0.9219 0 0);
-  --sidebar-primary: oklch(0.6397 0.1720 36.4421);
+  --sidebar-primary: oklch(0.5871 0.1720 36.4421);
   --sidebar-primary-foreground: oklch(1.0000 0 0);
   --sidebar-accent: oklch(0.3380 0.0589 267.5867);
   --sidebar-accent-foreground: oklch(0.8823 0.0571 254.1284);
