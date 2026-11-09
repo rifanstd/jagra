@@ -1,4 +1,4 @@
-import { mkdtemp, readdir, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
@@ -138,6 +138,25 @@ describe("NodeProcessRunner without a shell (SEC-8)", () => {
     ).toEqual(["two"]);
   });
 
+  it("hands over raw output when asked for chunks", async () => {
+    const lines: OutputLine[] = [];
+    const started = await runner.start(
+      {
+        program: NODE,
+        // No newline after the first piece, like an empty `adb track-devices` list.
+        args: [
+          "-e",
+          "process.stdout.write('0000'); process.stdout.write('0004abc\\n')",
+        ],
+        output: "chunks",
+      },
+      (line) => lines.push(line),
+    );
+    if (!started.ok) throw new Error("could not start");
+    await started.value.exited;
+    expect(lines.map((l) => l.text).join("")).toBe("00000004abc\n");
+  });
+
   it("reports a missing program as a code", async () => {
     const started = await runner.start({
       program: "jagra-no-such-program",
@@ -218,6 +237,45 @@ describe("NodeProcessRunner records running processes (REL-2)", () => {
       await proc?.stop();
     }
     expect(await store.list()).toEqual([]);
+  });
+});
+
+describe("NodeProcessRunner launching a program that outlives Jagra (DEV-5)", () => {
+  it(
+    "starts it without recording it, and it keeps running on its own",
+    { timeout: 20_000 },
+    async () => {
+      const pidFile = join(dir, "pid.txt");
+      const launched = await runner.launch({
+        program: NODE,
+        args: [
+          "-e",
+          `require("node:fs").writeFileSync(${JSON.stringify(pidFile)}, String(process.pid)); setTimeout(() => {}, 30000)`,
+        ],
+      });
+      expect(launched).toEqual({ ok: true, value: undefined });
+
+      let pid = 0;
+      for (let i = 0; i < 100 && pid === 0; i++) {
+        pid = Number(await readFile(pidFile, "utf8").catch(() => "0"));
+        if (pid === 0) await new Promise((r) => setTimeout(r, 50));
+      }
+      try {
+        expect(isAlive(pid)).toBe(true);
+        expect(await store.list()).toEqual([]);
+      } finally {
+        process.kill(pid);
+      }
+    },
+  );
+
+  it("reports a missing program as a code", async () => {
+    expect(
+      await runner.launch({ program: "jagra-no-such-program", args: [] }),
+    ).toEqual({
+      ok: false,
+      error: { code: "PROGRAM_NOT_FOUND", program: "jagra-no-such-program" },
+    });
   });
 });
 
