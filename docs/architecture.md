@@ -20,8 +20,10 @@ jagra/
       src/preload/   the narrow bridge between main and renderer
       src/renderer/  the interface: React, Tailwind, shadcn/ui
   sample-app/      Android sample app (Kotlin, Gradle, built separately)
+  scripts/         repository scripts, such as the sample app's theme generator (D-38)
   design/
     system/        theme.css (single source of the theme) and its README
+    fonts/         Outfit and Fira Code with their licenses, bundled by the apps (D-39)
     screens/       mockups, one HTML file per screen
     wireframes.html
   docs/            product, spec, architecture, decisions, plan, tests, release
@@ -35,7 +37,8 @@ jagra/
 | `core` | Node.js and plain libraries | Electron, React, anything in `cli` or `desktop` |
 | `cli` | `core` | Electron, React, `desktop` |
 | `desktop` | `core`, Electron, React and UI libraries, `design/system/theme.css` | `cli` |
-| `sample-app` | Android libraries only | Anything in `packages/` |
+| `sample-app` | Android libraries only. Its theme file and font are generated from `design/` (D-38) | Anything in `packages/` |
+| `scripts` | Node.js | Anything in `packages/` |
 
 These rules are checked by a lint rule in CI, not only by convention. A pull request that breaks them fails.
 
