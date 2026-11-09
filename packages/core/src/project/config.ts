@@ -39,9 +39,8 @@ const configSchema = z.looseObject({
     .prefault({}),
 });
 
-export type ProjectConfig = Omit<z.infer<typeof configSchema>, "name"> & {
-  name: string;
-};
+// An intersection rather than Omit: Omit on a loose object keeps only its index signature.
+export type ProjectConfig = z.infer<typeof configSchema> & { name: string };
 
 export function configFile(projectFolder: string): string {
   return join(projectFolder, ".jagra", "config.yaml");

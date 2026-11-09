@@ -29,7 +29,27 @@ export type JagraError =
       column: number;
       detail: string;
     }
+  | { code: "CANCELLED" }
+  | { code: "APK_NOT_FOUND"; searchPath: string }
+  | { code: "APK_UNREADABLE"; file: string; detail: string }
+  | { code: "CONFIG_WRITE_FAILED"; file: string; detail: string }
+  | DeviceError
   | FlowProblem;
+
+/** What can go wrong with a device or `adb` (spec section 5, RUN-3). */
+export type DeviceError =
+  | { code: "DEVICE_NOT_FOUND"; deviceId: string }
+  | { code: "DEVICE_NOT_AUTHORISED"; deviceId: string }
+  | { code: "DEVICE_NOT_RESPONDING"; deviceId: string }
+  /** The emulator did not finish booting in time (DEV-4). */
+  | { code: "EMULATOR_NOT_READY"; name: string; minutes: number }
+  | { code: "ADB_FAILED"; command: string; detail: string }
+  | { code: "ADB_TIMED_OUT"; command: string }
+  | { code: "INSTALL_FAILED"; detail: string }
+  /** Package names reach a shell on the device, so anything else is refused. */
+  | { code: "PACKAGE_NAME_INVALID"; packageName: string }
+  /** The user chose not to uninstall an app signed with another key (RUN-3). */
+  | { code: "INSTALL_SIGNATURE_MISMATCH"; packageName: string };
 
 /** Why a flow cannot run. A flow with a problem is shown with it and left out of runs (FLOW-6). */
 export type FlowProblem =

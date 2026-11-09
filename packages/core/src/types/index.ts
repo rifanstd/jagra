@@ -19,15 +19,32 @@ export interface ToolStatus {
 
 export type DeviceKind = "emulator" | "phone";
 
+/**
+ * Spec section 5. `emulator-starting` is an emulator `adb` already sees but that is still booting,
+ * and `phone-not-responding` a phone `adb` reports as offline (D-43).
+ */
 export type DeviceState =
-  "emulator-running" | "emulator-off" | "phone-ready" | "phone-not-authorised";
+  | "emulator-running"
+  | "emulator-starting"
+  | "emulator-off"
+  | "phone-ready"
+  | "phone-not-authorised"
+  | "phone-not-responding";
 
 export interface Device {
+  /** The `adb` serial, or `avd:<name>` for an emulator that is off. */
   id: string;
   kind: DeviceKind;
   state: DeviceState;
+  /** The AVD name for an emulator, the model for a phone. */
   name: string;
-  androidVersion?: string;
+}
+
+export interface AndroidVersion {
+  /** For example `15`. */
+  release: string;
+  /** The API level, for example `35`. */
+  sdk: number;
 }
 
 export interface ApkInfo {

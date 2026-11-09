@@ -2,3 +2,5 @@
 * text=auto eol=lf
 # cmd.exe misreads batch labels in files with LF endings.
 *.bat text eol=crlf
+# Test APKs are binary even though text=auto would usually notice.
+*.apk binary
