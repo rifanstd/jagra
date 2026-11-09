@@ -12,6 +12,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -19,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import dev.jagra.sample.ui.theme.LocalTokens
 
 /** A white panel with a hairline border, like a card in Jagra's design system. */
 @Composable
@@ -68,6 +70,8 @@ fun Field(
         keyboardActions = keyboardActions,
         visualTransformation = visualTransformation,
         shape = MaterialTheme.shapes.small,
+        // Inputs take the `input` token, which keeps 3:1 against the card (D-41). Cards keep the lighter `border`.
+        colors = OutlinedTextFieldDefaults.colors(unfocusedBorderColor = LocalTokens.current.input),
         modifier = Modifier.fillMaxWidth(),
     )
 }
