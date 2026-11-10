@@ -3,3 +3,7 @@ dist/
 coverage/
 *.tsbuildinfo
 .DS_Store
+
+# Desktop app build and Playwright output.
+packages/desktop/out/
+packages/desktop/test-results/

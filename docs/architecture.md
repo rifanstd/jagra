@@ -210,6 +210,8 @@ desktop/src/
   main/       creates the window, hosts core, handles IPC, updates, secrets
   preload/    exposes a small named API with contextBridge
   renderer/   React interface
+  shared/     the preload API's types and channel names, used by all three
+desktop/e2e/  Playwright tests against the built app (D-69)
 ```
 
 ### Security settings
@@ -251,12 +253,13 @@ Packaging and updates use electron-builder and electron-updater (proposed) with 
 |---|---|
 | Package manager and workspaces | pnpm |
 | Language | TypeScript, strict mode, in every package |
-| Build for the desktop app | Vite (proposed: electron-vite) |
+| Build for the desktop app | electron-vite (D-70) |
 | Installers and updates | electron-builder and electron-updater (proposed) |
 | Unit and flow tests | Vitest |
+| Desktop end-to-end tests | Playwright for Electron (D-69) |
 | Lint and format | ESLint and Prettier, plus the dependency rule check from section 1 |
 | Schemas | zod (D-30) |
 | YAML | `yaml`, which reports line numbers for errors (D-29) |
-| Translations | i18next and react-i18next (proposed) |
+| Translations | i18next and react-i18next |
 | ACP | the official ACP TypeScript SDK |
 | CI | GitHub Actions on Windows and macOS runners |

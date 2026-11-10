@@ -33,6 +33,8 @@ jobs:
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm test
+      # The desktop app opens on this system, isolated, offline, themed and translated (M7).
+      - run: pnpm --filter @jagra/desktop test:e2e
 
   sample-app:
     name: Sample app APK

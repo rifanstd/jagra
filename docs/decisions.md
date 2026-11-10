@@ -320,3 +320,35 @@ Format of each entry: what was decided, why, and what was considered instead.
 ### D-66. The default SDK folder comes before PATH for `adb` and `emulator`
 **Decided:** Jagra looks for `adb` and `emulator` in `ANDROID_HOME`, then `ANDROID_SDK_ROOT`, then the default SDK folder (`%LOCALAPPDATA%\Android\Sdk`, `~/Library/Android/sdk`), and only then on `PATH`. This replaces that part of D-37; everything else in D-37 stays.
 **Why:** D-37 meant the SDK's own `adb` to win over a copy on `PATH`, but only did so when `ANDROID_HOME` was set. On the owner's machine it was not, so Jagra used the `adb` that scrcpy ships (found in M6, 2026-11-10). Two `adb` versions on one machine stop each other's server, which drops devices to offline in the middle of a run. Android Studio installs the SDK in the default folder.
+
+### D-67. New dependencies are at least 14 days old
+**Decided:** A dependency added or updated takes the highest version released at least 14 days earlier. Electron's patch releases (`45.x.y`) are the exception: the newest one is used, since they usually carry security fixes.
+**Why:** A compromised package release is usually found and pulled within days. Waiting two weeks keeps Jagra off those releases at almost no cost. The owner agreed in M7.
+
+### D-68. Lucide icons only inside shadcn/ui components
+**Decided:** The Lucide icons that shadcn/ui components bring (the chevrons of a select, the cross that closes a dialog, the check of a selected item) stay. Every status icon uses the symbols in `design/system/README.md` (✓ ✕ ○ ! –), not Lucide.
+**Why:** antislop counts a single default icon library as generic. `design/system/README.md` asks for shadcn/ui components first, and they come with Lucide. The owner kept Lucide for those controls, where they are part of the component, and the status icons stay Jagra's own.
+
+### D-69. Desktop end-to-end tests with Playwright, on Windows and macOS
+**Decided:** `packages/desktop/e2e` holds Playwright tests that start the built app with its own data folders and check four things: the renderer is isolated, no request leaves the app, the theme follows the system in light and dark mode with the bundled font, and the language switches without a restart and is kept. They run in the Check job on Windows and macOS, so they are required. `@playwright/test` is a dev dependency.
+**Why:** The M7 "Done when" asks for the app to open on Windows and macOS, and the owner has only Windows. A Playwright test in CI shows it on both, and keeps checking it.
+
+### D-70. How the desktop app is built and kept closed
+**Decided:** electron-vite builds main, preload and renderer. `core` is bundled into main from its source. The preload is CommonJS, as a sandboxed preload must be.
+- **Requests.** Main cancels every request that is not to the app's own files (`file:`, `data:`, `blob:`), plus the Vite dev server while developing, and refuses every permission, download, navigation and new window.
+- **Content Security Policy.** The page allows only its own files. Only the dev server adds `'unsafe-inline'` scripts, for React's hot reload.
+- **IPC.** Main answers only calls from the app's own page, with arguments that match a zod schema.
+- **Renderer imports.** The renderer imports nothing but types from `@jagra/core/types`, a types-only entry that pulls in no Node code. ESLint enforces this, together with no Electron or Node imports in the renderer and no React in main or preload.
+**Why:** This is `SEC-1`, `SEC-2` and `SEC-6` made concrete: even a script that got into the renderer could neither reach the network nor call anything main does not offer.
+
+### D-71. shadcn/ui components use Jagra's own `cn`
+**Decided:** The shadcn/ui CLI (4.22.1) installs a package called `cn` and imports from it in each component. Jagra removes that package after adding a component, and points the import at `src/renderer/src/lib/utils.ts`, which does the same with `clsx` and `tailwind-merge`.
+**Why:** `cn` is version 0.5.2, released less than 14 days earlier (D-67), and was not chosen. `clsx` and `tailwind-merge` are what shadcn/ui has used for years.
+
+### D-72. Desktop secrets are encrypted with `safeStorage`, one file per project
+**Decided:** The desktop `SecretStore` encrypts each value with Electron's `safeStorage` and keeps the encrypted values, base64, in `secrets/<project id>.json` in Jagra's local data folder. When the operating system offers no encryption, it refuses to store a value instead of writing it in plain text.
+**Why:** `SEC-3` and architecture section 4. `safeStorage` keeps its key in the operating system's protected store (DPAPI on Windows, the Keychain on macOS), so the file is useless without the user's login.
+
+### D-73. Electron 45
+**Decided:** The desktop app uses Electron 45 (45.2.3 at the start of M7), with React 19, Tailwind CSS 4.3, shadcn/ui and i18next 26.
+**Why:** It is the current stable line (`to-verify.md`). It runs on Windows 10 and up (64-bit and ARM) and macOS 13 and up, which covers `COMP-1` and `COMP-2`. 32-bit Windows is not supported.

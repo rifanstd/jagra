@@ -1,4 +1,11 @@
 {
   "extends": "../../tsconfig.base.json",
-  "include": ["src"]
+  "compilerOptions": {
+    "noEmit": true,
+    "customConditions": ["source"],
+    "paths": {
+      "@renderer/*": ["./src/renderer/src/*"]
+    }
+  },
+  "include": ["src/main", "src/preload", "src/shared", "*.config.ts"]
 }

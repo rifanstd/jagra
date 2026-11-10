@@ -1,0 +1,58 @@
+{
+  "app": {
+    "name": "Jagra",
+    "tagline": "Menguji build Android sebelum masuk ke QA."
+  },
+  "home": {
+    "version": "Versi {{version}}",
+    "language": "Bahasa"
+  },
+  "language": {
+    "en": "English",
+    "id": "Bahasa Indonesia"
+  },
+  "errors": {
+    "PROGRAM_NOT_FOUND": "{{program}} tidak ditemukan. Instal dulu, atau atur lokasinya di Pengaturan > Lokasi tool.",
+    "PROGRAM_IS_SCRIPT": "{{program}} di {{path}} adalah script, dan Jagra tidak menjalankan script. Instal programnya langsung.",
+    "PROGRAM_START_FAILED": "{{program}} tidak bisa dijalankan.",
+    "FILE_NOT_FOUND": "{{file}} tidak ada.",
+    "FILE_READ_FAILED": "{{file}} tidak bisa dibaca.",
+    "CONFIG_YAML_INVALID": "{{file}}, baris {{line}}, bukan YAML yang valid.",
+    "CONFIG_NOT_A_MAP": "{{file}} harus berisi daftar field, misalnya \"format: 1\".",
+    "CONFIG_FORMAT_MISSING": "{{file}} tidak punya field \"format\". Tambahkan \"format: 1\".",
+    "CONFIG_FORMAT_UNSUPPORTED": "{{file}} memakai format {{found}}, sedangkan Jagra ini membaca format {{supported}}. Perbarui Jagra.",
+    "CONFIG_FIELD_INVALID": "{{file}}, baris {{line}}: \"{{field}}\" tidak valid.",
+    "CONFIG_WRITE_FAILED": "{{file}} tidak bisa disimpan.",
+    "CANCELLED": "Dibatalkan.",
+    "SECRETS_MISSING": "Variabel ini belum punya nilai: {{names}}. Isi di Pengaturan > Secret.",
+    "NO_FLOWS": "Belum ada flow untuk dijalankan. Tambahkan flow dulu.",
+    "RUN_SAVE_FAILED": "Run tidak bisa disimpan di {{folder}}.",
+    "APK_NOT_FOUND": "Tidak ada APK di {{searchPath}}. Build aplikasinya, atau pilih APK sendiri.",
+    "APK_UNREADABLE": "{{file}} tidak bisa dibaca sebagai APK.",
+    "OUTPUT_MASK_FAILED": "Output Maestro tidak bisa diperiksa dari secret, jadi tidak disimpan.",
+    "DEVICE_NOT_FOUND": "Perangkat {{deviceId}} tidak terhubung.",
+    "DEVICE_NOT_AUTHORISED": "HP {{deviceId}} belum mengizinkan USB debugging. Buka kunci HP dan setujui permintaannya.",
+    "DEVICE_NOT_RESPONDING": "HP {{deviceId}} tidak merespons. Cabut lalu colokkan lagi.",
+    "EMULATOR_NOT_READY": "Emulator {{name}} belum siap setelah {{minutes}} menit.",
+    "ADB_FAILED": "adb {{command}} gagal.",
+    "ADB_TIMED_OUT": "adb {{command}} tidak menjawab tepat waktu.",
+    "INSTALL_FAILED": "APK tidak bisa diinstal.",
+    "PACKAGE_NAME_INVALID": "\"{{packageName}}\" bukan nama package. Periksa appId.",
+    "INSTALL_SIGNATURE_MISMATCH": "{{packageName}} di perangkat ditandatangani dengan key lain, dan tetap dibiarkan.",
+    "MOCKOON_FILE_INVALID": "{{file}} bukan file Mockoon.",
+    "MOCKOON_PORT_MISSING": "{{file}} tidak punya port. Isi mockoon.port di .jagra/config.yaml.",
+    "MOCKOON_PORT_BUSY": "Port {{port}} sedang dipakai. Mungkin aplikasi desktop Mockoon terbuka dengan port yang sama: hentikan mock itu, atau tutup aplikasinya.",
+    "MOCKOON_NOT_READY": "Mockoon tidak menjawab di port {{port}} dalam {{seconds}} detik.",
+    "MOCKOON_EXITED": "Mockoon berhenti saat sedang dinyalakan.",
+    "FLOW_YAML_INVALID": "{{file}}, baris {{line}}, bukan YAML yang valid.",
+    "FLOW_HEADER_MISSING": "{{file}} tidak punya header. Awali dengan \"appId:\" dan \"---\".",
+    "FLOW_TOO_MANY_DOCUMENTS": "{{file}}, baris {{line}}, punya \"---\" kedua.",
+    "FLOW_HEADER_NOT_A_MAP": "{{file}}, baris {{line}}: header harus berisi daftar field.",
+    "FLOW_APP_ID_MISSING": "{{file}}, baris {{line}}: header tidak punya appId.",
+    "FLOW_PROPERTIES_INVALID": "{{file}}, baris {{line}}: \"properties\" harus berisi daftar field.",
+    "FLOW_STEPS_MISSING": "{{file}}, baris {{line}}, tidak punya langkah.",
+    "FLOW_STEP_INVALID": "{{file}}, baris {{line}}, bukan langkah Maestro.",
+    "FLOW_AI_COMMAND": "{{file}}, baris {{line}}, memakai {{command}}, yang membiarkan AI menentukan hasil. Jagra tidak menjalankannya.",
+    "FLOW_HELPER_NOT_FOUND": "{{file}}, baris {{line}}, memanggil {{helper}}, yang tidak ada."
+  }
+}
