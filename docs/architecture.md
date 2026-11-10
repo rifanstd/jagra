@@ -75,8 +75,7 @@ core/src/
 | `ApkReader` | Read package name, version name and version code from an APK | `@devicefarmer/adbkit-apkreader` (D-46) |
 | `MockServer` | Start Mockoon CLI with a file and port, wait until ready, stop | `mockoon-cli` |
 | `PortChecker` | Tell whether a local port is free | Node `net` |
-| `FlowRunner` | Run one flow on one device with variables, a time limit, an output folder and a cancel signal, and return the result | `maestro test` |
-| `ScreenInspector` | Capture the texts and elements on screen right after a failure | Maestro's hierarchy command |
+| `FlowRunner` | Run one flow on one device with variables, a time limit, an output folder and a cancel signal, report the latest step, and return the result: step marks, the failing step, reason, screenshot, screen contents (D-50) and crash report | `maestro test` with Maestro's HTML report and debug output, every text file masked (D-47 to D-51) |
 | `AgentClient` | Start a session, send a request, continue a session, cancel | Two adapters: `CliAgent` (Claude Code, Codex, custom commands) and `AcpAgent` (ACP agents, using the official ACP TypeScript SDK) |
 | `SecretStore` | Read and write secret values per project | Desktop: OS credential store. CLI: `JAGRA_SECRET_<NAME>` environment variables |
 | `FileWatcher` | Report changes in `.jagra/flows` | A file watching library (proposed) |
@@ -169,7 +168,7 @@ What happens inside `core` when Run is pressed (spec section 7):
 2. `devices` starts the emulator if needed and waits for boot.
 3. `devices` installs the APK. On a signature mismatch, the run pauses and asks the user (`RUN-3`).
 4. `mockoon` starts Mockoon and waits for the port; `devices` adds `adb reverse`. Both are written to `state/active.json`.
-5. For each flow: `devices` clears app data; `FlowRunner` runs `maestro test` for that one file, with the device, the variables, the time limit and an output folder under the run; on failure `ScreenInspector` captures the screen; `results` saves the flow result straight away.
+5. For each flow: `devices` clears app data; `FlowRunner` runs `maestro test` for that one file, with the device, the variables, the time limit and an output folder under the run; `results` saves the flow result straight away.
 6. `mockoon` stops, `devices` removes `adb reverse`, `state/active.json` is cleared, `results` writes the report index and applies history retention.
 
 Cancel, a timeout or a lost device all abort through the same `AbortSignal`, and step 6 always runs.
