@@ -33,6 +33,8 @@ export type JagraError =
   | { code: "APK_NOT_FOUND"; searchPath: string }
   | { code: "APK_UNREADABLE"; file: string; detail: string }
   | { code: "CONFIG_WRITE_FAILED"; file: string; detail: string }
+  /** Maestro's output could not be masked, so it must not be kept (RES-7). */
+  | { code: "OUTPUT_MASK_FAILED"; folder: string; detail: string }
   | DeviceError
   | FlowProblem;
 

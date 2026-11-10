@@ -47,6 +47,13 @@ export interface AndroidVersion {
   sdk: number;
 }
 
+/** Something on screen with text, an id or a description (AGT-25). */
+export interface ScreenElement {
+  text?: string;
+  id?: string;
+  description?: string;
+}
+
 export interface ApkInfo {
   packageName: string;
   versionName: string;
