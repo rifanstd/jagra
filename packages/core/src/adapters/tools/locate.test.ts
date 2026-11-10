@@ -55,6 +55,17 @@ describe("locateTool", () => {
     expect(locateTool("adb", {}, windows(files))).toBe("C:\\scrcpy\\adb.exe");
   });
 
+  it("prefers the default SDK folder over another adb on PATH when ANDROID_HOME is not set (D-66)", () => {
+    const files = new FakeToolFiles()
+      .file("C:\\scrcpy\\adb.exe")
+      .file(
+        "C:\\Users\\dev\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe",
+      );
+    expect(locateTool("adb", {}, windows(files))).toBe(
+      "C:\\Users\\dev\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe",
+    );
+  });
+
   it("falls back to the default SDK folder and the deprecated ANDROID_SDK_ROOT", () => {
     const files = new FakeToolFiles()
       .file(

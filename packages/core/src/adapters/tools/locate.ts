@@ -59,7 +59,9 @@ export function locateNode(
   return firstFile(machine, [local, onPath(machine, exe(machine, "node"))]);
 }
 
-// ANDROID_SDK_ROOT is deprecated but still set on many machines.
+// ANDROID_SDK_ROOT is deprecated but still set on many machines. The default SDK folder comes
+// before PATH, so a copy of adb from another tool (scrcpy ships one) is used only when there is no
+// SDK at all (D-66).
 function locateSdkTool(
   machine: Machine,
   folder: string,
@@ -71,8 +73,8 @@ function locateSdkTool(
   return firstFile(machine, [
     inSdk(envValue(machine, "ANDROID_HOME")),
     inSdk(envValue(machine, "ANDROID_SDK_ROOT")),
-    onPath(machine, exe(machine, name)),
     inSdk(defaultSdk(machine)),
+    onPath(machine, exe(machine, name)),
   ]);
 }
 
