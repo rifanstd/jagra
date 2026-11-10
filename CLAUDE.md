@@ -88,7 +88,7 @@ packages/core      all of Jagra's work, no Electron
 packages/cli       the `jagra` command
 packages/desktop   Electron app: main, preload, renderer
 sample-app/        Android sample app (Kotlin), built with Gradle
-scripts/           repository scripts (the sample app's theme generator)
+scripts/           repository scripts (the sample app's theme generator, the CI check of a sample run)
 design/            theme, fonts, mockups, wireframes
 docs/              product, spec, architecture, decisions, plan, tests, release, to-verify
 ```

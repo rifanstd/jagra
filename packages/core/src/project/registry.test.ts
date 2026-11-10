@@ -3,6 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { EnvSecretStore } from "../adapters/secrets/env-secret-store.js";
+import type { SecretStore } from "../ports/secret-store.js";
 import { cliProjectId, projectsFile } from "./registry.js";
 
 let appData: string;
@@ -40,7 +41,7 @@ describe("cliProjectId (D-56)", () => {
 });
 
 describe("EnvSecretStore (CLI-3)", () => {
-  const store = new EnvSecretStore({
+  const store: SecretStore = new EnvSecretStore({
     JAGRA_SECRET_PASSWORD: "hunter2",
     JAGRA_SECRET_: "no name",
     PATH: "/bin",
