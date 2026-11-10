@@ -316,3 +316,7 @@ Format of each entry: what was decided, why, and what was considered instead.
 ### D-65. MCK-6's tips come with the Create project screen
 **Decided:** The two tips of `MCK-6` (the debug build must call `http://localhost:<port>` and must allow plain HTTP to localhost) are interface text, added with the Create project screen in M8. `MCK-7` needs nothing: Jagra reads `properties.condition` and never uses it.
 **Why:** M6 has no screen to show them on, and the CLI never adds a Mockoon file to a project.
+
+### D-66. The default SDK folder comes before PATH for `adb` and `emulator`
+**Decided:** Jagra looks for `adb` and `emulator` in `ANDROID_HOME`, then `ANDROID_SDK_ROOT`, then the default SDK folder (`%LOCALAPPDATA%\Android\Sdk`, `~/Library/Android/sdk`), and only then on `PATH`. This replaces that part of D-37; everything else in D-37 stays.
+**Why:** D-37 meant the SDK's own `adb` to win over a copy on `PATH`, but only did so when `ANDROID_HOME` was set. On the owner's machine it was not, so Jagra used the `adb` that scrcpy ships (found in M6, 2026-11-10). Two `adb` versions on one machine stop each other's server, which drops devices to offline in the middle of a run. Android Studio installs the SDK in the default folder.
