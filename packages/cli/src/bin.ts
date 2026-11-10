@@ -10,6 +10,9 @@ import {
   EnvSecretStore,
   isProcessAlive,
   MaestroFlowRunner,
+  MockoonServer,
+  NodePortChecker,
+  NodeProcessControl,
   NodeProcessRunner,
   NodeToolProbe,
   SystemClock,
@@ -22,9 +25,9 @@ const { version } = createRequire(import.meta.url)("../package.json") as {
   version: string;
 };
 const appData = appDataFolder();
-const runner = new NodeProcessRunner({
-  store: new ActiveProcessFile(activeProcessesFile(appData)),
-});
+const state = new ActiveProcessFile(activeProcessesFile(appData));
+const runner = new NodeProcessRunner({ store: state });
+const ports = new NodePortChecker();
 const clock = new SystemClock();
 const pathOf = (tools: ToolStatus[], name: ToolName) =>
   tools.find((t) => t.tool === name)?.path;
@@ -60,6 +63,16 @@ process.exitCode = await main(
         clock,
         maestro: pathOf(tools, "maestro") ?? "maestro",
       }),
+    mockServer: (tools) =>
+      new MockoonServer({
+        runner,
+        clock,
+        ports,
+        mockoon: pathOf(tools, "mockoon") ?? "mockoon-cli",
+      }),
+    ports,
+    state,
+    control: new NodeProcessControl({ runner }),
     isAlive: isProcessAlive,
     out: (line) => console.log(line),
     signal: cancel.signal,

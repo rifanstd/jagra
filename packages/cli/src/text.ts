@@ -60,6 +60,14 @@ const ERRORS: Describe = {
   INSTALL_SIGNATURE_MISMATCH: (e) =>
     `${e.packageName} on the device was signed with another key. The CLI never uninstalls an app; uninstall it by hand and run again.`,
   FILE_READ_FAILED: (e) => `${e.file} could not be read: ${e.detail}`,
+  MOCKOON_FILE_INVALID: (e) => `${e.file} is not a Mockoon file: ${e.detail}`,
+  MOCKOON_PORT_MISSING: (e) =>
+    `${e.file} has no port. Set mockoon.port in .jagra/config.yaml.`,
+  MOCKOON_PORT_BUSY: (e) =>
+    `Port ${e.port} is already in use, so Mockoon cannot start. The Mockoon desktop app may be open with the same port: stop that mock, or close the app.`,
+  MOCKOON_NOT_READY: (e) =>
+    `Mockoon did not answer on port ${e.port} within ${e.seconds} seconds.`,
+  MOCKOON_EXITED: (e) => `Mockoon stopped while starting: ${e.detail}`,
   FLOW_YAML_INVALID: (e) =>
     `${e.file}:${e.line}:${e.column} is not valid YAML: ${e.detail}`,
   FLOW_HEADER_MISSING: (e) =>

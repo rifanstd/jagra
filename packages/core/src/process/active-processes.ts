@@ -6,6 +6,26 @@ export interface ActiveProcessRecord {
   program: string;
   /** ISO time. Cleanup after a crash compares it with the live process, since pids get reused. */
   startedAt: string;
+  /** The Jagra process that started it, so one Jagra never cleans up after another that runs. */
+  owner?: number;
+  /** The port a Mockoon process listens on, which proves it is still that process (D-63). */
+  port?: number;
+}
+
+/** An `adb reverse` rule Jagra added (MCK-4). */
+export interface ReverseRecord {
+  deviceId: string;
+  port: number;
+  owner: number;
+}
+
+/** What a run adds to `state/active.json` besides processes (REL-2). */
+export interface RunStateStore {
+  /** Notes the port a recorded process listens on. */
+  setPort(pid: number, port: number): Promise<void>;
+  addReverse(record: ReverseRecord): Promise<void>;
+  removeReverse(record: ReverseRecord): Promise<void>;
+  listReverse(): Promise<ReverseRecord[]>;
 }
 
 /** The processes Jagra started and has not seen exit (REL-2). */
@@ -17,11 +37,12 @@ export interface ActiveProcessStore {
 
 interface StateFile {
   processes?: ActiveProcessRecord[];
+  reverse?: ReverseRecord[];
   [other: string]: unknown;
 }
 
 /** `state/active.json`. Other top-level fields are kept, so later milestones can add their own. */
-export class ActiveProcessFile implements ActiveProcessStore {
+export class ActiveProcessFile implements ActiveProcessStore, RunStateStore {
   private queue: Promise<unknown> = Promise.resolve();
 
   constructor(private readonly file: string) {}
@@ -46,6 +67,37 @@ export class ActiveProcessFile implements ActiveProcessStore {
   async list(): Promise<ActiveProcessRecord[]> {
     await this.queue.catch(() => undefined);
     return (await this.read()).processes ?? [];
+  }
+
+  setPort(pid: number, port: number): Promise<void> {
+    return this.update((state) => ({
+      ...state,
+      processes: (state.processes ?? []).map((p) =>
+        p.pid === pid ? { ...p, port } : p,
+      ),
+    }));
+  }
+
+  addReverse(record: ReverseRecord): Promise<void> {
+    return this.update((state) => ({
+      ...state,
+      reverse: [
+        ...(state.reverse ?? []).filter((r) => !sameRule(r, record)),
+        record,
+      ],
+    }));
+  }
+
+  removeReverse(record: ReverseRecord): Promise<void> {
+    return this.update((state) => ({
+      ...state,
+      reverse: (state.reverse ?? []).filter((r) => !sameRule(r, record)),
+    }));
+  }
+
+  async listReverse(): Promise<ReverseRecord[]> {
+    await this.queue.catch(() => undefined);
+    return (await this.read()).reverse ?? [];
   }
 
   private update(change: (state: StateFile) => StateFile): Promise<void> {
@@ -77,4 +129,8 @@ export class ActiveProcessFile implements ActiveProcessStore {
     await writeFile(temp, JSON.stringify(state, null, 2) + "\n");
     await rename(temp, this.file);
   }
+}
+
+function sameRule(a: ReverseRecord, b: ReverseRecord): boolean {
+  return a.deviceId === b.deviceId && a.port === b.port;
 }
