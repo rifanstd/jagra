@@ -13,6 +13,11 @@
       "source": "./src/fakes/index.ts",
       "types": "./dist/fakes/index.d.ts",
       "default": "./dist/fakes/index.js"
+    },
+    "./types": {
+      "source": "./src/public-types.ts",
+      "types": "./dist/public-types.d.ts",
+      "default": "./dist/public-types.js"
     }
   },
   "scripts": {

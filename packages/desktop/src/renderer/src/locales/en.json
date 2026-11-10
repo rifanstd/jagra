@@ -1,0 +1,58 @@
+{
+  "app": {
+    "name": "Jagra",
+    "tagline": "Tests Android builds before they go to QA."
+  },
+  "home": {
+    "version": "Version {{version}}",
+    "language": "Language"
+  },
+  "language": {
+    "en": "English",
+    "id": "Bahasa Indonesia"
+  },
+  "errors": {
+    "PROGRAM_NOT_FOUND": "{{program}} was not found. Install it, or set its location in Settings > Tool locations.",
+    "PROGRAM_IS_SCRIPT": "{{program}} at {{path}} is a script, which Jagra does not start. Install the program itself.",
+    "PROGRAM_START_FAILED": "{{program}} could not start.",
+    "FILE_NOT_FOUND": "{{file}} does not exist.",
+    "FILE_READ_FAILED": "{{file}} could not be read.",
+    "CONFIG_YAML_INVALID": "{{file}}, line {{line}}, is not valid YAML.",
+    "CONFIG_NOT_A_MAP": "{{file}} must be a list of fields, such as \"format: 1\".",
+    "CONFIG_FORMAT_MISSING": "{{file}} has no \"format\" field. Add \"format: 1\".",
+    "CONFIG_FORMAT_UNSUPPORTED": "{{file}} uses format {{found}}, and this Jagra reads format {{supported}}. Update Jagra.",
+    "CONFIG_FIELD_INVALID": "{{file}}, line {{line}}: \"{{field}}\" is not valid.",
+    "CONFIG_WRITE_FAILED": "{{file}} could not be saved.",
+    "CANCELLED": "Cancelled.",
+    "SECRETS_MISSING": "These variables have no value: {{names}}. Add them in Settings > Secrets.",
+    "NO_FLOWS": "There is no flow to run. Add a flow first.",
+    "RUN_SAVE_FAILED": "The run could not be saved in {{folder}}.",
+    "APK_NOT_FOUND": "No APK was found in {{searchPath}}. Build the app, or choose an APK.",
+    "APK_UNREADABLE": "{{file}} could not be read as an APK.",
+    "OUTPUT_MASK_FAILED": "Maestro's output could not be checked for secrets, so it was not kept.",
+    "DEVICE_NOT_FOUND": "Device {{deviceId}} is not connected.",
+    "DEVICE_NOT_AUTHORISED": "Phone {{deviceId}} has not allowed USB debugging. Unlock it and accept the prompt.",
+    "DEVICE_NOT_RESPONDING": "Phone {{deviceId}} does not respond. Unplug it and plug it in again.",
+    "EMULATOR_NOT_READY": "Emulator {{name}} was not ready after {{minutes}} minutes.",
+    "ADB_FAILED": "adb {{command}} failed.",
+    "ADB_TIMED_OUT": "adb {{command}} did not answer in time.",
+    "INSTALL_FAILED": "The APK could not be installed.",
+    "PACKAGE_NAME_INVALID": "\"{{packageName}}\" is not a package name. Check appId.",
+    "INSTALL_SIGNATURE_MISMATCH": "{{packageName}} on the device was signed with another key and was kept.",
+    "MOCKOON_FILE_INVALID": "{{file}} is not a Mockoon file.",
+    "MOCKOON_PORT_MISSING": "{{file}} has no port. Set mockoon.port in .jagra/config.yaml.",
+    "MOCKOON_PORT_BUSY": "Port {{port}} is already in use. The Mockoon desktop app may be open with the same port: stop that mock, or close the app.",
+    "MOCKOON_NOT_READY": "Mockoon did not answer on port {{port}} within {{seconds}} seconds.",
+    "MOCKOON_EXITED": "Mockoon stopped while starting.",
+    "FLOW_YAML_INVALID": "{{file}}, line {{line}}, is not valid YAML.",
+    "FLOW_HEADER_MISSING": "{{file}} has no header. Start it with \"appId:\" and \"---\".",
+    "FLOW_TOO_MANY_DOCUMENTS": "{{file}}, line {{line}}, has a second \"---\".",
+    "FLOW_HEADER_NOT_A_MAP": "{{file}}, line {{line}}: the header must be a list of fields.",
+    "FLOW_APP_ID_MISSING": "{{file}}, line {{line}}: the header has no appId.",
+    "FLOW_PROPERTIES_INVALID": "{{file}}, line {{line}}: \"properties\" must be a list of fields.",
+    "FLOW_STEPS_MISSING": "{{file}}, line {{line}}, has no steps.",
+    "FLOW_STEP_INVALID": "{{file}}, line {{line}}, is not a Maestro step.",
+    "FLOW_AI_COMMAND": "{{file}}, line {{line}}, uses {{command}}, which lets an AI decide the result. Jagra does not run it.",
+    "FLOW_HELPER_NOT_FOUND": "{{file}}, line {{line}}, calls {{helper}}, which does not exist."
+  }
+}

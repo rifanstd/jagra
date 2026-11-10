@@ -10,7 +10,7 @@ This file lists everything the design depends on but nobody has confirmed yet: e
 
 | Item | Why it matters | Found |
 |---|---|---|
-| Lowest Windows and macOS versions supported by the Electron version we pick | `COMP-1`, `COMP-2` | |
+| Lowest Windows and macOS versions supported by the Electron version we pick | `COMP-1`, `COMP-2` | 2026-11-10, README of Electron v45.2.3: Windows 10 and up, `x64` and `arm64` only (no 32-bit build); macOS Ventura (13) and up, Intel and Apple silicon. Both cover `COMP-1` and `COMP-2`. Electron follows Chromium's platform support, so check again whenever Electron is updated (D-73). |
 | Lowest Android version Maestro supports on a device | `DEV-7`, `COMP-3` | Partly, 2026-11-07. The CLI docs state no minimum. docs.maestro.dev/getting-started/installing-maestro lists API levels 29, 30, 31, 33 and 34 as supported, without calling 29 a minimum. 2026-11-09: Maestro's Android driver has `minSdk = 24` at v2.12.1 (github.com/mobile-dev-inc/Maestro, `maestro-android/build.gradle.kts`), so it cannot install below API 24. Jagra warns below 24 (`MAESTRO_MIN_ANDROID_SDK`). Not tried on an API 24 to 28 image: that needs a system image download on the owner's machine. |
 | Java version Maestro needs | `ENV-3` | 2026-11-07. Java 17 or newer: docs.maestro.dev/maestro-cli/how-to-install-maestro-cli, and the 2.12.1 launcher refuses older versions. |
 | Smoothest way to install Maestro on Windows: native or through WSL | `ENV-4`, the most likely place for new users to get stuck | 2026-11-07. Native. The docs say to use WSL "only if it is strictly necessary": download `maestro.zip` from GitHub releases, extract it (for example to `C:\maestro`) and add its `bin` to `PATH`. Done this way on the owner's machine. The docs' `setx PATH "%PATH%;..."` can cut a long `PATH`, so Jagra's steps point to the Environment Variables window instead. |
@@ -72,7 +72,7 @@ un.js`. Both started without a shell as in D-34. Agents still open, M10. |
 
 | Item | Why it matters | Found |
 |---|---|---|
-| Electron `safeStorage` behaviour and guarantees on Windows and macOS | `SEC-3` | |
+| Electron `safeStorage` behaviour and guarantees on Windows and macOS | `SEC-3` | Partly, 2026-11-10, Electron 45.2.3 on the owner's Windows 11: `isEncryptionAvailable()` is true after the app is ready; `encryptString("hunter2")` gives 38 bytes starting with `v10`, without the value in them, and `decryptString` returns it. Electron's docs: on Windows the key is protected with DPAPI for the current user; on macOS it is kept in the Keychain. Not tried on a Mac yet. Jagra refuses to store a value when encryption is not available (D-72). |
 | electron-updater with GitHub Releases: stable and pre-release channels, and showing a notice only on unsigned macOS builds | `UPD-1` to `UPD-3` | |
 | Effect of moving the repository to the `jagra-dev` organisation on update checks from installed versions | `decisions.md` D-27 | |
 | Requirements and process of the free Windows code signing service | `release.md` | |

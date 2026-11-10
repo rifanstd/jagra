@@ -1,3 +1,7 @@
 packages:
   - packages/*
   - scripts
+
+# Packages allowed to run install scripts. Electron's downloads its binary.
+onlyBuiltDependencies:
+  - electron

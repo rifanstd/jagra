@@ -1,0 +1,32 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+/* The only source of colors, fonts, radius and shadows (design/system/README.md). */
+@import "../../../../../design/system/theme.css";
+
+/* Dark mode is the .dark class on the root element, set from the system setting (SET-2). */
+@custom-variant dark (&:is(.dark *));
+
+/* Bundled fonts, never from a CDN (SEC-2, D-39). */
+@font-face {
+  font-family: "Outfit";
+  src: url("../../../../../design/fonts/Outfit%5Bwght%5D.ttf")
+    format("truetype");
+  font-weight: 100 900;
+  font-display: block;
+}
+@font-face {
+  font-family: "Fira Code";
+  src: url("../../../../../design/fonts/FiraCode%5Bwght%5D.ttf")
+    format("truetype");
+  font-weight: 300 700;
+  font-display: block;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+}
