@@ -23,7 +23,7 @@ describe("sampleRunProblems", () => {
   it("refuses a run where other flows failed too, even with exit code 1", () => {
     const run = {
       ...good,
-      flows: [flow("item-detail.yaml", "failed", "Username"), good.flows[1]!],
+      flows: [flow("item-detail.yaml", "failed", "Username"), good.flows[1]],
     };
     expect(sampleRunProblems(run, 1)).toEqual([
       "item-detail.yaml failed, expected passed (step: Username)",
