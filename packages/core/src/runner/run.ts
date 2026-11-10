@@ -1,5 +1,5 @@
 import { readFile, writeFile } from "node:fs/promises";
-import { join, relative } from "node:path";
+import { join, relative, sep } from "node:path";
 import { checkAndroidVersion } from "../devices/android.js";
 import { installApk } from "../devices/install.js";
 import { prepareDevice } from "../devices/prepare.js";
@@ -267,8 +267,9 @@ async function toResult(
   }
   const value = outcome.value;
   const result: Partial<FlowResult> = {};
+  // Forward slashes, so the run folder still works when zipped and opened elsewhere (RES-6).
   const relativeTo = (path?: string) =>
-    path ? relative(runFolder, path) : undefined;
+    path ? relative(runFolder, path).split(sep).join("/") : undefined;
   const set = <K extends keyof FlowResult>(
     key: K,
     item: FlowResult[K] | undefined,

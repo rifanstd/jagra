@@ -184,7 +184,7 @@ describe("executeRun (spec section 7)", () => {
       "app-crashed",
       undefined,
     ]);
-    expect(run.flows[3]?.crashReport).toBe(join("x", "crash.txt"));
+    expect(run.flows[3]?.crashReport).toBe("x/crash.txt");
   });
 
   it("notes a black failure screenshot (RES-5)", async () => {

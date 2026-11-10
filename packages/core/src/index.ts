@@ -48,6 +48,16 @@ export {
 export { AdbDeviceBridge } from "./adapters/devices/adb-device-bridge.js";
 export { AdbkitApkReader } from "./adapters/apk/adbkit-apk-reader.js";
 export { MaestroFlowRunner } from "./adapters/maestro/maestro-flow-runner.js";
+export {
+  EnvSecretStore,
+  SECRET_PREFIX,
+} from "./adapters/secrets/env-secret-store.js";
+export {
+  cliProjectId,
+  knownProjects,
+  projectsFile,
+  type KnownProject,
+} from "./project/registry.js";
 export { maskFiles, outputMasker } from "./log/mask-files.js";
 export {
   NodeToolProbe,
