@@ -1,0 +1,771 @@
+[
+  {
+    "command": {
+      "defineVariablesCommand": {
+        "env": {
+          "MAESTRO_JAGRA_SECRET_JAGRA_TEST_SECRET": "***",
+          "MAESTRO_DISABLE_UPDATE_CHECK": "true",
+          "MAESTRO_CLI_ANALYSIS_NOTIFICATION_DISABLED": "true",
+          "MAESTRO_CLI_NO_ANALYTICS": "1",
+          "MAESTRO_FILENAME": "login-works",
+          "MAESTRO_DEVICE_UDID": "emulator-5554",
+          "MAESTRO_SHARD_ID": "1",
+          "MAESTRO_SHARD_INDEX": "0"
+        },
+        "optional": false
+      }
+    },
+    "metadata": {
+      "status": "COMPLETED",
+      "timestamp": 1794309764619,
+      "duration": 4,
+      "sequenceNumber": 0,
+      "depth": 0,
+      "evaluatedCommand": {
+        "defineVariablesCommand": {
+          "env": {
+            "MAESTRO_JAGRA_SECRET_JAGRA_TEST_SECRET": "***",
+            "MAESTRO_DISABLE_UPDATE_CHECK": "true",
+            "MAESTRO_CLI_ANALYSIS_NOTIFICATION_DISABLED": "true",
+            "MAESTRO_CLI_NO_ANALYTICS": "1",
+            "MAESTRO_FILENAME": "login-works",
+            "MAESTRO_DEVICE_UDID": "emulator-5554",
+            "MAESTRO_SHARD_ID": "1",
+            "MAESTRO_SHARD_INDEX": "0"
+          },
+          "optional": false
+        }
+      }
+    }
+  },
+  {
+    "command": {
+      "defineVariablesCommand": {
+        "env": {
+          "JAGRA_TEST_SECRET": "${MAESTRO_JAGRA_SECRET_JAGRA_TEST_SECRET}"
+        },
+        "optional": false
+      }
+    },
+    "metadata": {
+      "status": "COMPLETED",
+      "timestamp": 1794309764624,
+      "duration": 1209,
+      "sequenceNumber": 1,
+      "depth": 0,
+      "evaluatedCommand": {
+        "defineVariablesCommand": {
+          "env": {
+            "JAGRA_TEST_SECRET": "***"
+          },
+          "optional": false
+        }
+      }
+    }
+  },
+  {
+    "command": {
+      "applyConfigurationCommand": {
+        "config": {
+          "appId": "dev.jagra.sample",
+          "name": "Signing in with the demo account"
+        },
+        "optional": false
+      }
+    },
+    "metadata": {
+      "status": "COMPLETED",
+      "timestamp": 1794309765841,
+      "duration": 1,
+      "sequenceNumber": 2,
+      "depth": 0,
+      "evaluatedCommand": {
+        "applyConfigurationCommand": {
+          "config": {
+            "appId": "dev.jagra.sample",
+            "name": "Signing in with the demo account"
+          },
+          "optional": false
+        }
+      }
+    }
+  },
+  {
+    "command": {
+      "runFlowCommand": {
+        "commands": [
+          {
+            "applyConfigurationCommand": {
+              "config": {
+                "appId": "dev.jagra.sample",
+                "name": "Login works",
+                "properties": {
+                  "condition": "success"
+                }
+              },
+              "optional": false
+            }
+          },
+          {
+            "launchAppCommand": {
+              "appId": "dev.jagra.sample",
+              "clearState": true,
+              "optional": false
+            }
+          },
+          {
+            "runFlowCommand": {
+              "commands": [
+                {
+                  "applyConfigurationCommand": {
+                    "config": {
+                      "appId": "dev.jagra.sample",
+                      "name": "Log in as the demo user"
+                    },
+                    "optional": false
+                  }
+                },
+                {
+                  "tapOnElement": {
+                    "selector": {
+                      "textRegex": "Username",
+                      "optional": false
+                    },
+                    "retryIfNoChange": false,
+                    "waitUntilVisible": false,
+                    "longPress": false,
+                    "optional": false
+                  }
+                },
+                {
+                  "inputTextCommand": {
+                    "text": "demo",
+                    "optional": false
+                  }
+                },
+                {
+                  "tapOnElement": {
+                    "selector": {
+                      "textRegex": "Password",
+                      "optional": false
+                    },
+                    "retryIfNoChange": false,
+                    "waitUntilVisible": false,
+                    "longPress": false,
+                    "optional": false
+                  }
+                },
+                {
+                  "inputTextCommand": {
+                    "text": "jagra123",
+                    "optional": false
+                  }
+                },
+                {
+                  "hideKeyboardCommand": {
+                    "optional": false
+                  }
+                },
+                {
+                  "tapOnElement": {
+                    "selector": {
+                      "textRegex": "Sign in",
+                      "optional": false
+                    },
+                    "retryIfNoChange": false,
+                    "waitUntilVisible": false,
+                    "longPress": false,
+                    "optional": false
+                  }
+                }
+              ],
+              "sourceDescription": "parts/login.yaml",
+              "config": {
+                "appId": "dev.jagra.sample",
+                "name": "Log in as the demo user"
+              },
+              "optional": false
+            }
+          },
+          {
+            "assertConditionCommand": {
+              "condition": {
+                "visible": {
+                  "textRegex": "Stock",
+                  "optional": false
+                }
+              },
+              "optional": false
+            }
+          }
+        ],
+        "sourceDescription": "D:/projects/jagra/sample-app/.jagra/flows/login-works.yaml",
+        "config": {
+          "appId": "dev.jagra.sample",
+          "name": "Login works",
+          "properties": {
+            "condition": "success"
+          }
+        },
+        "optional": false
+      }
+    },
+    "metadata": {
+      "status": "COMPLETED",
+      "timestamp": 1794309765843,
+      "duration": 16804,
+      "sequenceNumber": 3,
+      "depth": 0,
+      "evaluatedCommand": {
+        "runFlowCommand": {
+          "commands": [
+            {
+              "applyConfigurationCommand": {
+                "config": {
+                  "appId": "dev.jagra.sample",
+                  "name": "Login works",
+                  "properties": {
+                    "condition": "success"
+                  }
+                },
+                "optional": false
+              }
+            },
+            {
+              "launchAppCommand": {
+                "appId": "dev.jagra.sample",
+                "clearState": true,
+                "optional": false
+              }
+            },
+            {
+              "runFlowCommand": {
+                "commands": [
+                  {
+                    "applyConfigurationCommand": {
+                      "config": {
+                        "appId": "dev.jagra.sample",
+                        "name": "Log in as the demo user"
+                      },
+                      "optional": false
+                    }
+                  },
+                  {
+                    "tapOnElement": {
+                      "selector": {
+                        "textRegex": "Username",
+                        "optional": false
+                      },
+                      "retryIfNoChange": false,
+                      "waitUntilVisible": false,
+                      "longPress": false,
+                      "optional": false
+                    }
+                  },
+                  {
+                    "inputTextCommand": {
+                      "text": "demo",
+                      "optional": false
+                    }
+                  },
+                  {
+                    "tapOnElement": {
+                      "selector": {
+                        "textRegex": "Password",
+                        "optional": false
+                      },
+                      "retryIfNoChange": false,
+                      "waitUntilVisible": false,
+                      "longPress": false,
+                      "optional": false
+                    }
+                  },
+                  {
+                    "inputTextCommand": {
+                      "text": "jagra123",
+                      "optional": false
+                    }
+                  },
+                  {
+                    "hideKeyboardCommand": {
+                      "optional": false
+                    }
+                  },
+                  {
+                    "tapOnElement": {
+                      "selector": {
+                        "textRegex": "Sign in",
+                        "optional": false
+                      },
+                      "retryIfNoChange": false,
+                      "waitUntilVisible": false,
+                      "longPress": false,
+                      "optional": false
+                    }
+                  }
+                ],
+                "sourceDescription": "parts/login.yaml",
+                "config": {
+                  "appId": "dev.jagra.sample",
+                  "name": "Log in as the demo user"
+                },
+                "optional": false
+              }
+            },
+            {
+              "assertConditionCommand": {
+                "condition": {
+                  "visible": {
+                    "textRegex": "Stock",
+                    "optional": false
+                  }
+                },
+                "optional": false
+              }
+            }
+          ],
+          "sourceDescription": "D:/projects/jagra/sample-app/.jagra/flows/login-works.yaml",
+          "config": {
+            "appId": "dev.jagra.sample",
+            "name": "Login works",
+            "properties": {
+              "condition": "success"
+            }
+          },
+          "optional": false
+        }
+      }
+    }
+  },
+  {
+    "command": {
+      "applyConfigurationCommand": {
+        "config": {
+          "appId": "dev.jagra.sample",
+          "name": "Login works",
+          "properties": {
+            "condition": "success"
+          }
+        },
+        "optional": false
+      }
+    },
+    "metadata": {
+      "status": "COMPLETED",
+      "timestamp": 1794309765855,
+      "duration": 1,
+      "sequenceNumber": 4,
+      "depth": 1,
+      "evaluatedCommand": {
+        "applyConfigurationCommand": {
+          "config": {
+            "appId": "dev.jagra.sample",
+            "name": "Login works",
+            "properties": {
+              "condition": "success"
+            }
+          },
+          "optional": false
+        }
+      }
+    }
+  },
+  {
+    "command": {
+      "launchAppCommand": {
+        "appId": "dev.jagra.sample",
+        "clearState": true,
+        "optional": false
+      }
+    },
+    "metadata": {
+      "status": "COMPLETED",
+      "timestamp": 1794309765856,
+      "duration": 855,
+      "sequenceNumber": 5,
+      "depth": 1,
+      "evaluatedCommand": {
+        "launchAppCommand": {
+          "appId": "dev.jagra.sample",
+          "clearState": true,
+          "optional": false
+        }
+      }
+    }
+  },
+  {
+    "command": {
+      "runFlowCommand": {
+        "commands": [
+          {
+            "applyConfigurationCommand": {
+              "config": {
+                "appId": "dev.jagra.sample",
+                "name": "Log in as the demo user"
+              },
+              "optional": false
+            }
+          },
+          {
+            "tapOnElement": {
+              "selector": {
+                "textRegex": "Username",
+                "optional": false
+              },
+              "retryIfNoChange": false,
+              "waitUntilVisible": false,
+              "longPress": false,
+              "optional": false
+            }
+          },
+          {
+            "inputTextCommand": {
+              "text": "demo",
+              "optional": false
+            }
+          },
+          {
+            "tapOnElement": {
+              "selector": {
+                "textRegex": "Password",
+                "optional": false
+              },
+              "retryIfNoChange": false,
+              "waitUntilVisible": false,
+              "longPress": false,
+              "optional": false
+            }
+          },
+          {
+            "inputTextCommand": {
+              "text": "jagra123",
+              "optional": false
+            }
+          },
+          {
+            "hideKeyboardCommand": {
+              "optional": false
+            }
+          },
+          {
+            "tapOnElement": {
+              "selector": {
+                "textRegex": "Sign in",
+                "optional": false
+              },
+              "retryIfNoChange": false,
+              "waitUntilVisible": false,
+              "longPress": false,
+              "optional": false
+            }
+          }
+        ],
+        "sourceDescription": "parts/login.yaml",
+        "config": {
+          "appId": "dev.jagra.sample",
+          "name": "Log in as the demo user"
+        },
+        "optional": false
+      }
+    },
+    "metadata": {
+      "status": "COMPLETED",
+      "timestamp": 1794309766711,
+      "duration": 15824,
+      "sequenceNumber": 6,
+      "depth": 1,
+      "evaluatedCommand": {
+        "runFlowCommand": {
+          "commands": [
+            {
+              "applyConfigurationCommand": {
+                "config": {
+                  "appId": "dev.jagra.sample",
+                  "name": "Log in as the demo user"
+                },
+                "optional": false
+              }
+            },
+            {
+              "tapOnElement": {
+                "selector": {
+                  "textRegex": "Username",
+                  "optional": false
+                },
+                "retryIfNoChange": false,
+                "waitUntilVisible": false,
+                "longPress": false,
+                "optional": false
+              }
+            },
+            {
+              "inputTextCommand": {
+                "text": "demo",
+                "optional": false
+              }
+            },
+            {
+              "tapOnElement": {
+                "selector": {
+                  "textRegex": "Password",
+                  "optional": false
+                },
+                "retryIfNoChange": false,
+                "waitUntilVisible": false,
+                "longPress": false,
+                "optional": false
+              }
+            },
+            {
+              "inputTextCommand": {
+                "text": "jagra123",
+                "optional": false
+              }
+            },
+            {
+              "hideKeyboardCommand": {
+                "optional": false
+              }
+            },
+            {
+              "tapOnElement": {
+                "selector": {
+                  "textRegex": "Sign in",
+                  "optional": false
+                },
+                "retryIfNoChange": false,
+                "waitUntilVisible": false,
+                "longPress": false,
+                "optional": false
+              }
+            }
+          ],
+          "sourceDescription": "parts/login.yaml",
+          "config": {
+            "appId": "dev.jagra.sample",
+            "name": "Log in as the demo user"
+          },
+          "optional": false
+        }
+      }
+    }
+  },
+  {
+    "command": {
+      "applyConfigurationCommand": {
+        "config": {
+          "appId": "dev.jagra.sample",
+          "name": "Log in as the demo user"
+        },
+        "optional": false
+      }
+    },
+    "metadata": {
+      "status": "COMPLETED",
+      "timestamp": 1794309766712,
+      "duration": 0,
+      "sequenceNumber": 7,
+      "depth": 2,
+      "evaluatedCommand": {
+        "applyConfigurationCommand": {
+          "config": {
+            "appId": "dev.jagra.sample",
+            "name": "Log in as the demo user"
+          },
+          "optional": false
+        }
+      }
+    }
+  },
+  {
+    "command": {
+      "tapOnElement": {
+        "selector": {
+          "textRegex": "Username",
+          "optional": false
+        },
+        "retryIfNoChange": false,
+        "waitUntilVisible": false,
+        "longPress": false,
+        "optional": false
+      }
+    },
+    "metadata": {
+      "status": "COMPLETED",
+      "timestamp": 1794309766712,
+      "duration": 6550,
+      "sequenceNumber": 8,
+      "depth": 2,
+      "evaluatedCommand": {
+        "tapOnElement": {
+          "selector": {
+            "textRegex": "Username",
+            "optional": false
+          },
+          "retryIfNoChange": false,
+          "waitUntilVisible": false,
+          "longPress": false,
+          "optional": false
+        }
+      }
+    }
+  },
+  {
+    "command": {
+      "inputTextCommand": {
+        "text": "demo",
+        "optional": false
+      }
+    },
+    "metadata": {
+      "status": "COMPLETED",
+      "timestamp": 1794309773262,
+      "duration": 1574,
+      "sequenceNumber": 9,
+      "depth": 2,
+      "evaluatedCommand": {
+        "inputTextCommand": {
+          "text": "demo",
+          "optional": false
+        }
+      }
+    }
+  },
+  {
+    "command": {
+      "tapOnElement": {
+        "selector": {
+          "textRegex": "Password",
+          "optional": false
+        },
+        "retryIfNoChange": false,
+        "waitUntilVisible": false,
+        "longPress": false,
+        "optional": false
+      }
+    },
+    "metadata": {
+      "status": "COMPLETED",
+      "timestamp": 1794309774836,
+      "duration": 2878,
+      "sequenceNumber": 10,
+      "depth": 2,
+      "evaluatedCommand": {
+        "tapOnElement": {
+          "selector": {
+            "textRegex": "Password",
+            "optional": false
+          },
+          "retryIfNoChange": false,
+          "waitUntilVisible": false,
+          "longPress": false,
+          "optional": false
+        }
+      }
+    }
+  },
+  {
+    "command": {
+      "inputTextCommand": {
+        "text": "jagra123",
+        "optional": false
+      }
+    },
+    "metadata": {
+      "status": "COMPLETED",
+      "timestamp": 1794309777715,
+      "duration": 1249,
+      "sequenceNumber": 11,
+      "depth": 2,
+      "evaluatedCommand": {
+        "inputTextCommand": {
+          "text": "jagra123",
+          "optional": false
+        }
+      }
+    }
+  },
+  {
+    "command": {
+      "hideKeyboardCommand": {
+        "optional": false
+      }
+    },
+    "metadata": {
+      "status": "COMPLETED",
+      "timestamp": 1794309778964,
+      "duration": 1167,
+      "sequenceNumber": 12,
+      "depth": 2,
+      "evaluatedCommand": {
+        "hideKeyboardCommand": {
+          "optional": false
+        }
+      }
+    }
+  },
+  {
+    "command": {
+      "tapOnElement": {
+        "selector": {
+          "textRegex": "Sign in",
+          "optional": false
+        },
+        "retryIfNoChange": false,
+        "waitUntilVisible": false,
+        "longPress": false,
+        "optional": false
+      }
+    },
+    "metadata": {
+      "status": "COMPLETED",
+      "timestamp": 1794309780132,
+      "duration": 2403,
+      "sequenceNumber": 13,
+      "depth": 2,
+      "evaluatedCommand": {
+        "tapOnElement": {
+          "selector": {
+            "textRegex": "Sign in",
+            "optional": false
+          },
+          "retryIfNoChange": false,
+          "waitUntilVisible": false,
+          "longPress": false,
+          "optional": false
+        }
+      }
+    }
+  },
+  {
+    "command": {
+      "assertConditionCommand": {
+        "condition": {
+          "visible": {
+            "textRegex": "Stock",
+            "optional": false
+          }
+        },
+        "optional": false
+      }
+    },
+    "metadata": {
+      "status": "COMPLETED",
+      "timestamp": 1794309782535,
+      "duration": 110,
+      "sequenceNumber": 14,
+      "depth": 1,
+      "evaluatedCommand": {
+        "assertConditionCommand": {
+          "condition": {
+            "visible": {
+              "textRegex": "Stock",
+              "optional": false
+            }
+          },
+          "optional": false
+        }
+      }
+    }
+  }
+]

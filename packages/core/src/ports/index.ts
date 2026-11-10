@@ -7,6 +7,5 @@ export type * from "./flow-runner.js";
 export type * from "./mock-server.js";
 export type * from "./port-checker.js";
 export type * from "./process-runner.js";
-export type * from "./screen-inspector.js";
 export type * from "./secret-store.js";
 export type * from "./tool-probe.js";

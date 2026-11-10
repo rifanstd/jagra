@@ -1,0 +1,619 @@
+[
+  {
+    "command": {
+      "defineVariablesCommand": {
+        "env": {
+          "MAESTRO_DISABLE_UPDATE_CHECK": "true",
+          "MAESTRO_CLI_ANALYSIS_NOTIFICATION_DISABLED": "true",
+          "MAESTRO_CLI_NO_ANALYTICS": "1",
+          "MAESTRO_FILENAME": "save-item",
+          "MAESTRO_DEVICE_UDID": "emulator-5554",
+          "MAESTRO_SHARD_ID": "1",
+          "MAESTRO_SHARD_INDEX": "0"
+        },
+        "optional": false
+      }
+    },
+    "metadata": {
+      "status": "COMPLETED",
+      "timestamp": 1794309706675,
+      "duration": 5,
+      "sequenceNumber": 0,
+      "depth": 0,
+      "evaluatedCommand": {
+        "defineVariablesCommand": {
+          "env": {
+            "MAESTRO_DISABLE_UPDATE_CHECK": "true",
+            "MAESTRO_CLI_ANALYSIS_NOTIFICATION_DISABLED": "true",
+            "MAESTRO_CLI_NO_ANALYTICS": "1",
+            "MAESTRO_FILENAME": "save-item",
+            "MAESTRO_DEVICE_UDID": "emulator-5554",
+            "MAESTRO_SHARD_ID": "1",
+            "MAESTRO_SHARD_INDEX": "0"
+          },
+          "optional": false
+        }
+      }
+    }
+  },
+  {
+    "command": {
+      "applyConfigurationCommand": {
+        "config": {
+          "appId": "dev.jagra.sample",
+          "name": "Renaming an item and saving it",
+          "properties": {
+            "condition": "success"
+          }
+        },
+        "optional": false
+      }
+    },
+    "metadata": {
+      "status": "COMPLETED",
+      "timestamp": 1794309706691,
+      "duration": 0,
+      "sequenceNumber": 1,
+      "depth": 0,
+      "evaluatedCommand": {
+        "applyConfigurationCommand": {
+          "config": {
+            "appId": "dev.jagra.sample",
+            "name": "Renaming an item and saving it",
+            "properties": {
+              "condition": "success"
+            }
+          },
+          "optional": false
+        }
+      }
+    }
+  },
+  {
+    "command": {
+      "launchAppCommand": {
+        "appId": "dev.jagra.sample",
+        "clearState": true,
+        "optional": false
+      }
+    },
+    "metadata": {
+      "status": "COMPLETED",
+      "timestamp": 1794309706691,
+      "duration": 1014,
+      "sequenceNumber": 2,
+      "depth": 0,
+      "evaluatedCommand": {
+        "launchAppCommand": {
+          "appId": "dev.jagra.sample",
+          "clearState": true,
+          "optional": false
+        }
+      }
+    }
+  },
+  {
+    "command": {
+      "runFlowCommand": {
+        "commands": [
+          {
+            "applyConfigurationCommand": {
+              "config": {
+                "appId": "dev.jagra.sample",
+                "name": "Log in as the demo user"
+              },
+              "optional": false
+            }
+          },
+          {
+            "tapOnElement": {
+              "selector": {
+                "textRegex": "Username",
+                "optional": false
+              },
+              "retryIfNoChange": false,
+              "waitUntilVisible": false,
+              "longPress": false,
+              "optional": false
+            }
+          },
+          {
+            "inputTextCommand": {
+              "text": "demo",
+              "optional": false
+            }
+          },
+          {
+            "tapOnElement": {
+              "selector": {
+                "textRegex": "Password",
+                "optional": false
+              },
+              "retryIfNoChange": false,
+              "waitUntilVisible": false,
+              "longPress": false,
+              "optional": false
+            }
+          },
+          {
+            "inputTextCommand": {
+              "text": "jagra123",
+              "optional": false
+            }
+          },
+          {
+            "hideKeyboardCommand": {
+              "optional": false
+            }
+          },
+          {
+            "tapOnElement": {
+              "selector": {
+                "textRegex": "Sign in",
+                "optional": false
+              },
+              "retryIfNoChange": false,
+              "waitUntilVisible": false,
+              "longPress": false,
+              "optional": false
+            }
+          }
+        ],
+        "sourceDescription": "parts/login.yaml",
+        "config": {
+          "appId": "dev.jagra.sample",
+          "name": "Log in as the demo user"
+        },
+        "optional": false
+      }
+    },
+    "metadata": {
+      "status": "COMPLETED",
+      "timestamp": 1794309707706,
+      "duration": 17882,
+      "sequenceNumber": 3,
+      "depth": 0,
+      "evaluatedCommand": {
+        "runFlowCommand": {
+          "commands": [
+            {
+              "applyConfigurationCommand": {
+                "config": {
+                  "appId": "dev.jagra.sample",
+                  "name": "Log in as the demo user"
+                },
+                "optional": false
+              }
+            },
+            {
+              "tapOnElement": {
+                "selector": {
+                  "textRegex": "Username",
+                  "optional": false
+                },
+                "retryIfNoChange": false,
+                "waitUntilVisible": false,
+                "longPress": false,
+                "optional": false
+              }
+            },
+            {
+              "inputTextCommand": {
+                "text": "demo",
+                "optional": false
+              }
+            },
+            {
+              "tapOnElement": {
+                "selector": {
+                  "textRegex": "Password",
+                  "optional": false
+                },
+                "retryIfNoChange": false,
+                "waitUntilVisible": false,
+                "longPress": false,
+                "optional": false
+              }
+            },
+            {
+              "inputTextCommand": {
+                "text": "jagra123",
+                "optional": false
+              }
+            },
+            {
+              "hideKeyboardCommand": {
+                "optional": false
+              }
+            },
+            {
+              "tapOnElement": {
+                "selector": {
+                  "textRegex": "Sign in",
+                  "optional": false
+                },
+                "retryIfNoChange": false,
+                "waitUntilVisible": false,
+                "longPress": false,
+                "optional": false
+              }
+            }
+          ],
+          "sourceDescription": "parts/login.yaml",
+          "config": {
+            "appId": "dev.jagra.sample",
+            "name": "Log in as the demo user"
+          },
+          "optional": false
+        }
+      }
+    }
+  },
+  {
+    "command": {
+      "applyConfigurationCommand": {
+        "config": {
+          "appId": "dev.jagra.sample",
+          "name": "Log in as the demo user"
+        },
+        "optional": false
+      }
+    },
+    "metadata": {
+      "status": "COMPLETED",
+      "timestamp": 1794309707708,
+      "duration": 0,
+      "sequenceNumber": 4,
+      "depth": 1,
+      "evaluatedCommand": {
+        "applyConfigurationCommand": {
+          "config": {
+            "appId": "dev.jagra.sample",
+            "name": "Log in as the demo user"
+          },
+          "optional": false
+        }
+      }
+    }
+  },
+  {
+    "command": {
+      "tapOnElement": {
+        "selector": {
+          "textRegex": "Username",
+          "optional": false
+        },
+        "retryIfNoChange": false,
+        "waitUntilVisible": false,
+        "longPress": false,
+        "optional": false
+      }
+    },
+    "metadata": {
+      "status": "COMPLETED",
+      "timestamp": 1794309707708,
+      "duration": 7319,
+      "sequenceNumber": 5,
+      "depth": 1,
+      "evaluatedCommand": {
+        "tapOnElement": {
+          "selector": {
+            "textRegex": "Username",
+            "optional": false
+          },
+          "retryIfNoChange": false,
+          "waitUntilVisible": false,
+          "longPress": false,
+          "optional": false
+        }
+      }
+    }
+  },
+  {
+    "command": {
+      "inputTextCommand": {
+        "text": "demo",
+        "optional": false
+      }
+    },
+    "metadata": {
+      "status": "COMPLETED",
+      "timestamp": 1794309715027,
+      "duration": 1560,
+      "sequenceNumber": 6,
+      "depth": 1,
+      "evaluatedCommand": {
+        "inputTextCommand": {
+          "text": "demo",
+          "optional": false
+        }
+      }
+    }
+  },
+  {
+    "command": {
+      "tapOnElement": {
+        "selector": {
+          "textRegex": "Password",
+          "optional": false
+        },
+        "retryIfNoChange": false,
+        "waitUntilVisible": false,
+        "longPress": false,
+        "optional": false
+      }
+    },
+    "metadata": {
+      "status": "COMPLETED",
+      "timestamp": 1794309716587,
+      "duration": 2802,
+      "sequenceNumber": 7,
+      "depth": 1,
+      "evaluatedCommand": {
+        "tapOnElement": {
+          "selector": {
+            "textRegex": "Password",
+            "optional": false
+          },
+          "retryIfNoChange": false,
+          "waitUntilVisible": false,
+          "longPress": false,
+          "optional": false
+        }
+      }
+    }
+  },
+  {
+    "command": {
+      "inputTextCommand": {
+        "text": "jagra123",
+        "optional": false
+      }
+    },
+    "metadata": {
+      "status": "COMPLETED",
+      "timestamp": 1794309719390,
+      "duration": 1345,
+      "sequenceNumber": 8,
+      "depth": 1,
+      "evaluatedCommand": {
+        "inputTextCommand": {
+          "text": "jagra123",
+          "optional": false
+        }
+      }
+    }
+  },
+  {
+    "command": {
+      "hideKeyboardCommand": {
+        "optional": false
+      }
+    },
+    "metadata": {
+      "status": "COMPLETED",
+      "timestamp": 1794309720736,
+      "duration": 1658,
+      "sequenceNumber": 9,
+      "depth": 1,
+      "evaluatedCommand": {
+        "hideKeyboardCommand": {
+          "optional": false
+        }
+      }
+    }
+  },
+  {
+    "command": {
+      "tapOnElement": {
+        "selector": {
+          "textRegex": "Sign in",
+          "optional": false
+        },
+        "retryIfNoChange": false,
+        "waitUntilVisible": false,
+        "longPress": false,
+        "optional": false
+      }
+    },
+    "metadata": {
+      "status": "COMPLETED",
+      "timestamp": 1794309722395,
+      "duration": 3193,
+      "sequenceNumber": 10,
+      "depth": 1,
+      "evaluatedCommand": {
+        "tapOnElement": {
+          "selector": {
+            "textRegex": "Sign in",
+            "optional": false
+          },
+          "retryIfNoChange": false,
+          "waitUntilVisible": false,
+          "longPress": false,
+          "optional": false
+        }
+      }
+    }
+  },
+  {
+    "command": {
+      "tapOnElement": {
+        "selector": {
+          "textRegex": "Oat milk 1 L",
+          "optional": false
+        },
+        "retryIfNoChange": false,
+        "waitUntilVisible": false,
+        "longPress": false,
+        "optional": false
+      }
+    },
+    "metadata": {
+      "status": "COMPLETED",
+      "timestamp": 1794309725588,
+      "duration": 1712,
+      "sequenceNumber": 11,
+      "depth": 0,
+      "evaluatedCommand": {
+        "tapOnElement": {
+          "selector": {
+            "textRegex": "Oat milk 1 L",
+            "optional": false
+          },
+          "retryIfNoChange": false,
+          "waitUntilVisible": false,
+          "longPress": false,
+          "optional": false
+        }
+      }
+    }
+  },
+  {
+    "command": {
+      "tapOnElement": {
+        "selector": {
+          "textRegex": "Oat milk 1 L",
+          "below": {
+            "textRegex": "Keep chilled after opening.",
+            "optional": false
+          },
+          "optional": false
+        },
+        "retryIfNoChange": false,
+        "waitUntilVisible": false,
+        "longPress": false,
+        "optional": false
+      }
+    },
+    "metadata": {
+      "status": "COMPLETED",
+      "timestamp": 1794309727301,
+      "duration": 3420,
+      "sequenceNumber": 12,
+      "depth": 0,
+      "evaluatedCommand": {
+        "tapOnElement": {
+          "selector": {
+            "textRegex": "Oat milk 1 L",
+            "below": {
+              "textRegex": "Keep chilled after opening.",
+              "optional": false
+            },
+            "optional": false
+          },
+          "retryIfNoChange": false,
+          "waitUntilVisible": false,
+          "longPress": false,
+          "optional": false
+        }
+      }
+    }
+  },
+  {
+    "command": {
+      "eraseTextCommand": {
+        "optional": false
+      }
+    },
+    "metadata": {
+      "status": "COMPLETED",
+      "timestamp": 1794309730721,
+      "duration": 2587,
+      "sequenceNumber": 13,
+      "depth": 0,
+      "evaluatedCommand": {
+        "eraseTextCommand": {
+          "optional": false
+        }
+      }
+    }
+  },
+  {
+    "command": {
+      "inputTextCommand": {
+        "text": "Oat milk 1 L, barista edition",
+        "optional": false
+      }
+    },
+    "metadata": {
+      "status": "COMPLETED",
+      "timestamp": 1794309733308,
+      "duration": 5186,
+      "sequenceNumber": 14,
+      "depth": 0,
+      "evaluatedCommand": {
+        "inputTextCommand": {
+          "text": "Oat milk 1 L, barista edition",
+          "optional": false
+        }
+      }
+    }
+  },
+  {
+    "command": {
+      "hideKeyboardCommand": {
+        "optional": false
+      }
+    },
+    "metadata": {
+      "status": "COMPLETED",
+      "timestamp": 1794309738494,
+      "duration": 992,
+      "sequenceNumber": 15,
+      "depth": 0,
+      "evaluatedCommand": {
+        "hideKeyboardCommand": {
+          "optional": false
+        }
+      }
+    }
+  },
+  {
+    "command": {
+      "tapOnElement": {
+        "selector": {
+          "textRegex": "Save",
+          "optional": false
+        },
+        "retryIfNoChange": false,
+        "waitUntilVisible": false,
+        "longPress": false,
+        "optional": false
+      }
+    },
+    "metadata": {
+      "status": "FAILED",
+      "timestamp": 1794309739486,
+      "duration": 17084,
+      "error": {
+        "message": "Element not found: Text matching regex: Save",
+        "debugMessage": "Element with Text matching regex: Save not found. Check the UI hierarchy in debug artifacts to verify if the element exists.\n\nPossible causes:\n- Element selector may be incorrect - check if there are similar elements with slightly different names/properties.\n- Element may be temporarily unavailable due to loading state.\n- This could be a real regression that needs to be addressed."
+      },
+      "sequenceNumber": 16,
+      "depth": 0,
+      "evaluatedCommand": {
+        "tapOnElement": {
+          "selector": {
+            "textRegex": "Save",
+            "optional": false
+          },
+          "retryIfNoChange": false,
+          "waitUntilVisible": false,
+          "longPress": false,
+          "optional": false
+        }
+      },
+      "artifacts": [
+        {
+          "type": "SCREEN_HIERARCHY",
+          "path": "screen-hierarchy/step-017-tapOnElement-Save.json"
+        },
+        {
+          "type": "SCREENSHOT",
+          "path": "screenshots/step-017-tapOnElement-Save.png"
+        }
+      ]
+    }
+  }
+]

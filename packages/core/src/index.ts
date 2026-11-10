@@ -45,6 +45,8 @@ export {
 } from "./project/apk.js";
 export { AdbDeviceBridge } from "./adapters/devices/adb-device-bridge.js";
 export { AdbkitApkReader } from "./adapters/apk/adbkit-apk-reader.js";
+export { MaestroFlowRunner } from "./adapters/maestro/maestro-flow-runner.js";
+export { maskFiles, outputMasker } from "./log/mask-files.js";
 export {
   NodeToolProbe,
   PROBE_TIMEOUT_MS,

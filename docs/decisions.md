@@ -232,3 +232,29 @@ Format of each entry: what was decided, why, and what was considered instead.
 **Decided:** The `ApkReader` adapter uses `@devicefarmer/adbkit-apkreader` 4.0.0 to read the package name, version name and version code from the APK's binary manifest. Installs use `adb install -r -d`.
 **Why:** It needs no Android build tools, so a user with only an APK (`PRJ-3`) can use Jagra. The library is Apache-2.0, maintained by the DeviceFarmer project, ships its own TypeScript types and has two dependencies. It read the sample APK in 11 ms (2026-11-09). `-d` lets an older build replace a newer one, so Jagra installs over any existing version (`RUN-3`).
 **Instead:** Writing a ZIP and binary XML parser in Jagra (rejected: more code to maintain for the same result). `aapt2 dump badging` or `apkanalyzer` (rejected: they need build tools or command line tools that an APK-only user may not have).
+
+### D-47. Secret values reach Maestro through `MAESTRO_` environment variables and a wrapper flow
+**Decided:** When a flow uses variables, Jagra puts each value in an environment variable `MAESTRO_JAGRA_SECRET_<NAME>` of the Maestro process and runs a wrapper flow it writes in the flow's output folder in Jagra's data folder. The wrapper's header has the project's `appId`, the flow's name and `env: <NAME>: ${MAESTRO_JAGRA_SECRET_<NAME>}`, and its only step is `runFlow` with the real flow's path. The wrapper holds names, never values. Flows without variables run as they are. Jagra drops the wrapper's own step from step lists and progress.
+**Why:** Maestro takes values from `-e NAME=value`, which shows them in the process list (`RUN-11`), or from environment variables, but only under names that start with `MAESTRO_` (`to-verify.md`). The wrapper keeps `${NAME}` working in flows, so they still run with plain Maestro (`FLOW-7`).
+**Consequence:** A flow that sets a default for the same name in its own `env:` header keeps its default, because its header runs after the wrapper's.
+**Instead:** `-e` (rejected: `RUN-11`). Asking users to write `${MAESTRO_NAME}` (rejected: changes `FLOW-7` and ties flows to Jagra).
+
+### D-48. Jagra masks Maestro's output files
+**Decided:** Maestro runs with `--debug-output` inside the flow's output folder, so nothing goes to `~/.maestro/tests`. After every flow, before anything reads them, Jagra replaces each secret value with `***` in every text file Maestro wrote (`.json`, `.txt`, `.log`, `.html`, `.xml`, `.yaml`), as written plainly, JSON-escaped and HTML-escaped. If masking fails, the flow's result is an error, not unmasked output. Screenshots and recordings are not masked.
+**Why:** Maestro writes every variable's value into `commands.json`, its logs and the step names of its HTML report (`to-verify.md`). `RES-7` asks Jagra to replace them before saving.
+**Consequence:** A secret typed into an ordinary text field is visible in a failure screenshot. Password fields are hidden by Android itself. The owner accepted this.
+
+### D-49. Maestro's HTML report, with the latest step read from its log
+**Decided:** Jagra runs `maestro test --no-ansi --format HTML-DETAILED --output <flow folder>/report.html --debug-output <flow folder>/debug --flatten-debug-output`. Step marks, the failing step, its reason, screenshot and screen come from `commands.json` when the flow ends. The latest step for the Running screen comes from the `CliConsoleListener.onCommandStart: <step> RUNNING` lines of the flow's `logs/maestro.log`, read every 500 ms while Maestro writes it.
+**Why:** `RES-6` builds the report from Maestro's own output, and `--format` is what makes Maestro write it. With `--format`, Maestro stops printing steps on stdout, and `commands.json` only appears at the end, so the log is the only live source.
+**Consequence:** The log line is Maestro's internal format. If a new Maestro changes it, the Running screen shows no step but runs still work, which `RUN-8` allows ("when Maestro reports one"). The tested versions (`ENV-3`) are where that shows up.
+**Instead:** Reading steps from stdout without `--format` and building the report in Jagra (rejected: not Maestro's report, `RES-6`).
+
+### D-50. The screen at a failure comes from the hierarchy Maestro saved
+**Decided:** The screen contents for a failed flow are read from the `screen-hierarchy` file Maestro saves at the failing step: every element with text, a hint, a description or an id, without the system UI. The `ScreenInspector` port is removed; `FlowRunOutcome` carries the elements.
+**Why:** Maestro already captures the hierarchy at the moment of failure. A separate `maestro hierarchy` call afterwards costs another Java start of several seconds, and the screen may have changed by then.
+
+### D-51. App crashes and ANRs are found in the logcat Maestro saved
+**Decided:** When a flow fails, Jagra reads `logs/device-logcat.txt` from Maestro's output. A `FATAL EXCEPTION` block whose next line is `Process: <appId>,` makes the flow "App crashed"; an `ANR in <appId>` line makes it "App not responding". The block is saved as `crash.txt` or `anr.txt` in the flow's folder (`RUN-6`).
+**Why:** Maestro reports a crash as an ordinary failed step: when the sample app was crashed during a flow, Maestro only said that the next check failed (`to-verify.md`).
+**Consequence:** The ANR text has not been seen on a real ANR yet; it follows the format Android's ActivityManager logs.

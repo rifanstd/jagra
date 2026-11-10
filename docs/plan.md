@@ -79,7 +79,7 @@ The sample app comes early because every later milestone needs a real app to tes
 
 The first complete path from APK to result.
 
-- `FlowRunner` adapter (one Maestro call per flow), `ScreenInspector`, the `runner` module with the order in spec section 7, time limits, Cancel through one `AbortSignal`, and run statuses (RUN-1 to RUN-12).
+- `FlowRunner` adapter (one Maestro call per flow, with the screen at a failure, D-50), the `runner` module with the order in spec section 7, time limits, Cancel through one `AbortSignal`, and run statuses (RUN-1 to RUN-12).
 - `results`: saving per flow, run records, the report index, history retention, masking, black screenshot detection (RES-1 to RES-10).
 - `SecretStore` for the CLI through `JAGRA_SECRET_<NAME>` (CLI-3), and the safe way of passing secrets to Maestro (RUN-11, see `to-verify.md`).
 - `jagra run` with its options, output and exit codes (CLI-1 to CLI-6).

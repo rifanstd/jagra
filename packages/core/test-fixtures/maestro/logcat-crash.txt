@@ -1,0 +1,20 @@
+11-10 18:13:50.772 W/QueryController( 6147): Could not detect idle state.
+11-10 18:13:50.773 W/QueryController( 6147): Could not detect idle state.
+11-10 18:13:50.788 I/Maestro ( 6147): Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@993a3; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(884, 66 - 884, 66); boundsInWindow: Rect(884, 66 - 884, 66); packageName: com.android.systemui; className: android.widget.FrameLayout; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; containerTitle: null; viewIdResName: null; uniqueId: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; granularScrollingSupported: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]; isTextSelectable: false
+11-10 18:13:50.790 D/Maestro ( 6147): View hierarchy received in 19 ms
+11-10 18:13:50.843 D/AndroidRuntime( 6218): Shutting down VM
+--------- beginning of crash
+11-10 18:13:50.844 E/AndroidRuntime( 6218): FATAL EXCEPTION: main
+11-10 18:13:50.844 E/AndroidRuntime( 6218): Process: dev.jagra.sample, PID: 6218
+11-10 18:13:50.844 E/AndroidRuntime( 6218): android.app.RemoteServiceException$CrashedByAdbException: shell-induced crash
+11-10 18:13:50.844 E/AndroidRuntime( 6218): 	at android.app.ActivityThread.throwRemoteServiceException(ActivityThread.java:2257)
+11-10 18:13:50.844 E/AndroidRuntime( 6218): 	at android.app.ActivityThread.-$$Nest$mthrowRemoteServiceException(Unknown Source:0)
+11-10 18:13:50.844 E/AndroidRuntime( 6218): 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2557)
+11-10 18:13:50.844 E/AndroidRuntime( 6218): 	at android.os.Handler.dispatchMessage(Handler.java:107)
+11-10 18:13:50.844 E/AndroidRuntime( 6218): 	at android.os.Looper.loopOnce(Looper.java:232)
+11-10 18:13:50.844 E/AndroidRuntime( 6218): 	at android.os.Looper.loop(Looper.java:317)
+11-10 18:13:50.844 E/AndroidRuntime( 6218): 	at android.app.ActivityThread.main(ActivityThread.java:8705)
+11-10 18:13:50.844 E/AndroidRuntime( 6218): 	at java.lang.reflect.Method.invoke(Native Method)
+11-10 18:13:50.844 E/AndroidRuntime( 6218): 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:580)
+11-10 18:13:50.844 E/AndroidRuntime( 6218): 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:886)
+11-10 18:13:50.862 W/ActivityTaskManager(  596):   Force finishing activity dev.jagra.sample/.MainActivity
