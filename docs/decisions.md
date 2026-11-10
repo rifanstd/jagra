@@ -292,3 +292,7 @@ Format of each entry: what was decided, why, and what was considered instead.
 ### D-59. What the CLI does where the app would ask
 **Decided:** The CLI never asks a question. When the installed app was signed with another key, the run stops and the CLI tells the user to uninstall the app by hand (`RUN-3`: never uninstall without a yes). When the APK's package differs from `appId`, the CLI prints a warning and runs (`PRJ-6`). When `appId` is empty, it fills it from the APK, as the app does. Chosen flows with problems are listed as skipped and left out (`FLOW-6`), and the CLI then exits with 1 even if every other flow passed. Ctrl+C cancels like Cancel (`RUN-9`), and a second Ctrl+C quits at once.
 **Why:** The CLI runs in CI, where nobody can answer. A run that skips a broken flow has not tested everything, so it must not report success.
+
+### D-60. The CI emulator uses an Automated Test Device image
+**Decided:** The "Sample app run" job starts an API 35 `aosp_atd` x86_64 emulator instead of `google_apis`, still with 4 GB and 4 cores. It no longer sets `hide_error_dialogs`. This replaces that part of D-57.
+**Why:** On `google_apis`, the busy CI emulator showed "Pixel Launcher isn't responding" over the app, and every flow failed. That happened on the first run and again on `main` after M5 was merged, with `hide_error_dialogs` set. The run on the pull request that passed only got lucky. ATD images are Android's images made for automated tests, without the launcher and other apps that kept the emulator busy.

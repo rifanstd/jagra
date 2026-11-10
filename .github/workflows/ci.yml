@@ -95,14 +95,15 @@ jobs:
         uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
         with:
           api-level: 35
-          target: google_apis
+          # An Automated Test Device image: no Pixel Launcher and other apps that kept a busy CI
+          # emulator showing "isn't responding" dialogs over the app (D-60).
+          target: aosp_atd
           arch: x86_64
           ram-size: 4096M
           cores: 4
           disable-animations: true
-          # A busy CI emulator shows "Pixel Launcher isn't responding" over the app (D-57), so the
-          # job hides system error dialogs first. Then exactly one flow must fail: the planted bug.
-          script: adb shell settings put global hide_error_dialogs 1; node packages/cli/dist/bin.js run sample-app --output "$RUNNER_TEMP/jagra-report"; code=$?; echo "jagra run exited with $code"; node scripts/check-sample-run.ts "$RUNNER_TEMP/jagra-report/run.json" "$code"
+          # Exactly one flow must fail: the planted bug.
+          script: node packages/cli/dist/bin.js run sample-app --output "$RUNNER_TEMP/jagra-report"; code=$?; echo "jagra run exited with $code"; node scripts/check-sample-run.ts "$RUNNER_TEMP/jagra-report/run.json" "$code"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:

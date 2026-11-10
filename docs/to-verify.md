@@ -76,7 +76,7 @@ un.js`. Both started without a shell as in D-34. Agents still open, M10. |
 | electron-updater with GitHub Releases: stable and pre-release channels, and showing a notice only on unsigned macOS builds | `UPD-1` to `UPD-3` | |
 | Effect of moving the repository to the `jagra-dev` organisation on update checks from installed versions | `decisions.md` D-27 | |
 | Requirements and process of the free Windows code signing service | `release.md` | |
-| Best GitHub Actions runner for an Android emulator in the end-to-end job | `test-plan.md` | 2026-11-10. `ubuntu-latest` with KVM and `reactivecircus/android-emulator-runner` v2.38.0, API 35 `google_apis` x86_64, 4 GB, 4 cores: boot in about 35 s, the whole job about 7.5 min, `jagra run` 4 min 37 s with the planted bug as the only failure. Jagra waited about 2.5 min for the emulator's load to drop (D-44) and then ran. With 2 cores and error dialogs shown, every flow failed behind a "Pixel Launcher isn't responding" dialog; `hide_error_dialogs` and 4 cores fixed it (D-57). |
+| Best GitHub Actions runner for an Android emulator in the end-to-end job | `test-plan.md` | 2026-11-10. `ubuntu-latest` with KVM and `reactivecircus/android-emulator-runner` v2.38.0, API 35 `google_apis` x86_64, 4 GB, 4 cores: boot in about 35 s, the whole job about 7.5 min, `jagra run` 4 min 37 s with the planted bug as the only failure. Jagra waited about 2.5 min for the emulator's load to drop (D-44) and then ran. With 2 cores and error dialogs shown, every flow failed behind a "Pixel Launcher isn't responding" dialog. `hide_error_dialogs` and 4 cores passed once, but the same failure came back on `main`: `hide_error_dialogs` does not hide that dialog. Moved to the `aosp_atd` image (D-60). |
 
 ## Provider terms
 
