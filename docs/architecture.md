@@ -109,8 +109,8 @@ These are the main shapes shared by all packages. Exact fields are decided in co
 | `Step` | `kind` (`action` or `check`), the Maestro command, its arguments as written, its line, nested steps. The renderer and the CLI write the plain language text (D-32) |
 | `ToolStatus` | `tool`, `state` (Ready, Untested version, Too old, Missing, Can't start), `required`, `version`, `path`, `problem` (needs Java, needs Node, timed out, failed) (D-35) |
 | `Device` | `id` (the `adb` serial, or `avd:<name>` for an emulator that is off), `kind` (emulator or phone), `state`, `name`. The Android version is read separately, when a run needs it |
-| `Run` | `id`, `projectId`, `status`, start and end time, APK info, device, flow results |
-| `FlowResult` | `flow`, `status`, `duration`, failed step index, reason code, paths to screenshot, screen contents, crash report and Maestro report |
+| `Run` | `id` (sorts by start time), `projectId`, `status` (`running` until it ends, then a `RUN-12` status), start and end time, APK info, device with its Android version, flow results, the reason a stopped run stopped, and the `pid` of the Jagra process running it (D-54) |
+| `FlowResult` | flow file and name, `status` (waiting, running, passed, failed, cancelled, not run), why it failed (a step, timed out, app crashed, app not responding, device disconnected, an error), duration, Maestro's reason and details, step marks and the failing step, and paths relative to the run folder: screenshot (with the black screenshot flag, RES-5), screen contents, crash report and Maestro report |
 | `AgentSession` | `id`, `agent`, `flowFile`, history used when the agent cannot continue a session |
 
 ### `config.yaml` schema

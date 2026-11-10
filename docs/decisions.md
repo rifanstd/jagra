@@ -258,3 +258,20 @@ Format of each entry: what was decided, why, and what was considered instead.
 **Decided:** When a flow fails, Jagra reads `logs/device-logcat.txt` from Maestro's output. A `FATAL EXCEPTION` block whose next line is `Process: <appId>,` makes the flow "App crashed"; an `ANR in <appId>` line makes it "App not responding". The block is saved as `crash.txt` or `anr.txt` in the flow's folder (`RUN-6`).
 **Why:** Maestro reports a crash as an ordinary failed step: when the sample app was crashed during a flow, Maestro only said that the next check failed (`to-verify.md`).
 **Consequence:** The ANR text has not been seen on a real ANR yet; it follows the format Android's ActivityManager logs.
+
+### D-52. Black screenshots are found with Jagra's own PNG reader
+**Decided:** `isBlackScreenshot` reads the failure screenshot's PNG with Node's `zlib` and about a hundred lines of Jagra's own code: 8 and 16 bit samples, every color type, no interlacing. It samples a grid of about 40,000 pixels and calls the screenshot black when at least 98% of them have a brightness of 16 or less out of 255. Anything it cannot read counts as not black.
+**Why:** Android returns an all-black screenshot for a screen with `FLAG_SECURE` (`RES-5`). Only the brightness is needed, which a PNG library would be a lot of code to bring in for. The owner chose this over `pngjs`, which has not been updated since 2023.
+**Consequence:** The notice is tested with generated images. A real `FLAG_SECURE` app is part of the manual release test (`test-plan.md`), not of M5.
+
+### D-53. Runs skip Mockoon until M6
+**Decided:** In M5, a run ignores the `mockoon` block of `config.yaml`: it neither starts Mockoon nor adds `adb reverse`. M6 adds both steps where spec section 7 puts them.
+**Why:** Mockoon is its own milestone in `plan.md`. The sample app falls back to its built-in data without Mockoon (`SMP-2`), so its run still ends with exactly one failure from the planted bug.
+
+### D-54. A run records the Jagra process running it
+**Decided:** `run.json` is written when a run starts, with status `running` and the `pid` of the Jagra process, and again after every flow. On start, the desktop app and the CLI mark as Interrupted every run still `running` whose process is gone; its finished flows keep their results and the rest become Not run. Flows a stopped run never reached are Not run too, and those a cancelled run never reached are Cancelled (`RUN-9`).
+**Why:** `REL-2` asks for the last run to show as Interrupted after a crash, with the flows that finished (`RES` "Done when"). Checking the process, rather than marking every `running` run, keeps a CLI run from marking a run the desktop app has in progress.
+
+### D-55. The report index gets its words from the caller
+**Decided:** The report index page (`RES-6`) is built in `core`, but the words on it (titles, statuses, reasons) come from the CLI or the desktop app in the user's language. The page has no colors of its own: it uses the browser's system colors in light and dark mode, an icon and a word for each status, and nothing from outside the file.
+**Why:** `core` writes no sentences (D-20), and every interface text lives in the translation files (`LNG-1`). The page is opened from disk and sent to QA, so it cannot link to Jagra's theme file, and copying token values is not allowed.

@@ -36,6 +36,8 @@ export {
 export { SUPPORTED_FORMAT } from "./project/format.js";
 export * from "./environment/index.js";
 export * from "./devices/index.js";
+export * from "./runner/index.js";
+export * from "./results/index.js";
 export {
   checkAppId,
   fillAppId,
