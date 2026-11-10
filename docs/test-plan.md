@@ -89,6 +89,7 @@ Done by a person on one Windows machine and one macOS machine, with an emulator 
 - [ ] Creating a project in a real app repository creates only `.jagra/`.
 - [ ] New flow creates a working flow from the template.
 - [ ] A secret used in a flow is asked for, used, and never visible in any screen, log or report.
+- [ ] An app with `FLAG_SECURE` on, failing a flow, shows the black screenshot notice (`RES-5`, D-52).
 
 **Agents** (with at least two different agents, one of them ACP)
 - [ ] The first-use notice appears once per project.

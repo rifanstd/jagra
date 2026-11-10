@@ -30,6 +30,10 @@ export type JagraError =
       detail: string;
     }
   | { code: "CANCELLED" }
+  /** Variables the chosen flows use that have no value (RUN-10, CLI-3). */
+  | { code: "SECRETS_MISSING"; names: string[] }
+  | { code: "NO_FLOWS" }
+  | { code: "RUN_SAVE_FAILED"; folder: string; detail: string }
   | { code: "APK_NOT_FOUND"; searchPath: string }
   | { code: "APK_UNREADABLE"; file: string; detail: string }
   | { code: "CONFIG_WRITE_FAILED"; file: string; detail: string }
