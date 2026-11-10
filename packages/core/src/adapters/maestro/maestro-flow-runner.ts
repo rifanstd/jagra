@@ -1,5 +1,4 @@
 import { mkdir, open, readdir, readFile, writeFile } from "node:fs/promises";
-import { homedir } from "node:os";
 import { basename, join } from "node:path";
 import { fail, ok, type Result } from "../../errors/index.js";
 import { maskFiles, outputMasker } from "../../log/mask-files.js";
@@ -14,10 +13,9 @@ import type { OutputLine, ProcessRunner } from "../../ports/process-runner.js";
 import type { ToolPaths } from "../../ports/tool-probe.js";
 import type { ScreenElement } from "../../types/index.js";
 import { SystemClock } from "../clock/system-clock.js";
-import { nodeToolFiles, type ToolFiles } from "../tools/files.js";
+import type { ToolFiles } from "../tools/files.js";
+import { currentMachine } from "../tools/machine.js";
 import { maestroLaunch } from "../tools/launch.js";
-import type { Machine } from "../tools/locate.js";
-import { freshWindowsEnvironment } from "../tools/windows-environment.js";
 import {
   findAppProblem,
   readCommands,
@@ -99,7 +97,7 @@ export class MaestroFlowRunner implements FlowRunner {
       this.options.maestro,
       args,
       this.options.toolPaths ?? {},
-      await this.machine(),
+      await currentMachine(this.options),
     );
     if (!launch.ok) {
       return fail({
@@ -249,20 +247,6 @@ export class MaestroFlowRunner implements FlowRunner {
         finished,
       ]);
     }
-  }
-
-  private async machine(): Promise<Machine> {
-    const env = this.options.environment
-      ? await this.options.environment()
-      : this.platform === "win32"
-        ? await freshWindowsEnvironment(this.options.runner, process.env)
-        : process.env;
-    return {
-      platform: this.platform,
-      env,
-      home: this.options.home ?? homedir(),
-      files: this.options.files ?? nodeToolFiles,
-    };
   }
 }
 

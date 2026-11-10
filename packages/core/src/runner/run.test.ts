@@ -6,6 +6,11 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { FakeClock } from "../fakes/clock.js";
 import { FakeDeviceBridge } from "../fakes/devices.js";
 import { FakeFlowRunner } from "../fakes/maestro.js";
+import { FakeMockServer } from "../fakes/mockoon.js";
+import type {
+  ReverseRecord,
+  RunStateStore,
+} from "../process/active-processes.js";
 import type { Flow } from "../project/flow.js";
 import { loadRun } from "../results/run-store.js";
 import type { Device, Run } from "../types/index.js";
@@ -44,6 +49,8 @@ function setup(flows: Flow[] = FIVE, devices: Device[] = [emulator]) {
   bridge.setDevices(devices);
   const flowRunner = new FakeFlowRunner();
   const clock = new FakeClock();
+  const mockServer = new FakeMockServer();
+  const state = new MemoryRunState();
   const events: RunEvent[] = [];
   const controller = new AbortController();
   const input: RunInput = {
@@ -67,7 +74,7 @@ function setup(flows: Flow[] = FIVE, devices: Device[] = [emulator]) {
   const start = (extra: Partial<RunInput> = {}) =>
     executeRun(
       { ...input, ...extra },
-      { bridge, flowRunner, clock },
+      { bridge, flowRunner, clock, mockServer, state },
       {
         signal: controller.signal,
         onEvent: (e) => events.push(e),
@@ -79,6 +86,8 @@ function setup(flows: Flow[] = FIVE, devices: Device[] = [emulator]) {
     bridge,
     flowRunner,
     clock,
+    mockServer,
+    state,
     events,
     controller,
     start,
@@ -387,3 +396,142 @@ function blackPng(): Buffer {
     chunk("IEND", Buffer.alloc(0)),
   ]);
 }
+
+/** The run's records in state/active.json, in memory. */
+class MemoryRunState implements RunStateStore {
+  readonly ports = new Map<number, number>();
+  reverse: ReverseRecord[] = [];
+  readonly added: ReverseRecord[] = [];
+
+  setPort(pid: number, port: number): Promise<void> {
+    this.ports.set(pid, port);
+    return Promise.resolve();
+  }
+  addReverse(record: ReverseRecord): Promise<void> {
+    this.reverse.push(record);
+    this.added.push(record);
+    return Promise.resolve();
+  }
+  removeReverse(record: ReverseRecord): Promise<void> {
+    this.reverse = this.reverse.filter(
+      (r) => r.deviceId !== record.deviceId || r.port !== record.port,
+    );
+    return Promise.resolve();
+  }
+  listReverse(): Promise<ReverseRecord[]> {
+    return Promise.resolve(this.reverse);
+  }
+}
+
+describe("executeRun with Mockoon (MCK-2, MCK-4, MCK-5)", () => {
+  const MOCKOON = { file: "/project/.jagra/mockoon.json", port: 3000 };
+
+  it("starts Mockoon after installing, adds the reverse rule, and removes both at the end", async () => {
+    const { bridge, mockServer, state, flowRunner, start } = setup([flow("a")]);
+    let during: { running: boolean; rules: number } | undefined;
+    flowRunner.during = () => {
+      during = {
+        running: mockServer.running.has(3000),
+        rules: state.reverse.length,
+      };
+    };
+    const run = value(await start({ mockoon: MOCKOON }));
+
+    expect(run.status).toBe("completed");
+    expect(during).toEqual({ running: true, rules: 1 });
+    expect(mockServer.requests[0]).toMatchObject(MOCKOON);
+    const calls = bridge.calls
+      .map((c) => c.call)
+      .filter((c) => c !== "bootState");
+    expect(calls).toEqual([
+      "androidVersion",
+      "install",
+      "addReverse",
+      "clearAppData",
+      "removeReverse",
+    ]);
+    expect(mockServer.running.size).toBe(0);
+    expect(state.reverse).toEqual([]);
+    expect(state.added).toEqual([
+      { deviceId: "emulator-5554", port: 3000, owner: process.pid },
+    ]);
+    expect(state.ports.get(7000)).toBe(3000);
+  });
+
+  it("stops Mockoon and removes the rule when cancelled", async () => {
+    const { bridge, controller, flowRunner, mockServer, state, start } =
+      setup();
+    flowRunner.during = (request) => {
+      if (request.flowFile.endsWith("b.yaml")) controller.abort();
+    };
+    const run = value(await start({ mockoon: MOCKOON }));
+    expect(run.status).toBe("cancelled");
+    expect(mockServer.running.size).toBe(0);
+    expect(state.reverse).toEqual([]);
+    expect(bridge.calls.some((c) => c.call === "removeReverse")).toBe(true);
+  });
+
+  it("stops Mockoon when the phone is lost", async () => {
+    const phone: Device = {
+      id: "R58",
+      kind: "phone",
+      state: "phone-ready",
+      name: "SM A525F",
+    };
+    const { bridge, flowRunner, mockServer, state, start } = setup(FIVE, [
+      phone,
+    ]);
+    flowRunner.during = () => bridge.setDevices([]);
+    const run = value(await start({ mockoon: MOCKOON }));
+    expect(run.status).toBe("stopped");
+    expect(mockServer.running.size).toBe(0);
+    expect(state.reverse).toEqual([]);
+  });
+
+  it("stops the run when Mockoon does not start, before any flow", async () => {
+    const { bridge, flowRunner, mockServer, start } = setup([flow("a")]);
+    mockServer.failure = { code: "MOCKOON_NOT_READY", port: 3000, seconds: 30 };
+    const run = value(await start({ mockoon: MOCKOON }));
+    expect(run.status).toBe("stopped");
+    expect(run.stopReason).toEqual({
+      code: "MOCKOON_NOT_READY",
+      port: 3000,
+      seconds: 30,
+    });
+    expect(flowRunner.requests).toEqual([]);
+    expect(bridge.calls.some((c) => c.call === "addReverse")).toBe(false);
+  });
+
+  it("stops Mockoon when the reverse rule cannot be added", async () => {
+    const { bridge, mockServer, state, start } = setup([flow("a")]);
+    bridge.failNext.set("addReverse", {
+      code: "ADB_FAILED",
+      command: "reverse",
+      detail: "x",
+    });
+    const run = value(await start({ mockoon: MOCKOON }));
+    expect(run.status).toBe("stopped");
+    expect(mockServer.running.size).toBe(0);
+    expect(state.reverse).toEqual([]);
+  });
+
+  it("keeps Mockoon's log in the run folder, masked (D-64)", async () => {
+    const { mockServer, start } = setup([flow("a", ["PASSWORD"])]);
+    mockServer.lines = [
+      '{"message":"Server started on port 3000"}',
+      '{"body":"password=hunter2"}',
+    ];
+    await start({ mockoon: MOCKOON, values: { PASSWORD: "hunter2" } });
+    const log = await readFile(join(folder, "mockoon.log"), "utf8");
+    expect(log).toContain("Server started on port 3000");
+    expect(log).toContain("password=***");
+    expect(log).not.toContain("hunter2");
+  });
+
+  it("runs without Mockoon when the project has none", async () => {
+    const { bridge, mockServer, start } = setup([flow("a")]);
+    await start();
+    expect(mockServer.requests).toEqual([]);
+    expect(bridge.calls.some((c) => c.call === "addReverse")).toBe(false);
+  });
+});

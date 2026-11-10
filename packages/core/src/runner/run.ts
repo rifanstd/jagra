@@ -7,6 +7,13 @@ import { fail, ok, type JagraError, type Result } from "../errors/index.js";
 import type { Clock } from "../ports/clock.js";
 import type { DeviceBridge } from "../ports/device-bridge.js";
 import type { FlowRunner, FlowRunOutcome } from "../ports/flow-runner.js";
+import type { MockServer, MockServerHandle } from "../ports/mock-server.js";
+import { outputMasker } from "../log/mask-files.js";
+import type { ProjectMockoon } from "../mockoon/project.js";
+import type {
+  ReverseRecord,
+  RunStateStore,
+} from "../process/active-processes.js";
 import type { FoundApk } from "../project/apk.js";
 import type { Flow } from "../project/flow.js";
 import { isBlackScreenshot } from "../results/png.js";
@@ -39,12 +46,18 @@ export interface RunInput {
   flowTimeoutMinutes: number;
   /** Words for the report index. Without them no index is written. */
   reportText?: ReportText;
+  /** The project's Mockoon, checked in step 1 (`projectMockoon`). */
+  mockoon?: ProjectMockoon;
 }
 
 export interface RunPorts {
   bridge: DeviceBridge;
   flowRunner: FlowRunner;
   clock: Clock;
+  /** Needed when the project uses Mockoon. */
+  mockServer?: MockServer;
+  /** Where Mockoon's port and the reverse rule are recorded for cleanup after a crash (REL-2). */
+  state?: RunStateStore;
 }
 
 /** Progress for the Running screen and the CLI (architecture.md, Events). */
@@ -53,6 +66,7 @@ export type RunEvent =
   | { type: "starting-emulator" }
   | { type: "android-version"; version: AndroidVersion; supported: boolean }
   | { type: "installing" }
+  | { type: "starting-mockoon"; port: number }
   | { type: "flow-started"; index: number; flow: FlowResult }
   | { type: "flow-step"; index: number; label: string }
   | { type: "flow-finished"; index: number; flow: FlowResult }
@@ -117,10 +131,38 @@ export async function executeRun(
   if (!saved.ok) return saved;
   emit({ type: "run-started", run });
 
+  // Step 6 for Mockoon: whatever happens, stop it and remove the reverse rule (MCK-4, MCK-5).
+  let mock: MockServerHandle | undefined;
+  let reverse: ReverseRecord | undefined;
+  const mockLog: string[] = [];
+  const tearDown = async () => {
+    if (reverse) {
+      const rule = reverse;
+      reverse = undefined;
+      await bridge.removeReverse(rule.deviceId, rule.port);
+      await ports.state?.removeReverse(rule).catch(() => undefined);
+    }
+    if (mock) {
+      const server = mock;
+      mock = undefined;
+      await server.stop();
+    }
+    if (mockLog.length > 0) {
+      // Mockoon logs requests, which may carry secrets the app sent (D-64).
+      const masker = outputMasker(Object.values(input.values));
+      await writeFile(
+        join(input.runFolder, "mockoon.log"),
+        `${mockLog.map((line) => masker.mask(line)).join("\n")}\n`,
+      ).catch(() => undefined);
+      mockLog.length = 0;
+    }
+  };
+
   const finish = async (
     status: RunStatus,
     stopReason?: JagraError,
   ): Promise<Result<Run>> => {
+    await tearDown();
     const leftover = status === "cancelled" ? "cancelled" : "not-run";
     run.flows = run.flows.map((f) =>
       f.status === "waiting" || f.status === "running"
@@ -172,67 +214,101 @@ export async function executeRun(
   });
   if (!installed.ok) return stopped(installed.error);
 
-  // A device that leaves the list stops the current flow at once (DEV-9).
-  const lost = new AbortController();
-  const stopWatching = bridge.watch((devices) => {
-    if (!devices.some((d) => d.id === deviceId)) lost.abort();
-  });
   try {
-    // Step 5: one flow at a time (RUN-4, RUN-5).
-    for (const [index, flow] of input.flows.entries()) {
-      if (signal?.aborted) return await finish("cancelled");
-      if (lost.signal.aborted)
-        return await stopped({ code: "DEVICE_NOT_FOUND", deviceId });
-      const result = run.flows[index];
-      if (!result) continue;
-      result.status = "running";
-      await save();
-      emit({ type: "flow-started", index, flow: result });
-
-      const started = clock.now();
-      const flowSignal = signal
-        ? AbortSignal.any([signal, lost.signal])
-        : lost.signal;
-      const cleared = await bridge.clearAppData(
-        deviceId,
-        input.appId,
-        flowSignal,
-      );
-      const outputDir = join(input.runFolder, "flows", flowFolder(index, flow));
-      const outcome: Result<FlowRunOutcome> = cleared.ok
-        ? await flowRunner.run({
-            deviceId,
-            flowFile: flow.file,
-            name: flow.name,
-            appId: input.appId,
-            variables: pick(input.values, input.needs[flow.file] ?? []),
-            timeoutMs: input.flowTimeoutMinutes * 60_000,
-            outputDir,
-            signal: flowSignal,
-            onStep: (label) => emit({ type: "flow-step", index, label }),
-          })
-        : cleared;
-
-      const deviceGone =
-        lost.signal.aborted ||
-        (!isPassed(outcome) &&
-          !signal?.aborted &&
-          !(await isConnected(bridge, deviceId)));
-      const finished = await toResult(outcome, input.runFolder, {
-        deviceGone,
-        cancelled: !!signal?.aborted,
+    // Step 4: Mockoon and its reverse rule (MCK-2, MCK-4).
+    if (input.mockoon) {
+      if (!ports.mockServer) {
+        return await stopped({ code: "PROGRAM_NOT_FOUND", program: "mockoon" });
+      }
+      emit({ type: "starting-mockoon", port: input.mockoon.port });
+      const started = await ports.mockServer.start({
+        file: input.mockoon.file,
+        port: input.mockoon.port,
+        signal,
+        onLine: (line) => mockLog.push(line),
       });
-      Object.assign(result, finished, { durationMs: clock.now() - started });
-      await save();
-      emit({ type: "flow-finished", index, flow: result });
-
-      if (deviceGone)
-        return await stopped({ code: "DEVICE_NOT_FOUND", deviceId });
-      if (finished.status === "cancelled") return await finish("cancelled");
+      if (!started.ok) return await stopped(started.error);
+      mock = started.value;
+      await ports.state?.setPort(mock.pid, mock.port).catch(() => undefined);
+      // Recorded before it is added, so a crash in between still leaves a record.
+      reverse = { deviceId, port: mock.port, owner: process.pid };
+      await ports.state?.addReverse(reverse).catch(() => undefined);
+      const added = await bridge.addReverse(deviceId, mock.port, signal);
+      if (!added.ok) return await stopped(added.error);
     }
-    return await finish("completed");
+
+    return await runFlows();
   } finally {
-    stopWatching();
+    await tearDown();
+  }
+
+  async function runFlows(): Promise<Result<Run>> {
+    // A device that leaves the list stops the current flow at once (DEV-9).
+    const lost = new AbortController();
+    const stopWatching = bridge.watch((devices) => {
+      if (!devices.some((d) => d.id === deviceId)) lost.abort();
+    });
+    try {
+      // Step 5: one flow at a time (RUN-4, RUN-5).
+      for (const [index, flow] of input.flows.entries()) {
+        if (signal?.aborted) return await finish("cancelled");
+        if (lost.signal.aborted)
+          return await stopped({ code: "DEVICE_NOT_FOUND", deviceId });
+        const result = run.flows[index];
+        if (!result) continue;
+        result.status = "running";
+        await save();
+        emit({ type: "flow-started", index, flow: result });
+
+        const started = clock.now();
+        const flowSignal = signal
+          ? AbortSignal.any([signal, lost.signal])
+          : lost.signal;
+        const cleared = await bridge.clearAppData(
+          deviceId,
+          input.appId,
+          flowSignal,
+        );
+        const outputDir = join(
+          input.runFolder,
+          "flows",
+          flowFolder(index, flow),
+        );
+        const outcome: Result<FlowRunOutcome> = cleared.ok
+          ? await flowRunner.run({
+              deviceId,
+              flowFile: flow.file,
+              name: flow.name,
+              appId: input.appId,
+              variables: pick(input.values, input.needs[flow.file] ?? []),
+              timeoutMs: input.flowTimeoutMinutes * 60_000,
+              outputDir,
+              signal: flowSignal,
+              onStep: (label) => emit({ type: "flow-step", index, label }),
+            })
+          : cleared;
+
+        const deviceGone =
+          lost.signal.aborted ||
+          (!isPassed(outcome) &&
+            !signal?.aborted &&
+            !(await isConnected(bridge, deviceId)));
+        const finished = await toResult(outcome, input.runFolder, {
+          deviceGone,
+          cancelled: !!signal?.aborted,
+        });
+        Object.assign(result, finished, { durationMs: clock.now() - started });
+        await save();
+        emit({ type: "flow-finished", index, flow: result });
+
+        if (deviceGone)
+          return await stopped({ code: "DEVICE_NOT_FOUND", deviceId });
+        if (finished.status === "cancelled") return await finish("cancelled");
+      }
+      return await finish("completed");
+    } finally {
+      stopWatching();
+    }
   }
 }
 

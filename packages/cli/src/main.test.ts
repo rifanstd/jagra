@@ -9,12 +9,20 @@ import {
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { EnvSecretStore, type Device, type ToolStatus } from "@jagra/core";
+import {
+  ActiveProcessFile,
+  EnvSecretStore,
+  type Device,
+  type ProcessControl,
+  type ToolStatus,
+} from "@jagra/core";
 import {
   FakeApkReader,
   FakeClock,
   FakeDeviceBridge,
   FakeFlowRunner,
+  FakeMockServer,
+  FakePortChecker,
 } from "@jagra/core/fakes";
 import { main } from "./main.js";
 import type { RunDeps } from "./run.js";
@@ -81,6 +89,18 @@ function setup(
     versionCode: 7,
   });
   const lines: string[] = [];
+  const mockServer = new FakeMockServer();
+  const ports = new FakePortChecker();
+  const state = new ActiveProcessFile(join(appData, "state", "active.json"));
+  const control: ProcessControl & { killed: number[] } = {
+    killed: [],
+    isAlive: (pid) => pid === 4100,
+    listeningPids: () => Promise.resolve([4100]),
+    kill(pid) {
+      this.killed.push(pid);
+      return Promise.resolve();
+    },
+  };
   const deps: RunDeps = {
     cwd: project,
     appData,
@@ -90,11 +110,15 @@ function setup(
     checkTools: () => Promise.resolve(options.tools ?? READY),
     bridge: () => bridge,
     flowRunner: () => flowRunner,
+    mockServer: () => mockServer,
+    ports,
+    state,
+    control,
     isAlive: () => false,
     out: (line) => lines.push(line),
   };
   const run = (...argv: string[]) => main(argv, deps, "0.0.0");
-  return { bridge, flowRunner, lines, run };
+  return { bridge, flowRunner, mockServer, ports, state, control, lines, run };
 }
 
 describe("jagra run (CLI-1, CLI-4)", () => {
@@ -246,5 +270,96 @@ describe("jagra run and appId (PRJ-6)", () => {
     const { lines, run } = setup();
     expect(await run("run")).toBe(0);
     expect(lines[0]).toContain("Warning: the APK is dev.jagra.sample");
+  });
+});
+
+describe("jagra run with Mockoon (spec section 6)", () => {
+  const useMockoon = async () => {
+    await writeFile(
+      join(project, ".jagra", "config.yaml"),
+      "format: 1\nappId: dev.jagra.sample\nmockoon:\n  file: .jagra/mockoon.json\n",
+    );
+    await writeFile(
+      join(project, ".jagra", "mockoon.json"),
+      JSON.stringify({ port: 3000 }),
+    );
+  };
+
+  it("runs a project without Mockoon when Mockoon CLI is missing", async () => {
+    const { mockServer, run } = setup({
+      tools: [...READY, { tool: "mockoon", state: "missing", required: false }],
+    });
+    expect(await run("run")).toBe(0);
+    expect(mockServer.requests).toEqual([]);
+  });
+
+  it("starts Mockoon for a project that uses it, and stops it afterwards", async () => {
+    await useMockoon();
+    const mockoonTool: ToolStatus = {
+      tool: "mockoon",
+      state: "ready",
+      required: false,
+      path: "/m",
+    };
+    const { lines, mockServer, run } = setup({
+      tools: [...READY, mockoonTool],
+    });
+    expect(await run("run")).toBe(0);
+    expect(lines).toContain("Starting Mockoon on port 3000...");
+    expect(mockServer.requests[0]?.port).toBe(3000);
+    expect(mockServer.running.size).toBe(0);
+  });
+
+  it("needs Mockoon CLI for a project that uses it", async () => {
+    await useMockoon();
+    const { lines, run } = setup({
+      tools: [...READY, { tool: "mockoon", state: "missing", required: false }],
+    });
+    expect(await run("run")).toBe(2);
+    expect(lines).toEqual([
+      "mockoon is missing. Install or update it, then run again.",
+    ]);
+  });
+
+  it("refuses to start when the port is busy and names it (MCK-3)", async () => {
+    await useMockoon();
+    const mockoonTool: ToolStatus = {
+      tool: "mockoon",
+      state: "ready",
+      required: false,
+      path: "/m",
+    };
+    const { lines, ports, mockServer, run } = setup({
+      tools: [...READY, mockoonTool],
+    });
+    ports.busy.add(3000);
+    expect(await run("run")).toBe(2);
+    expect(lines.at(-1)).toContain("Port 3000 is already in use");
+    expect(lines.at(-1)).toContain("Mockoon desktop app");
+    expect(mockServer.requests).toEqual([]);
+  });
+
+  it("stops a Mockoon left by a Jagra that crashed (REL-2)", async () => {
+    const { control, lines, state, run } = setup();
+    await state.add({
+      pid: 4100,
+      program: "node",
+      startedAt: "x",
+      owner: 999_001,
+      port: 3000,
+    });
+    await state.addReverse({
+      deviceId: "emulator-5554",
+      port: 3000,
+      owner: 999_001,
+    });
+    expect(await run("run")).toBe(0);
+    expect(control.killed).toEqual([4100]);
+    expect(lines).toContain(
+      "Stopped Mockoon (process 4100) left by an earlier run.",
+    );
+    expect(lines).toContain(
+      "Removed the reverse rule emulator-5554 tcp:3000 left by an earlier run.",
+    );
   });
 });

@@ -2,6 +2,7 @@ import { join, resolve } from "node:path";
 import {
   applyRetention,
   checkAppId,
+  cleanUpLeftovers,
   executeRun,
   fillAppId,
   findApk,
@@ -9,8 +10,10 @@ import {
   markInterruptedRuns,
   newRunId,
   planRun,
+  projectMockoon,
   runsFolder,
   cliProjectId,
+  type ActiveProcessStore,
   type ApkReader,
   type Clock,
   type Device,
@@ -18,8 +21,12 @@ import {
   type FlowResult,
   type FlowRunner,
   type JagraError,
+  type MockServer,
+  type PortChecker,
+  type ProcessControl,
   type Run,
   type RunEvent,
+  type RunStateStore,
   type SecretStore,
   type ToolName,
   type ToolStatus,
@@ -50,6 +57,11 @@ export interface RunDeps {
   checkTools: (tools: readonly ToolName[]) => Promise<ToolStatus[]>;
   bridge: (tools: ToolStatus[]) => DeviceBridge;
   flowRunner: (tools: ToolStatus[]) => FlowRunner;
+  mockServer: (tools: ToolStatus[]) => MockServer;
+  ports: PortChecker;
+  /** `state/active.json`: what runs started, for cleanup after a crash (REL-2). */
+  state: ActiveProcessStore & RunStateStore;
+  control: ProcessControl;
   isAlive: (pid: number) => boolean;
   out: (line: string) => void;
   signal?: AbortSignal;
@@ -76,9 +88,16 @@ export async function runCommand(
   if (!config.ok) return stop(config.error);
 
   // Step 1: tools, APK, package, secrets (spec section 7).
-  const tools = await deps.checkTools(RUN_TOOLS);
+  // Mockoon CLI is needed only by a project that uses Mockoon (ENV-7, spec section 6).
+  const usesMockoon = config.value.mockoon !== undefined;
+  const tools = await deps.checkTools(
+    usesMockoon ? [...RUN_TOOLS, "mockoon"] : RUN_TOOLS,
+  );
   const broken = tools.filter(
-    (t) => t.required && t.state !== "ready" && t.state !== "untested-version",
+    (t) =>
+      (t.required || (usesMockoon && t.tool === "mockoon")) &&
+      t.state !== "ready" &&
+      t.state !== "untested-version",
   );
   if (broken.length > 0) {
     for (const tool of broken) out(toolLine(tool));
@@ -120,6 +139,19 @@ export async function runCommand(
   if (!plan.ok) return stop(plan.error);
 
   const bridge = deps.bridge(tools);
+  // REL-2: stop what a Jagra that crashed left behind, before checking the Mockoon port.
+  const left = await cleanUpLeftovers({
+    store: deps.state,
+    control: deps.control,
+    bridge,
+  });
+  for (const pid of left.stopped)
+    out(`Stopped Mockoon (process ${pid}) left by an earlier run.`);
+  for (const rule of left.reverse)
+    out(`Removed the reverse rule ${rule} left by an earlier run.`);
+  const mockoon = await projectMockoon(folder, config.value, deps.ports);
+  if (!mockoon.ok) return stop(mockoon.error);
+
   const device = await chooseDevice(bridge, args.device);
   if (typeof device === "string") {
     out(device);
@@ -153,8 +185,15 @@ export async function runCommand(
       device,
       flowTimeoutMinutes: config.value.run.flowTimeoutMinutes,
       reportText: REPORT_TEXT,
+      mockoon: mockoon.value,
     },
-    { bridge, flowRunner: deps.flowRunner(tools), clock: deps.clock },
+    {
+      bridge,
+      flowRunner: deps.flowRunner(tools),
+      clock: deps.clock,
+      mockServer: deps.mockServer(tools),
+      state: deps.state,
+    },
     {
       signal: deps.signal,
       onEvent: (event) => printEvent(event, device, out),
@@ -227,6 +266,9 @@ function printEvent(
       return;
     case "installing":
       out("Installing the APK...");
+      return;
+    case "starting-mockoon":
+      out(`Starting Mockoon on port ${event.port}...`);
       return;
     case "flow-finished":
       out(flowLine(event.flow));

@@ -6,6 +6,7 @@ export type * from "./file-watcher.js";
 export type * from "./flow-runner.js";
 export type * from "./mock-server.js";
 export type * from "./port-checker.js";
+export type * from "./process-control.js";
 export type * from "./process-runner.js";
 export type * from "./secret-store.js";
 export type * from "./tool-probe.js";

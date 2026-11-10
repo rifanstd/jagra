@@ -100,6 +100,7 @@ export class NodeProcessRunner implements ProcessRunner {
         pid,
         program: spec.program,
         startedAt: new Date().toISOString(),
+        owner: process.pid,
       });
     } catch (e) {
       await running.stop();

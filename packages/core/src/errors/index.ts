@@ -40,7 +40,19 @@ export type JagraError =
   /** Maestro's output could not be masked, so it must not be kept (RES-7). */
   | { code: "OUTPUT_MASK_FAILED"; folder: string; detail: string }
   | DeviceError
+  | MockoonError
   | FlowProblem;
+
+/** What can go wrong with a project's Mockoon (spec section 6). */
+export type MockoonError =
+  | { code: "MOCKOON_FILE_INVALID"; file: string; detail: string }
+  /** Neither config.yaml nor the Mockoon file gives a port. */
+  | { code: "MOCKOON_PORT_MISSING"; file: string }
+  /** MCK-3: maybe the Mockoon desktop app is open on the same port. */
+  | { code: "MOCKOON_PORT_BUSY"; port: number }
+  /** MCK-2: the port did not accept connections in time. */
+  | { code: "MOCKOON_NOT_READY"; port: number; seconds: number }
+  | { code: "MOCKOON_EXITED"; detail: string };
 
 /** What can go wrong with a device or `adb` (spec section 5, RUN-3). */
 export type DeviceError =

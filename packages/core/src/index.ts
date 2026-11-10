@@ -12,8 +12,15 @@ export {
 export { Masker, MASK } from "./log/masker.js";
 export {
   ActiveProcessFile,
+  type ActiveProcessRecord,
   type ActiveProcessStore,
+  type ReverseRecord,
+  type RunStateStore,
 } from "./process/active-processes.js";
+export { cleanUpLeftovers, type Leftovers } from "./process/cleanup.js";
+export { NodeProcessControl } from "./adapters/process/node-process-control.js";
+export { MockoonServer } from "./adapters/mockoon/mockoon-server.js";
+export { NodePortChecker } from "./adapters/mockoon/node-port-checker.js";
 export { activeProcessesFile, appDataFolder, logsFolder } from "./paths.js";
 export {
   configFile,
@@ -37,6 +44,7 @@ export { SUPPORTED_FORMAT } from "./project/format.js";
 export * from "./environment/index.js";
 export * from "./devices/index.js";
 export * from "./runner/index.js";
+export * from "./mockoon/index.js";
 export * from "./results/index.js";
 export {
   checkAppId,

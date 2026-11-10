@@ -296,3 +296,23 @@ Format of each entry: what was decided, why, and what was considered instead.
 ### D-60. The CI emulator uses an Automated Test Device image
 **Decided:** The "Sample app run" job starts an API 35 `aosp_atd` x86_64 emulator instead of `google_apis`, still with 4 GB and 4 cores. It no longer sets `hide_error_dialogs`. This replaces that part of D-57.
 **Why:** On `google_apis`, the busy CI emulator showed "Pixel Launcher isn't responding" over the app, and every flow failed. That happened on the first run and again on `main` after M5 was merged, with `hide_error_dialogs` set. The run on the pull request that passed only got lucky. ATD images are Android's images made for automated tests, without the launcher and other apps that kept the emulator busy.
+
+### D-61. How Jagra starts Mockoon CLI
+**Decided:** Jagra runs `mockoon-cli start --data <file> --port <port> --hostname 127.0.0.1 --disable-admin-api --disable-log-to-file`, through Node as in D-34, and never passes `--repair`. The port comes from `mockoon.port` in `config.yaml`, or else from the `port` field of the Mockoon file. Jagra waits until the port accepts a connection, up to 30 seconds (`MCK-2`).
+**Why:** `adb reverse` reaches 127.0.0.1, so the mock never needs to be open to the local network, whatever hostname the team's file has. The admin API would let anything on the computer control the mock with a token printed in the log. Log files would keep request bodies in the user's home folder. `--repair` can rewrite the file (`MCK-1`). The file itself is only read.
+
+### D-62. A port is free only when nothing answers on it and Jagra can listen on it everywhere
+**Decided:** `PortChecker` calls a port free only when a connection to 127.0.0.1 is refused and Jagra can listen on both 127.0.0.1 and 0.0.0.0.
+**Why:** On Windows, a port taken on 0.0.0.0, as the Mockoon desktop app does, still lets a program listen on 127.0.0.1, and the other way round (tried on 2026-11-10). One check alone would miss the Mockoon app that `MCK-3` is about.
+
+### D-63. What cleanup after a crash stops
+**Decided:** Every process and reverse rule in `state/active.json` records the Jagra process that started it, and Mockoon's record also has its port. When the CLI starts, and when the desktop app starts (M7), Jagra cleans up after Jagra processes that are gone, never after one still running. It stops a leftover Mockoon only if that pid is alive and is the one listening on the recorded port, found with `netstat -ano` on Windows or `lsof` on macOS. Other leftover processes, such as Maestro or `adb`, are forgotten, not stopped. Leftover reverse rules are removed.
+**Why:** `REL-2` and `MCK-5` ask Jagra to stop the Mockoon it left behind. Pids get reused, and Node cannot read a process's start time without a shell. The port proves the process is still Jagra's Mockoon. Maestro and `adb` end on their own, and stopping a wrong process would be worse than leaving them.
+
+### D-64. Mockoon's log is kept with the run
+**Decided:** Everything Mockoon prints during a run is saved as `mockoon.log` in the run's folder, with secret values masked as in D-48.
+**Why:** It shows whether the app called the mock at all, which is the first thing to check when a flow fails against Mockoon, and what the sample's CI check uses to prove the app reached the mock. The spec does not ask for it; the owner agreed.
+
+### D-65. MCK-6's tips come with the Create project screen
+**Decided:** The two tips of `MCK-6` (the debug build must call `http://localhost:<port>` and must allow plain HTTP to localhost) are interface text, added with the Create project screen in M8. `MCK-7` needs nothing: Jagra reads `properties.condition` and never uses it.
+**Why:** M6 has no screen to show them on, and the CLI never adds a Mockoon file to a project.
