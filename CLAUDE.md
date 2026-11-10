@@ -4,7 +4,7 @@ Jagra is an open source desktop app (Windows and macOS) that tests Android build
 
 ## Current state
 
-- Current milestone: **M5** (see `docs/plan.md`). Update this line when a milestone is approved.
+- Current milestone: **M6** (see `docs/plan.md`). Update this line when a milestone is approved.
 
 ## Read before working
 
@@ -75,7 +75,8 @@ pnpm test
 pnpm --filter jagra build   build core and the CLI; the CLI package is named `jagra` (CLI-6)
 node packages/cli/dist/bin.js run sample-app   run the sample's flows with an emulator or phone ready (expects exit 1)
 pnpm --filter @jagra/core test:tools   check the tools on this machine (not in CI)
-pnpm --filter @jagra/core test:device  start an emulator and install the sample APK (not in CI, close every emulator first)
+pnpm --filter @jagra/core test:device local    start an emulator and install the sample APK (not in CI, close every emulator first)
+pnpm --filter @jagra/core test:device cancel   Cancel mid-run with Mockoon on a running emulator (not in CI)
 pnpm theme:sample           regenerate the sample app's theme after changing design/
 cd sample-app && ./gradlew assembleDebug   build the sample APK
 pnpm --filter desktop dev   from M7

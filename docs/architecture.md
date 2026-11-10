@@ -73,8 +73,9 @@ core/src/
 | `ToolProbe` | Find a tool and read its version, returning what it saw (`ToolFinding`) | `ProcessRunner` calls such as `java -version`. Maestro and Mockoon CLI through Java and Node on Windows (D-34). Search order and the Windows registry read in D-37 |
 | `DeviceBridge` | List and watch devices and emulators, start an emulator, report boot state and load, install and uninstall, clear app data, add and remove `adb reverse`, read the Android version. The `devices` module decides when an emulator is ready (D-44) | `adb` (`track-devices -l` for watching) and the SDK `emulator` binary (D-42) |
 | `ApkReader` | Read package name, version name and version code from an APK | `@devicefarmer/adbkit-apkreader` (D-46) |
-| `MockServer` | Start Mockoon CLI with a file and port, wait until ready, stop | `mockoon-cli` |
-| `PortChecker` | Tell whether a local port is free | Node `net` |
+| `MockServer` | Start Mockoon CLI with a file and port, wait until the port accepts connections (30 s), stop | `mockoon-cli` through Node (D-34), on 127.0.0.1, without admin API or log files (D-61) |
+| `PortChecker` | Tell whether a local port is free, and whether something accepts connections on it | Node `net`: a connection attempt plus listening on 127.0.0.1 and 0.0.0.0 (D-62) |
+| `ProcessControl` | After a crash: tell whether a process is alive, which processes listen on a port, and stop a process tree (REL-2) | `netstat -ano` and `taskkill /T /F` on Windows, `lsof` and a signal to the process group on macOS (D-63) |
 | `FlowRunner` | Run one flow on one device with variables, a time limit, an output folder and a cancel signal, report the latest step, and return the result: step marks, the failing step, reason, screenshot, screen contents (D-50) and crash report | `maestro test` with Maestro's HTML report and debug output, every text file masked (D-47 to D-51) |
 | `AgentClient` | Start a session, send a request, continue a session, cancel | Two adapters: `CliAgent` (Claude Code, Codex, custom commands) and `AcpAgent` (ACP agents, using the official ACP TypeScript SDK) |
 | `SecretStore` | Read and write secret values per project | Desktop: OS credential store. CLI: `JAGRA_SECRET_<NAME>` environment variables |
@@ -148,7 +149,8 @@ Local data lives in the operating system's app data folder. The desktop app and 
       flows/<flow>/        Maestro output, screenshots, screen contents, crash report, Maestro report
   secrets/                 encrypted secret values (desktop only)
   backups/<session id>/    safety net copies (AGT-19)
-  state/active.json        processes and adb reverse rules Jagra started (REL-2)
+  state/active.json        processes and adb reverse rules Jagra started, with the Jagra process that
+                           started them and Mockoon's port (REL-2, D-63)
   logs/                    technical logs: jagra.log, jagra.1.log, jagra.2.log, 5 MB each (REL-7)
 ```
 
