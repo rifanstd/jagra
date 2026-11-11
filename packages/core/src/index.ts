@@ -61,11 +61,27 @@ export {
   SECRET_PREFIX,
 } from "./adapters/secrets/env-secret-store.js";
 export {
+  addProject,
   cliProjectId,
   knownProjects,
+  moveProject,
   projectsFile,
+  removeProject,
   type KnownProject,
 } from "./project/registry.js";
+export {
+  inspectFolder,
+  projectRelative,
+  setUpProject,
+  type FolderLook,
+  type ProjectSetup,
+} from "./project/create.js";
+export {
+  loadLocal,
+  localFile,
+  updateLocal,
+  type ProjectLocal,
+} from "./project/local.js";
 export { maskFiles, outputMasker } from "./log/mask-files.js";
 export {
   NodeToolProbe,

@@ -45,6 +45,13 @@ const ERRORS: Describe = {
   APK_UNREADABLE: (e) => `${e.file} could not be read as an APK: ${e.detail}`,
   OUTPUT_MASK_FAILED: (e) =>
     `Maestro's output in ${e.folder} could not be masked, so it was not kept: ${e.detail}`,
+  PROJECT_SETUP_FAILED: (e) =>
+    `The .jagra folder in ${e.folder} could not be created: ${e.detail}`,
+  MOCKOON_FILE_OUTSIDE_PROJECT: (e) =>
+    `${e.file} is outside the project folder. Choose a Mockoon file inside it.`,
+  SAMPLE_NOT_BUNDLED: () => "This build of Jagra has no sample app.",
+  SAMPLE_COPY_FAILED: (e) =>
+    `The sample app could not be copied to ${e.folder}: ${e.detail}`,
   DEVICE_NOT_FOUND: (e) => `Device ${e.deviceId} is not connected.`,
   DEVICE_NOT_AUTHORISED: (e) =>
     `Phone ${e.deviceId} has not allowed USB debugging. Unlock it and accept the prompt.`,

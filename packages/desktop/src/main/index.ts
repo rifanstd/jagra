@@ -4,6 +4,7 @@ import {
   ActiveProcessFile,
   activeProcessesFile,
   AdbDeviceBridge,
+  AdbkitApkReader,
   appDataFolder,
   cleanUpLeftovers,
   Logger,
@@ -21,6 +22,7 @@ import {
   app,
   BrowserWindow,
   clipboard,
+  dialog,
   ipcMain,
   nativeTheme,
   session,
@@ -28,6 +30,7 @@ import {
 } from "electron";
 import { checkTools, knownLinks } from "./environment.js";
 import { registerIpc } from "./ipc.js";
+import { Projects } from "./projects.js";
 import { lockDownContents, lockDownSession } from "./security.js";
 import { SettingsFile } from "./settings.js";
 import { isTestMode, testToolProbe } from "./test-mode.js";
@@ -57,6 +60,45 @@ const settings = new SettingsFile(appData, () =>
   app.getPreferredSystemLanguages(),
 );
 const links = knownLinks();
+
+/** The system dialogs, attached to the window that asked. */
+const pick = async (
+  options: Electron.OpenDialogOptions,
+): Promise<string | undefined> => {
+  const window = BrowserWindow.getFocusedWindow();
+  const answer = window
+    ? await dialog.showOpenDialog(window, options)
+    : await dialog.showOpenDialog(options);
+  return answer.canceled ? undefined : answer.filePaths[0];
+};
+
+const projects = new Projects({
+  appData,
+  // Test mode keeps the sample copy away from the real Documents folder (D-87).
+  documents: testMode ? join(appData, "documents") : app.getPath("documents"),
+  sample: join(import.meta.dirname, "../sample"),
+  apkReader: new AdbkitApkReader(),
+  dialogs: {
+    pickFolder: () =>
+      pick({ properties: ["openDirectory", "createDirectory"] }),
+    pickApk: (defaultPath) =>
+      pick({
+        defaultPath,
+        properties: ["openFile"],
+        filters: [{ name: "APK", extensions: ["apk"] }],
+      }),
+    pickJson: (defaultPath) =>
+      pick({
+        defaultPath,
+        properties: ["openFile"],
+        filters: [{ name: "JSON", extensions: ["json"] }],
+      }),
+  },
+  openPath: async (path) => {
+    const problem = await shell.openPath(path);
+    if (problem) await log("warn", "open-path-failed", { path, problem });
+  },
+});
 
 /** A log line that never stops the app: a full disk must not break a check or the start. */
 function log(
@@ -126,6 +168,7 @@ void app.whenReady().then(async () => {
       openLink: (url) => shell.openExternal(url),
       copyText: (text) => clipboard.writeText(text),
       settings,
+      projects,
       checkEnvironment: async (onProgress) => {
         const view = await checkTools({
           probe,

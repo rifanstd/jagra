@@ -7,6 +7,7 @@ import {
   type EnvironmentView,
   type SettingsView,
 } from "../shared/api.js";
+import type { Projects } from "./projects.js";
 import { settingsSchema, type SettingsFile } from "./settings.js";
 
 /** What main does for each preload function. */
@@ -17,6 +18,7 @@ export interface Handlers {
   isKnownLink(url: string): boolean;
   copyText(text: string): Promise<void>;
   settings: SettingsFile;
+  projects: Projects;
   checkEnvironment(
     onProgress: (status: ToolStatus) => void,
   ): Promise<EnvironmentView>;
@@ -84,4 +86,29 @@ export function registerIpc(
       event.sender.send(EVENTS.environmentProgress, status),
     ),
   );
+
+  const id = z.tuple([z.string().min(1).max(100)]);
+  const { projects } = handlers;
+  on(CHANNELS.projectsList, z.tuple([]), () => projects.list());
+  on(CHANNELS.projectsGet, id, ([projectId]) => projects.get(projectId));
+  on(CHANNELS.projectsPickFolder, z.tuple([]), () => projects.pickFolder());
+  on(CHANNELS.projectsPickApk, z.tuple([]), () => projects.pickApk());
+  on(CHANNELS.projectsPickMockoon, z.tuple([]), () => projects.pickMockoon());
+  on(
+    CHANNELS.projectsCreate,
+    z.tuple([
+      z.strictObject({
+        name: z.string().trim().min(1).max(100),
+        apk: z.enum(["search", "picked"]),
+      }),
+    ]),
+    ([project]) => projects.create(project),
+  );
+  on(CHANNELS.projectsRemove, id, ([projectId]) => projects.remove(projectId));
+  on(CHANNELS.projectsLocate, id, ([projectId]) => projects.locate(projectId));
+  on(CHANNELS.projectsOpenConfig, id, ([projectId]) =>
+    projects.openConfig(projectId),
+  );
+  on(CHANNELS.projectsSampleFolder, z.tuple([]), () => projects.sampleFolder());
+  on(CHANNELS.projectsTrySample, z.tuple([]), () => projects.trySample());
 }
