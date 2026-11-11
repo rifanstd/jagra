@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>3 Buat proyek · Mockup Jagra</title>
+    <link rel="stylesheet" href="../system/theme.css" />
+    <link rel="stylesheet" href="mockup.css" />
+    <script src="mockup.js" defer></script>
+  </head>
+  <body>
+    <div class="review" role="region" aria-label="Kontrol review mockup, bukan bagian aplikasi">
+      <a href="02-project-list.html">Sebelumnya</a>
+      <a href="index.html">Semua layar</a>
+      <strong>3 · Buat proyek</strong>
+      <span class="group"
+        >Keadaan:
+        <button type="button" data-show="new">Folder tanpa .jagra</button>
+        <button type="button" data-show="team">.jagra sudah ada</button>
+        <button type="button" data-show="noapk">APK belum ada</button>
+      </span>
+      <span class="group push"
+        >Tema:
+        <button type="button" data-theme-choice="system">Ikuti sistem</button>
+        <button type="button" data-theme-choice="light">Terang</button>
+        <button type="button" data-theme-choice="dark">Gelap</button>
+      </span>
+      <a href="04-project-page.html">Berikutnya</a>
+    </div>
+
+    <header class="topbar">
+      <a class="brand" href="02-project-list.html">Jagra</a>
+      <nav class="crumbs" aria-label="Lokasi">
+        <a href="02-project-list.html">Proyek</a><span>/</span><span aria-current="page">Proyek baru</span>
+      </nav>
+      <nav class="topnav" aria-label="Utama">
+        <a href="11-settings.html">Pengaturan</a>
+        <a href="12-about.html">Tentang</a>
+      </nav>
+    </header>
+
+    <main class="page narrow">
+      <div class="page-head">
+        <div>
+          <h1>Buat proyek</h1>
+          <p class="sub">Pilih folder kode aplikasi Android. Folder kosong juga bisa, untuk tes dengan APK saja.</p>
+        </div>
+      </div>
+
+      <form class="panel" onsubmit="return false">
+        <div class="panel-body" style="padding-top: 20px">
+          <div class="field">
+            <label class="label" for="folder">Folder proyek</label>
+            <div class="input-row">
+              <input class="input mono" id="folder" value="D:\kerja\toko-kopi-android" readonly />
+              <button class="btn" type="button" data-note="dialog pilih folder sistem terbuka">Pilih folder</button>
+            </div>
+            <div class="note is-info" data-state="new noapk">
+              <span class="glyph" aria-hidden="true">i</span>
+              <div>
+                <p>Belum ada folder <code>.jagra</code>. Jagra akan membuat:</p>
+                <p class="mono small" style="margin-top: 6px">
+                  .jagra/config.yaml<br />.jagra/agent-rules.md<br />.jagra/flows/<br />.jagra/flows/parts/
+                </p>
+                <p class="small muted" style="margin-top: 6px">File lain di folder ini tidak diubah.</p>
+              </div>
+            </div>
+            <div class="note is-info" data-state="team">
+              <span class="glyph" aria-hidden="true">i</span>
+              <div>
+                <p>Folder <code>.jagra</code> sudah ada, isinya dibaca apa adanya: 9 flow, 2 flow pembantu, dan file Mockoon.</p>
+                <p class="small muted" style="margin-top: 4px">Proyek tim yang sama tinggal pilih perangkat, lalu jalankan.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label" for="name">Nama proyek</label>
+            <input class="input" id="name" value="toko-kopi" />
+            <span class="hint">Disimpan di <code>.jagra/config.yaml</code>, jadi satu tim melihat nama yang sama.</span>
+          </div>
+
+          <fieldset class="field" style="border: 0; padding: 0; margin: 18px 0 0">
+            <legend class="label" style="padding: 0; margin-bottom: 6px">APK yang dites</legend>
+            <label class="check">
+              <input type="radio" name="apk" checked />
+              <span>APK terbaru di <code>app/build/outputs/apk/debug</code></span>
+            </label>
+            <p class="hint" style="margin-left: 28px" data-state="new team">
+              Ditemukan <code>app-debug.apk</code>, versi 2.3.1 (231), dibuat 12 menit lalu. Build baru dari Android Studio langsung terpakai.
+            </p>
+            <div class="note is-warning" style="margin-left: 28px" data-state="noapk">
+              <span class="glyph" aria-hidden="true">!</span>
+              <p>Belum ada APK di folder itu. Build aplikasinya dulu di Android Studio, atau pilih file APK di bawah.</p>
+            </div>
+            <label class="check" style="margin-top: 8px">
+              <input type="radio" name="apk" />
+              <span>Pilih file APK</span>
+            </label>
+          </fieldset>
+
+          <div class="field">
+            <label class="label" for="mockoon">File Mockoon <span class="muted">(opsional)</span></label>
+            <div class="input-row">
+              <input class="input mono" id="mockoon" value=".jagra/mockoon.json" readonly data-state="team" />
+              <input class="input" id="mockoon-empty" placeholder="Belum dipilih" readonly data-state="new noapk" />
+              <button class="btn" type="button" data-note="dialog pilih file terbuka, hanya di dalam folder proyek">Pilih file</button>
+            </div>
+            <div class="note is-info" data-state="team">
+              <span class="glyph" aria-hidden="true">i</span>
+              <div>
+                <p>Dua hal yang tidak bisa dicek Jagra:</p>
+                <ul style="margin: 6px 0 0; padding-left: 1.2em; display: grid; gap: 4px">
+                  <li>Build debug harus memanggil <code>http://localhost:3000</code>.</li>
+                  <li>Build debug harus mengizinkan HTTP biasa ke localhost lewat network security config Android.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="panel-foot" style="justify-content: flex-end">
+          <a class="btn" href="02-project-list.html">Batal</a>
+          <a class="btn btn-primary" href="04-project-page.html">Buat proyek</a>
+        </div>
+      </form>
+    </main>
+  </body>
+</html>

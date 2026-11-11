@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>8 Buat flow dengan AI · Mockup Jagra</title>
+    <link rel="stylesheet" href="../system/theme.css" />
+    <link rel="stylesheet" href="mockup.css" />
+    <script src="mockup.js" defer></script>
+  </head>
+  <body>
+    <div class="review" role="region" aria-label="Kontrol review mockup, bukan bagian aplikasi">
+      <a href="07-flow-detail.html">Sebelumnya</a>
+      <a href="index.html">Semua layar</a>
+      <strong>8 · Buat flow dengan AI</strong>
+      <span class="group"
+        >Keadaan:
+        <button type="button" data-show="form">Tulis skenario</button>
+        <button type="button" data-show="working">Agen bekerja</button>
+        <button type="button" data-show="review-fail">Review: cek gagal</button>
+        <button type="button" data-show="review-pass">Review: lolos</button>
+      </span>
+      <span class="group push"
+        >Tema:
+        <button type="button" data-theme-choice="system">Ikuti sistem</button>
+        <button type="button" data-theme-choice="light">Terang</button>
+        <button type="button" data-theme-choice="dark">Gelap</button>
+      </span>
+      <a href="09-empty-project-list.html">Berikutnya</a>
+    </div>
+
+    <header class="topbar">
+      <a class="brand" href="02-project-list.html">Jagra</a>
+      <nav class="crumbs" aria-label="Lokasi">
+        <a href="02-project-list.html">Proyek</a><span>/</span><a href="04-project-page.html">Jagra sample app</a><span>/</span
+        ><span aria-current="page">Flow dengan AI</span>
+      </nav>
+      <nav class="topnav" aria-label="Utama">
+        <a href="11-settings.html">Pengaturan</a>
+        <a href="12-about.html">Tentang</a>
+      </nav>
+    </header>
+
+    <!-- Writing the scenario -->
+    <main class="page narrow" data-state="form">
+      <div class="page-head">
+        <div>
+          <h1>Buat flow dengan AI</h1>
+          <p class="sub">Tulis skenarionya dengan bahasa biasa. Agen menulis flow, Jagra menjalankannya, Maestro menentukan lolos atau gagal.</p>
+        </div>
+      </div>
+      <form class="panel" onsubmit="return false">
+        <div class="panel-body" style="padding-top: 20px">
+          <div class="field">
+            <label class="label" for="scenario">Skenario</label>
+            <textarea class="input" id="scenario" rows="4">
+Ubah stok Oat milk 1 L jadi 25, simpan, lalu pastikan daftar barang menampilkan 25.</textarea
+            >
+            <span class="hint">Bahasa apa pun. Sebutkan apa yang harus terlihat di akhir, karena itu yang dicek.</span>
+          </div>
+          <div class="field">
+            <label class="label" for="flow-name">Nama file <span class="muted">(opsional)</span></label>
+            <input class="input mono" id="flow-name" placeholder="nama-flow.yaml" />
+          </div>
+        </div>
+        <div class="panel-foot">
+          <span class="grow row-meta">Agen: Claude Code · <a class="link" href="11-settings.html">ganti</a></span>
+          <a class="btn" href="04-project-page.html">Batal</a>
+          <button class="btn btn-primary" type="button" data-show="working">Buat flow</button>
+        </div>
+      </form>
+    </main>
+
+    <!-- The agent at work -->
+    <main class="page narrow" data-state="working">
+      <div class="page-head">
+        <div>
+          <h1>Agen sedang menulis flow</h1>
+          <p class="sub">"Ubah stok Oat milk 1 L jadi 25, simpan, lalu pastikan daftar barang menampilkan 25."</p>
+        </div>
+        <button class="btn" type="button" data-note="proses agen dihentikan; Jagra lalu memeriksa apakah ada file di luar .jagra/flows yang berubah">Batalkan</button>
+      </div>
+      <section class="panel">
+        <ul class="rows">
+          <li>
+            <span class="grow">Claude Code menulis flow</span>
+            <span class="row-meta">1 mnt 12 dtk</span>
+            <span class="status s-running"><span class="spinner"></span>Bekerja</span>
+          </li>
+          <li>
+            <span class="grow">Memeriksa file yang berubah di luar <code>.jagra/flows</code></span>
+            <span class="status s-waiting"><span class="glyph">○</span>Antre</span>
+          </li>
+          <li>
+            <span class="grow">Menjalankan flow baru di Pixel_8</span>
+            <span class="status s-waiting"><span class="glyph">○</span>Antre</span>
+          </li>
+        </ul>
+      </section>
+      <p class="small muted" style="margin-top: 12px">
+        Agen hanya boleh menulis di <code>.jagra/flows</code> dan tidak menjalankan perintah apa pun. Kalau masih bekerja setelah 15 menit, Jagra menghentikannya.
+      </p>
+      <div class="actions" style="margin-top: 16px">
+        <button class="btn btn-sm" type="button" data-show="review-fail">Lihat hasil contoh</button>
+      </div>
+    </main>
+
+    <!-- Review -->
+    <main class="page" data-state="review-fail review-pass">
+      <div class="page-head">
+        <div>
+          <h1>Ubah stok dan cek daftar barang</h1>
+          <p class="sub">
+            <span class="mono">update-stock.yaml</span> ·
+            <span class="status s-failed" data-state="review-fail"><span class="glyph">✕</span>Gagal di langkah 11 dari 11</span>
+            <span class="status s-passed" data-state="review-pass"><span class="glyph">✓</span>Lolos di Pixel_8</span>
+          </p>
+        </div>
+        <div class="actions">
+          <button class="btn btn-danger" type="button" data-note="file flow dihapus; sesi agen selesai">Buang</button>
+          <a class="btn btn-primary" href="04-project-page.html">Simpan flow</a>
+        </div>
+      </div>
+
+      <div class="note is-info" style="margin-bottom: 20px" data-state="review-fail">
+        <span class="glyph" aria-hidden="true">i</span>
+        <div>
+          <p>
+            Semua aksi berhasil, lalu sebuah cek gagal. Kemungkinan besar ini bug di aplikasi: daftar barang belum menampilkan stok yang baru.
+            Bisa juga harapan di skenarionya yang keliru.
+          </p>
+          <p class="small muted" style="margin-top: 4px">Flow yang gagal karena bug aplikasi tetap bisa disimpan. Flow itu akan terus gagal sampai bugnya diperbaiki.</p>
+        </div>
+      </div>
+
+      <div class="split">
+        <section class="panel" aria-labelledby="review-steps">
+          <div class="panel-head">
+            <h2 id="review-steps">Isi flow</h2>
+            <div class="tabs" role="tablist" aria-label="Tampilan flow">
+              <button type="button" role="tab" id="tab-steps" aria-controls="panel-steps" aria-selected="true">Langkah</button>
+              <button type="button" role="tab" id="tab-yaml" aria-controls="panel-yaml" aria-selected="false" tabindex="-1">YAML</button>
+            </div>
+          </div>
+          <div id="panel-steps" role="tabpanel" aria-labelledby="tab-steps">
+            <ol class="rows">
+              <li><span class="status s-passed"><span class="glyph">✓</span></span><span class="grow">Buka aplikasi dengan data bersih</span></li>
+              <li><span class="status s-passed"><span class="glyph">✓</span></span><span class="grow">Jalankan <span class="mono">parts/login.yaml</span></span></li>
+              <li><span class="status s-passed"><span class="glyph">✓</span></span><span class="grow">Ketuk "Oat milk 1 L"</span></li>
+              <li><span class="status s-passed"><span class="glyph">✓</span></span><span class="grow">Ketuk "30" di bawah "Quantity"</span></li>
+              <li><span class="status s-passed"><span class="glyph">✓</span></span><span class="grow">Hapus teks</span></li>
+              <li><span class="status s-passed"><span class="glyph">✓</span></span><span class="grow">Ketik "25"</span></li>
+              <li><span class="status s-passed"><span class="glyph">✓</span></span><span class="grow">Tutup keyboard</span></li>
+              <li><span class="status s-passed"><span class="glyph">✓</span></span><span class="grow">Ketuk "Save"</span></li>
+              <li><span class="status s-passed"><span class="glyph">✓</span></span><span class="grow"><span class="chip">Cek</span> "✓ Saved" terlihat</span></li>
+              <li><span class="status s-passed"><span class="glyph">✓</span></span><span class="grow">Ketuk "Back"</span></li>
+              <li data-state="review-fail" class="is-failed">
+                <span class="status s-failed"><span class="glyph">✕</span></span><span class="grow"><span class="chip">Cek</span> "25" terlihat</span>
+              </li>
+              <li data-state="review-pass">
+                <span class="status s-passed"><span class="glyph">✓</span></span><span class="grow"><span class="chip">Cek</span> "25" terlihat</span>
+              </li>
+            </ol>
+          </div>
+          <div id="panel-yaml" role="tabpanel" aria-labelledby="tab-yaml" hidden>
+            <div class="panel-body">
+              <pre class="code">appId: dev.jagra.sample
+name: Ubah stok dan cek daftar barang
+---
+- launchApp:
+    clearState: true
+- runFlow: parts/login.yaml
+- tapOn: "Oat milk 1 L"
+- tapOn:
+    text: "30"
+    below: "Quantity"
+- eraseText
+- inputText: "25"
+- hideKeyboard
+- tapOn: "Save"
+- assertVisible: "✓ Saved"
+- tapOn: "Back"
+- assertVisible: "25"</pre>
+            </div>
+          </div>
+        </section>
+
+        <div class="stack">
+          <section class="panel" aria-labelledby="review-screen" data-state="review-fail">
+            <div class="panel-head"><h2 id="review-screen">Layar saat gagal</h2></div>
+            <div class="panel-body" style="display: grid; gap: 14px">
+              <div class="shot">Screenshot dari Maestro tampil di sini</div>
+              <div>
+                <h3>Teks di layar</h3>
+                <ul class="small" style="margin: 6px 0 0; padding-left: 1.2em">
+                  <li>Stock</li>
+                  <li>Oat milk 1 L</li>
+                  <li>30 in stock</li>
+                  <li>Arabica beans 1 kg</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel" aria-labelledby="report">
+            <div class="panel-head"><h2 id="report">Laporan agen</h2></div>
+            <div class="panel-body" style="display: grid; gap: 12px">
+              <div>
+                <h3>Yang dicek</h3>
+                <p class="small">Stok yang diubah di halaman barang tersimpan dan terlihat di daftar barang.</p>
+              </div>
+              <div>
+                <h3>Kemungkinan bug</h3>
+                <p class="small">Daftar barang tidak dimuat ulang setelah kembali dari halaman barang.</p>
+              </div>
+              <div>
+                <h3>Saran tes lain</h3>
+                <ul class="rows" style="margin-top: 4px">
+                  <li style="padding: 8px 0">
+                    <span class="grow small">Stok diisi 0 tetap tersimpan</span>
+                    <button class="btn btn-sm" type="button" data-show="working">Buat ini juga</button>
+                  </li>
+                  <li style="padding: 8px 0">
+                    <span class="grow small">Stok kosong menampilkan pesan error</span>
+                    <button class="btn btn-sm" type="button" data-show="working">Buat ini juga</button>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel" aria-labelledby="other-flows">
+            <div class="panel-head"><h2 id="other-flows">Flow lain yang ikut diubah</h2></div>
+            <ul class="rows">
+              <li>
+                <span class="status s-warning"><span class="glyph">!</span></span>
+                <span class="grow mono small">item-list.yaml</span>
+                <button class="btn btn-sm" type="button" data-note="perbedaan sebelum dan sesudah agen bekerja tampil">Lihat</button>
+                <button class="btn btn-sm" type="button" data-note="item-list.yaml kembali seperti sebelum agen mulai">Kembalikan</button>
+              </li>
+            </ul>
+          </section>
+
+          <section class="panel" aria-labelledby="fix">
+            <div class="panel-head"><h2 id="fix">Minta agen memperbaiki</h2></div>
+            <div class="panel-body" style="display: grid; gap: 10px">
+              <textarea class="input" id="fix-note" aria-labelledby="fix" placeholder="Catatan untuk agen (opsional)"></textarea>
+              <p class="hint">Langkah yang gagal, alasannya, screenshot, dan teks di layar ikut dikirim ke sesi yang sama.</p>
+              <div><button class="btn" type="button" data-show="working">Kirim ke agen</button></div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>

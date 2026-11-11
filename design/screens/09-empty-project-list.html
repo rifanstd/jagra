@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>9 Daftar proyek kosong · Mockup Jagra</title>
+    <link rel="stylesheet" href="../system/theme.css" />
+    <link rel="stylesheet" href="mockup.css" />
+    <script src="mockup.js" defer></script>
+  </head>
+  <body>
+    <div class="review" role="region" aria-label="Kontrol review mockup, bukan bagian aplikasi">
+      <a href="08-create-flow-with-ai.html">Sebelumnya</a>
+      <a href="index.html">Semua layar</a>
+      <strong>9 · Daftar proyek kosong</strong>
+      <span class="group"
+        >Keadaan:
+        <button type="button" data-show="empty">Belum ada proyek</button>
+        <button type="button" data-show="preparing">Menyiapkan contoh</button>
+      </span>
+      <span class="group push"
+        >Tema:
+        <button type="button" data-theme-choice="system">Ikuti sistem</button>
+        <button type="button" data-theme-choice="light">Terang</button>
+        <button type="button" data-theme-choice="dark">Gelap</button>
+      </span>
+      <a href="10-history.html">Berikutnya</a>
+    </div>
+
+    <header class="topbar">
+      <a class="brand" href="02-project-list.html">Jagra</a>
+      <a class="status s-passed" href="01-environment-check.html" style="text-decoration: none"><span class="glyph">✓</span>Lingkungan siap</a>
+      <nav class="topnav" aria-label="Utama">
+        <a href="11-settings.html">Pengaturan</a>
+        <a href="12-about.html">Tentang</a>
+      </nav>
+    </header>
+
+    <main class="page narrow" style="padding-top: 64px">
+      <section class="panel">
+        <div class="panel-body" style="padding: 32px; display: grid; gap: 16px">
+          <h1>Belum ada proyek</h1>
+          <p>
+            Coba dulu dengan aplikasi contoh. Aplikasi itu punya satu bug yang sengaja ditanam, jadi run pertama akan
+            menunjukkan seperti apa flow yang gagal. Butuh emulator atau HP yang siap.
+          </p>
+          <div class="actions" style="margin-top: 4px" data-state="empty">
+            <button class="btn btn-primary btn-lg" type="button" data-show="preparing">Coba aplikasi contoh</button>
+            <a class="btn btn-lg" href="03-create-project.html">Buat proyek dari folder aplikasi</a>
+          </div>
+          <div data-state="preparing" style="display: grid; gap: 8px">
+            <span class="status s-running"><span class="spinner"></span>Menyalin aplikasi contoh ke Documents\Jagra\sample-app</span>
+            <p class="small muted">Setelah itu halaman proyeknya terbuka, tinggal pilih perangkat dan tekan Jalankan.</p>
+            <div><a class="btn btn-sm" href="04-project-page.html">Lanjut ke contoh</a></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

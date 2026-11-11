@@ -1,0 +1,690 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mockup Jagra</title>
+    <link rel="stylesheet" href="../system/theme.css" />
+    <link rel="stylesheet" href="mockup.css" />
+    <style>
+      /* The viewer: sidebar, the mockup in a desktop window, and its explanation. */
+      body {
+        height: 100vh;
+        overflow: hidden;
+      }
+      .viewer {
+        display: grid;
+        grid-template-columns: 248px minmax(0, 1fr) 340px;
+        height: 100vh;
+      }
+      .side {
+        display: flex;
+        flex-direction: column;
+        border-right: 1px solid var(--border);
+        background: var(--card);
+        overflow-y: auto;
+      }
+      .side-head {
+        padding: 18px 18px 8px;
+      }
+      .side-head p {
+        margin-top: 2px;
+        color: var(--muted-foreground);
+        font-size: 0.8125rem;
+      }
+      .side nav {
+        padding: 4px 10px 16px;
+      }
+      .side h2 {
+        margin: 14px 8px 6px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--muted-foreground);
+      }
+      .side ol {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        gap: 2px;
+      }
+      .side a {
+        display: flex;
+        gap: 10px;
+        align-items: baseline;
+        padding: 7px 8px;
+        border-radius: var(--r-md);
+        text-decoration: none;
+        color: var(--foreground);
+        font-size: 0.875rem;
+      }
+      .side a:hover {
+        background: var(--accent);
+        color: var(--accent-foreground);
+      }
+      .side a[aria-current="page"] {
+        background: var(--secondary);
+        color: var(--secondary-foreground);
+      }
+      .side a .num {
+        width: 1.5em;
+        text-align: right;
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        opacity: 0.8;
+      }
+      .side-foot {
+        margin-top: auto;
+        padding: 14px 18px;
+        border-top: 1px solid var(--border);
+        display: grid;
+        gap: 8px;
+        font-size: 0.8125rem;
+      }
+
+      .stage {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        overflow: auto;
+        background: var(--muted);
+      }
+      .stage-head {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px 16px;
+        padding: 14px 24px;
+      }
+      .stage-head h1 {
+        font-size: 1.125rem;
+      }
+      .stage-head .actions {
+        margin-left: auto;
+      }
+      .fit {
+        padding: 0 24px 24px;
+        overflow: hidden;
+      }
+      .theme-switch {
+        display: flex;
+        gap: 4px;
+      }
+      .theme-switch button {
+        font: inherit;
+        padding: 6px 12px;
+        border: 1px solid var(--border);
+        border-radius: var(--r-md);
+        background: var(--background);
+        color: var(--foreground);
+        cursor: pointer;
+      }
+      .theme-switch button[aria-pressed="true"] {
+        background: var(--secondary);
+        border-color: var(--secondary);
+        color: var(--secondary-foreground);
+      }
+      /* A desktop window around the mockup. Its size is the app's real window, scaled to fit. */
+      .window {
+        width: 1280px;
+        border: 1px solid var(--input);
+        border-radius: var(--r-lg);
+        overflow: hidden;
+        background: var(--background);
+        box-shadow: var(--shadow-lg);
+        transform-origin: top left;
+      }
+      .titlebar {
+        display: flex;
+        align-items: center;
+        height: 34px;
+        padding-left: 12px;
+        background: var(--card);
+        border-bottom: 1px solid var(--border);
+        font-size: 0.8125rem;
+        color: var(--muted-foreground);
+        user-select: none;
+      }
+      .titlebar .controls {
+        margin-left: auto;
+        display: flex;
+        height: 100%;
+      }
+      .titlebar .controls span {
+        display: grid;
+        place-items: center;
+        width: 46px;
+      }
+      .titlebar .controls span::before {
+        content: "";
+        width: 10px;
+        height: 10px;
+        border: 1px solid var(--muted-foreground);
+      }
+      .titlebar .controls span.min::before {
+        height: 0;
+        border-width: 1px 0 0;
+      }
+      .titlebar .controls span.close::before {
+        border: 0;
+        background:
+          linear-gradient(45deg, transparent 45%, var(--muted-foreground) 45%, var(--muted-foreground) 55%, transparent 55%),
+          linear-gradient(-45deg, transparent 45%, var(--muted-foreground) 45%, var(--muted-foreground) 55%, transparent 55%);
+      }
+      .window iframe {
+        display: block;
+        width: 1280px;
+        height: 800px;
+        border: 0;
+      }
+
+      .explain {
+        border-left: 1px solid var(--border);
+        background: var(--card);
+        overflow-y: auto;
+        padding: 20px;
+        display: grid;
+        align-content: start;
+        gap: 22px;
+      }
+      .explain h2 {
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: var(--muted-foreground);
+        margin-bottom: 8px;
+      }
+      .explain p,
+      .explain li {
+        font-size: 0.875rem;
+      }
+      .explain ul {
+        margin: 0;
+        padding-left: 1.1em;
+        display: grid;
+        gap: 6px;
+      }
+      .states {
+        display: grid;
+        gap: 6px;
+      }
+      .states button {
+        display: grid;
+        gap: 2px;
+        text-align: left;
+        width: 100%;
+        padding: 9px 12px;
+        border: 1px solid var(--border);
+        border-radius: var(--r-md);
+        background: var(--background);
+        color: var(--foreground);
+        font: inherit;
+        cursor: pointer;
+      }
+      .states button span {
+        font-size: 0.8125rem;
+        color: var(--muted-foreground);
+      }
+      .states button[aria-pressed="true"] {
+        border-color: var(--secondary);
+        box-shadow: inset 3px 0 0 var(--secondary);
+      }
+      .reqs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      @media (max-width: 1100px) {
+        body {
+          height: auto;
+          overflow: auto;
+        }
+        .viewer {
+          grid-template-columns: 220px minmax(0, 1fr);
+          height: auto;
+        }
+        .explain {
+          grid-column: 2;
+          border-left: 0;
+          border-top: 1px solid var(--border);
+        }
+      }
+      @media (max-width: 700px) {
+        .viewer {
+          grid-template-columns: 1fr;
+        }
+        .explain {
+          grid-column: 1;
+        }
+        .side {
+          border-right: 0;
+          border-bottom: 1px solid var(--border);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="viewer">
+      <aside class="side" aria-label="Daftar layar">
+        <div class="side-head">
+          <strong>Mockup Jagra</strong>
+          <p>Draf untuk disetujui sebelum M8</p>
+        </div>
+        <nav id="menu"></nav>
+        <div class="side-foot">
+          <span class="muted">Tampilan</span>
+          <div class="theme-switch" role="group" aria-label="Mode tampilan">
+            <button type="button" data-theme="light" aria-pressed="true">Terang</button>
+            <button type="button" data-theme="dark" aria-pressed="false">Gelap</button>
+          </div>
+        </div>
+      </aside>
+
+      <main class="stage">
+        <div class="stage-head">
+          <h1 id="title"></h1>
+          <div class="actions">
+            <a class="btn btn-sm" id="open" target="_blank">Buka penuh</a>
+          </div>
+        </div>
+        <div class="fit" id="fit">
+          <div class="window" id="window">
+            <div class="titlebar">
+              <span>Jagra</span>
+              <span class="controls" aria-hidden="true"><span class="min"></span><span class="max"></span><span class="close"></span></span>
+            </div>
+            <iframe id="screen" title="Mockup layar"></iframe>
+          </div>
+        </div>
+      </main>
+
+      <aside class="explain" id="explain" aria-label="Penjelasan layar"></aside>
+    </div>
+
+    <script>
+      // What each screen is for, what it shows, and the states the mockup can show.
+      const SCREENS = [
+        {
+          file: "01-environment-check.html",
+          title: "Cek lingkungan",
+          group: "Alur utama",
+          purpose:
+            "Layar pertama saat Jagra dibuka pertama kali. Memastikan tool yang dibutuhkan sudah terpasang, dan menjelaskan cara memasang yang belum ada. Jagra tidak pernah memasang apa pun sendiri.",
+          shows: [
+            "Tool wajib: Java, adb, Maestro. Tool opsional: emulator, Mockoon CLI, agen AI.",
+            "Setiap tool menunjukkan simbol dan kata: ✓ Siap, ✕ Tidak ditemukan, ! Versi belum dites, ○ Belum ada (opsional).",
+            "Tool yang bermasalah langsung menampilkan cara memasangnya untuk Windows atau macOS.",
+            "Cek ulang memeriksa semua tool lagi tanpa menutup Jagra.",
+          ],
+          states: [
+            ["missing", "Maestro belum ada", "Tool wajib hilang, tombol Lanjut belum aktif"],
+            ["checking", "Sedang memeriksa", "Semua tool diperiksa bersamaan"],
+            ["ready", "Semua siap", "Lanjut ke proyek aktif; Mockoon versi baru diberi tanda kuning"],
+          ],
+          reqs: ["ENV-1", "ENV-2", "ENV-4", "ENV-5", "ENV-9"],
+        },
+        {
+          file: "02-project-list.html",
+          title: "Daftar proyek",
+          group: "Alur utama",
+          purpose: "Halaman awal setelah lingkungan siap. Menunjukkan semua proyek dan hasil run terakhirnya.",
+          shows: [
+            "Status lingkungan di bilah atas. Diklik membuka Cek lingkungan.",
+            "Setiap proyek: nama, folder, waktu run terakhir, dan hasilnya.",
+            "Proyek yang foldernya hilang bisa dicari lagi lokasinya, riwayatnya tetap ada.",
+            "Proyek dengan config.yaml rusak menunjukkan baris yang salah, proyek lain tetap bisa dibuka.",
+          ],
+          states: [
+            ["ready", "Lingkungan siap", "Kondisi normal"],
+            ["tool", "Ada tool bermasalah", "Bilah atas merah, run belum bisa dimulai"],
+          ],
+          reqs: ["PRJ-7", "PRJ-8", "PRJ-10", "ENV-7"],
+        },
+        {
+          file: "03-create-project.html",
+          title: "Buat proyek",
+          group: "Alur utama",
+          purpose:
+            "Membuat proyek dari folder kode aplikasi. Kalau folder .jagra sudah ada, misalnya dari rekan satu tim, isinya langsung dibaca.",
+          shows: [
+            "Folder proyek, dengan penjelasan file apa saja yang akan dibuat Jagra.",
+            "Nama proyek, disimpan di config.yaml supaya satu tim melihat nama yang sama.",
+            "Sumber APK: otomatis dari build debug terbaru, atau pilih file sendiri.",
+            "File Mockoon opsional, dengan dua tips yang tidak bisa dicek Jagra.",
+          ],
+          states: [
+            ["new", "Folder tanpa .jagra", "Jagra akan membuat folder .jagra"],
+            ["team", ".jagra sudah ada", "Proyek tim dibaca apa adanya, dengan file Mockoon"],
+            ["noapk", "APK belum ada", "Diminta build dulu atau memilih file APK"],
+          ],
+          reqs: ["PRJ-1", "PRJ-2", "PRJ-3", "PRJ-4", "PRJ-5", "MCK-6"],
+        },
+        {
+          file: "04-project-page.html",
+          title: "Halaman proyek",
+          group: "Alur utama",
+          purpose:
+            "Layar yang paling sering dipakai. Kiri: flow yang akan dijalankan. Kanan: APK, perangkat, lalu tombol Jalankan, dikumpulkan di satu panel.",
+          shows: [
+            "Daftar flow dengan kotak pilih, dan flow pembantu di bawahnya.",
+            "Flow baru (manual) dan Buat flow dengan AI.",
+            "APK terbaru beserta versinya dan kapan dibuat.",
+            "Pilihan perangkat beserta keadaannya: menyala, mati, HP siap, HP belum diizinkan.",
+            "Hasil run terakhir dan tautan ke Riwayat.",
+          ],
+          states: [
+            ["ready", "Siap", "Kondisi normal"],
+            ["phone", "HP belum diizinkan", "Petunjuk mengizinkan USB debugging, Jalankan belum aktif"],
+            ["nodevice", "Tanpa perangkat", "Petunjuk membuat emulator atau mencolok HP"],
+            ["broken", "Ada flow rusak", "Flow rusak ditunjukkan barisnya dan tidak ikut dijalankan"],
+            ["noagent", "Tanpa agen AI", "Tombol AI nonaktif dengan penjelasan"],
+            ["secret", "Secret belum diisi", "Dialog meminta nilai variabel sebelum run"],
+            ["package", "Paket APK beda", "Dialog peringatan sebelum run"],
+          ],
+          reqs: ["PRJ-5", "PRJ-6", "DEV-1", "DEV-6", "RUN-2", "RUN-10", "FLOW-3", "FLOW-6", "FLOW-9", "AGT-7"],
+          note: "Beda dari wireframe: wireframe menyusun semuanya dalam satu kolom. Di sini dua kolom, supaya APK, perangkat, dan tombol Jalankan ada di satu tempat.",
+        },
+        {
+          file: "05-running.html",
+          title: "Sedang berjalan",
+          group: "Alur utama",
+          purpose:
+            "Menunjukkan run yang sedang berjalan: persiapan perangkat, APK, dan Mockoon, lalu setiap flow satu per satu. Run bisa dibatalkan kapan saja.",
+          shows: [
+            "Kemajuan: flow ke berapa dari berapa.",
+            "Persiapan: perangkat, APK terpasang, Mockoon menyala.",
+            "Setiap flow dengan keadaannya: ✓ Lolos, ● Berjalan, ○ Antre. Flow yang berjalan menunjukkan langkah terakhirnya.",
+            "Tombol Batalkan run.",
+          ],
+          states: [
+            ["running", "Flow berjalan", "Flow ketiga sedang berjalan"],
+            ["emulator", "Menyalakan emulator", "Emulator yang mati sedang dinyalakan, sampai 3 menit"],
+            ["signature", "Tanda tangan APK beda", "Dialog: hapus aplikasi lama dan pasang ulang?"],
+            ["cancelling", "Sedang membatalkan", "Flow yang berjalan dihentikan"],
+          ],
+          reqs: ["RUN-3", "RUN-8", "RUN-9", "DEV-4"],
+        },
+        {
+          file: "06-results.html",
+          title: "Hasil",
+          group: "Alur utama",
+          purpose: "Ringkasan setelah run selesai: berapa yang lolos dan gagal, dan alasan singkat untuk yang gagal.",
+          shows: [
+            "Judul besar dengan hasil run.",
+            "Daftar flow dengan status, durasi, dan alasan singkat kalau gagal. Flow yang gagal bisa dibuka.",
+            "Waktu, durasi, APK, perangkat, dan Mockoon.",
+            "Jalankan lagi dan Buka laporan (laporan HTML untuk QA).",
+          ],
+          states: [
+            ["completed", "Selesai, 1 gagal", "Hasil sampel dengan bug yang ditanam"],
+            ["passed", "Semua lolos", ""],
+            ["cancelled", "Dibatalkan", "Hasil yang sudah selesai tetap disimpan"],
+            ["stopped", "Berhenti: HP terputus", "Sisa flow tidak dijalankan"],
+            ["interrupted", "Terputus: Jagra tertutup", "Flow yang sempat selesai tetap terlihat"],
+          ],
+          reqs: ["RES-2", "RES-3", "RES-6", "RES-10", "RUN-12"],
+        },
+        {
+          file: "07-flow-detail.html",
+          title: "Detail flow",
+          group: "Alur utama",
+          purpose: "Menjelaskan kenapa sebuah flow gagal: langkah mana, alasannya, dan seperti apa layar saat itu.",
+          shows: [
+            "Setiap langkah dalam bahasa biasa dengan tanda ✓, ✕, atau – (tidak dijalankan). Langkah cek diberi label Cek.",
+            "Alasan dari Maestro, dengan detail teknis yang bisa dibuka.",
+            "Screenshot saat gagal dan daftar teks di layar.",
+            "Laporan crash kalau aplikasi crash.",
+          ],
+          states: [
+            ["step", "Langkah gagal", "Bug sampel: tombol Save tidak ditemukan"],
+            ["black", "Screenshot hitam", "Peringatan FLAG_SECURE"],
+            ["crash", "Aplikasi crash", "Laporan crash dari perangkat"],
+          ],
+          reqs: ["RES-4", "RES-5", "RUN-6"],
+        },
+        {
+          file: "08-create-flow-with-ai.html",
+          title: "Buat flow dengan AI",
+          group: "Alur utama",
+          purpose:
+            "Menulis skenario dengan bahasa biasa. Agen AI menulis flow-nya, Jagra menjalankannya, dan hasilnya direview sebelum disimpan.",
+          shows: [
+            "Kolom skenario dan nama file opsional.",
+            "Agen bekerja: waktu berjalan, dan tombol Batalkan.",
+            "Review: langkah dengan tanda, tampilan YAML, catatan kenapa gagal, layar saat gagal, laporan agen, dan flow lain yang ikut diubah.",
+            "Simpan flow, Kirim ke agen untuk diperbaiki, atau Buang.",
+          ],
+          states: [
+            ["form", "Tulis skenario", ""],
+            ["working", "Agen bekerja", ""],
+            ["review-fail", "Review: cek gagal", "Kemungkinan bug di aplikasi"],
+            ["review-pass", "Review: lolos", ""],
+          ],
+          reqs: ["AGT-12", "AGT-13", "AGT-20", "AGT-22", "AGT-24", "AGT-25", "AGT-26", "AGT-27"],
+        },
+        {
+          file: "09-empty-project-list.html",
+          title: "Daftar proyek kosong",
+          group: "Layar pendukung",
+          purpose: "Yang dilihat pengguna baru. Aplikasi contoh bisa disiapkan dengan satu klik untuk melihat Jagra menemukan bug.",
+          shows: ["Coba aplikasi contoh (aksi utama).", "Buat proyek dari folder aplikasi."],
+          states: [
+            ["empty", "Belum ada proyek", ""],
+            ["preparing", "Menyiapkan contoh", "Aplikasi contoh disalin ke folder Documents"],
+          ],
+          reqs: ["SMP-5", "SMP-6"],
+        },
+        {
+          file: "10-history.html",
+          title: "Riwayat",
+          group: "Layar pendukung",
+          purpose: "20 run terakhir sebuah proyek, termasuk yang dibatalkan, berhenti, atau terputus. Setiap baris membuka layar Hasil.",
+          shows: ["Hasil, waktu, perangkat, dan versi APK setiap run."],
+          states: [
+            ["list", "Ada riwayat", ""],
+            ["empty", "Belum ada run", ""],
+          ],
+          reqs: ["RES-8", "RES-9"],
+        },
+        {
+          file: "11-settings.html",
+          title: "Pengaturan",
+          group: "Layar pendukung",
+          purpose: "Lima halaman pengaturan. Pilih halamannya lewat tab di kiri mockup.",
+          shows: [
+            "Agen AI: agen yang ditemukan, pilihan agen, dan menambah agen sendiri.",
+            "Secret: nilai variabel per proyek, disimpan terenkripsi, tidak pernah ditampilkan.",
+            "Bahasa: ikuti sistem, English, atau Bahasa Indonesia.",
+            "Lokasi tool: lokasi otomatis, atau diatur sendiri.",
+            "Editor: aplikasi untuk membuka file flow.",
+          ],
+          states: [],
+          reqs: ["SET-1", "AGT-1", "AGT-6", "FLOW-5", "FLOW-7", "ENV-6", "LNG-1"],
+          note: "Beda dari wireframe: wireframe punya 4 tab. Spec SET-1 meminta 5, termasuk Editor.",
+        },
+        {
+          file: "12-about.html",
+          title: "Tentang",
+          group: "Layar pendukung",
+          purpose: "Versi, pembuat, lisensi, kode sumber, cek update, dan salin info untuk laporan bug.",
+          shows: ["Nama Jagra ditulis sebagai teks, karena belum ada logo."],
+          states: [
+            ["latest", "Versi terbaru", ""],
+            ["update-win", "Ada update (Windows)", "Sudah terunduh, restart sekarang atau nanti"],
+            ["update-mac", "Ada update (macOS)", "Buka halaman rilis"],
+            ["failed", "Cek gagal", "Tidak ada popup, hanya catatan di sini"],
+          ],
+          reqs: ["ABT-1", "UPD-1", "UPD-2", "UPD-3", "UPD-4"],
+        },
+        {
+          file: "13-first-ai-notice.html",
+          title: "Sebelum memakai AI",
+          group: "Layar pendukung",
+          purpose: "Muncul sekali per proyek, saat Buat flow dengan AI pertama kali ditekan.",
+          shows: ["Agen akan membaca kode proyek dan mengirimnya ke penyedianya. Jagra sendiri tidak mengirim apa pun."],
+          states: [],
+          reqs: ["AGT-11"],
+        },
+        {
+          file: "14-file-change-warning.html",
+          title: "Peringatan perubahan file",
+          group: "Layar pendukung",
+          purpose: "Muncul kalau agen mengubah file di luar folder flow. Aksi utamanya Kembalikan.",
+          shows: ["Daftar file yang berubah dan apa yang terjadi pada masing-masing.", "Lihat perubahan, Biarkan, Kembalikan."],
+          states: [
+            ["warn", "Ada file berubah", ""],
+            ["norestore", "Tanpa cadangan", "Folder bukan git dan terlalu besar untuk dicadangkan"],
+          ],
+          reqs: ["AGT-19"],
+        },
+      ];
+
+      const menu = document.getElementById("menu");
+      const frame = document.getElementById("screen");
+      const explain = document.getElementById("explain");
+      const windowEl = document.getElementById("window");
+      const fit = document.getElementById("fit");
+      let theme = "light";
+      let current = SCREENS[0];
+      let currentState = "";
+
+      // Sidebar
+      for (const group of ["Alur utama", "Layar pendukung"]) {
+        const heading = document.createElement("h2");
+        heading.textContent = group;
+        const list = document.createElement("ol");
+        for (const screen of SCREENS.filter((s) => s.group === group)) {
+          const item = document.createElement("li");
+          const link = document.createElement("a");
+          link.href = `#${screen.file}`;
+          const num = document.createElement("span");
+          num.className = "num";
+          num.textContent = String(SCREENS.indexOf(screen) + 1);
+          link.append(num, document.createTextNode(screen.title));
+          link.addEventListener("click", (event) => {
+            event.preventDefault();
+            show(screen.file);
+          });
+          item.append(link);
+          list.append(item);
+        }
+        menu.append(heading, list);
+      }
+
+      const send = (message) => frame.contentWindow?.postMessage({ source: "jagra-viewer", ...message }, "*");
+
+      function show(file, state) {
+        current = SCREENS.find((s) => s.file === file) ?? SCREENS[0];
+        currentState = state ?? current.states[0]?.[0] ?? "";
+        history.replaceState(null, "", `#${current.file}`);
+        if (!frame.src.endsWith(current.file)) frame.src = current.file;
+        else send({ theme, state: currentState || undefined });
+        render();
+      }
+
+      function render() {
+        document.getElementById("title").textContent = `${SCREENS.indexOf(current) + 1}. ${current.title}`;
+        document.getElementById("open").href = current.file;
+        for (const link of menu.querySelectorAll("a")) {
+          if (link.hash === `#${current.file}`) link.setAttribute("aria-current", "page");
+          else link.removeAttribute("aria-current");
+        }
+        explain.replaceChildren();
+        const section = (title, ...content) => {
+          const block = document.createElement("section");
+          const heading = document.createElement("h2");
+          heading.textContent = title;
+          block.append(heading, ...content);
+          explain.append(block);
+        };
+        const paragraph = (text) => {
+          const p = document.createElement("p");
+          p.textContent = text;
+          return p;
+        };
+        section("Untuk apa", paragraph(current.purpose));
+        if (current.states.length > 0) {
+          const states = document.createElement("div");
+          states.className = "states";
+          for (const [id, label, detail] of current.states) {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.setAttribute("aria-pressed", String(id === currentState));
+            const name = document.createElement("strong");
+            name.textContent = label;
+            button.append(name);
+            if (detail) {
+              const small = document.createElement("span");
+              small.textContent = detail;
+              button.append(small);
+            }
+            button.addEventListener("click", () => {
+              currentState = id;
+              send({ state: id });
+              render();
+            });
+            states.append(button);
+          }
+          section("Keadaan yang bisa dilihat", states);
+        }
+        const list = document.createElement("ul");
+        for (const line of current.shows) {
+          const item = document.createElement("li");
+          item.textContent = line;
+          list.append(item);
+        }
+        section("Isi layar", list);
+        if (current.note) section("Catatan", paragraph(current.note));
+        const reqs = document.createElement("div");
+        reqs.className = "reqs";
+        for (const id of current.reqs) {
+          const chip = document.createElement("span");
+          chip.className = "chip mono";
+          chip.textContent = id;
+          reqs.append(chip);
+        }
+        section("Persyaratan di spec", reqs);
+      }
+
+      // The mockup reports which screen it shows when a button inside it leads elsewhere.
+      window.addEventListener("message", (event) => {
+        const data = event.data;
+        if (!data || data.source !== "jagra-mockup") return;
+        if (data.file && data.file !== current.file) {
+          current = SCREENS.find((s) => s.file === data.file) ?? current;
+          currentState = current.states[0]?.[0] ?? "";
+          history.replaceState(null, "", `#${current.file}`);
+          render();
+        }
+        if (data.file) send({ theme, state: currentState || undefined });
+        if (data.state && data.state !== currentState) {
+          currentState = data.state;
+          render();
+        }
+      });
+
+      // Light or dark mode for the viewer and the mockup together (SET-2 follows the system in the app).
+      for (const button of document.querySelectorAll("[data-theme]")) {
+        button.addEventListener("click", () => {
+          theme = button.dataset.theme;
+          document.documentElement.classList.toggle("dark", theme === "dark");
+          for (const other of document.querySelectorAll("[data-theme]")) {
+            other.setAttribute("aria-pressed", String(other === button));
+          }
+          send({ theme });
+        });
+      }
+
+      // The app's window is 1280 by 800; it is scaled down to fit the middle column.
+      const scale = () => {
+        const available = fit.clientWidth - 48;
+        const factor = Math.min(1, available / 1280);
+        windowEl.style.transform = `scale(${factor})`;
+        fit.style.height = `${(800 + 36) * factor + 24}px`;
+      };
+      new ResizeObserver(scale).observe(fit);
+
+      show(location.hash.slice(1) || SCREENS[0].file);
+    </script>
+  </body>
+</html>

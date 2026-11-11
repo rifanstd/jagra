@@ -48,6 +48,8 @@ Every status shows an icon and a word, with color as a third signal:
 | Waiting | ○ | Waiting / Antre | `muted-foreground` |
 | Interrupted | ! | Interrupted / Terputus | `warning` |
 | Cancelled | – | Cancelled / Dibatalkan | `warning` |
+| Stopped (a run that stopped because the device was lost or a required step failed) | ! | Stopped / Berhenti | `warning` |
+| Not run (a flow the run never reached) | – | Not run / Tidak dijalankan | `muted-foreground` |
 | Not tested yet (tool version) | ! | Untested version / Versi belum dites | `warning` |
 
 This keeps Jagra readable for colorblind users and in screenshots pasted into chat or bug reports.

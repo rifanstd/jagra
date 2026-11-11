@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>5 Sedang berjalan · Mockup Jagra</title>
+    <link rel="stylesheet" href="../system/theme.css" />
+    <link rel="stylesheet" href="mockup.css" />
+    <script src="mockup.js" defer></script>
+  </head>
+  <body>
+    <div class="review" role="region" aria-label="Kontrol review mockup, bukan bagian aplikasi">
+      <a href="04-project-page.html">Sebelumnya</a>
+      <a href="index.html">Semua layar</a>
+      <strong>5 · Sedang berjalan</strong>
+      <span class="group"
+        >Keadaan:
+        <button type="button" data-show="running">Flow berjalan</button>
+        <button type="button" data-show="emulator">Menyalakan emulator</button>
+        <button type="button" data-show="signature">Tanda tangan APK beda</button>
+        <button type="button" data-show="cancelling">Sedang membatalkan</button>
+      </span>
+      <span class="group push"
+        >Tema:
+        <button type="button" data-theme-choice="system">Ikuti sistem</button>
+        <button type="button" data-theme-choice="light">Terang</button>
+        <button type="button" data-theme-choice="dark">Gelap</button>
+      </span>
+      <a href="06-results.html">Berikutnya</a>
+    </div>
+
+    <header class="topbar">
+      <a class="brand" href="02-project-list.html">Jagra</a>
+      <nav class="crumbs" aria-label="Lokasi">
+        <a href="02-project-list.html">Proyek</a><span>/</span><a href="04-project-page.html">Jagra sample app</a><span>/</span
+        ><span aria-current="page">Run</span>
+      </nav>
+    </header>
+
+    <main class="page narrow">
+      <div class="page-head">
+        <div>
+          <h1 data-state="running signature cancelling">Flow 3 dari 5</h1>
+          <h1 data-state="emulator">Menyalakan emulator</h1>
+          <p class="sub">Pixel_8 · app-debug.apk 1.0 (1)</p>
+        </div>
+        <button class="btn" type="button" data-show="cancelling" data-state="running emulator signature">Batalkan run</button>
+        <span class="btn" aria-disabled="true" data-state="cancelling"><span class="spinner"></span>Membatalkan</span>
+      </div>
+
+      <div class="progress" role="progressbar" aria-label="Kemajuan run" aria-valuemin="0" aria-valuemax="5" aria-valuenow="2" data-state="running signature cancelling">
+        <span style="width: 40%"></span>
+      </div>
+
+      <section class="panel" style="margin-top: 20px" aria-label="Persiapan">
+        <ul class="rows">
+          <li>
+            <span class="grow">Perangkat</span>
+            <span class="status s-passed" data-state="running signature cancelling"><span class="glyph">✓</span>Pixel_8 siap</span>
+            <span class="status s-running" data-state="emulator"><span class="spinner"></span>Menunggu Android selesai menyala</span>
+          </li>
+          <li>
+            <span class="grow">APK</span>
+            <span class="status s-passed" data-state="running cancelling"><span class="glyph">✓</span>Terpasang</span>
+            <span class="status s-running" data-state="signature"><span class="spinner"></span>Menunggu jawaban</span>
+            <span class="status s-waiting" data-state="emulator"><span class="glyph">○</span>Antre</span>
+          </li>
+          <li>
+            <span class="grow">Mockoon</span>
+            <span class="status s-passed" data-state="running cancelling"><span class="glyph">✓</span>Menyala di port 3000</span>
+            <span class="status s-waiting" data-state="emulator signature"><span class="glyph">○</span>Antre</span>
+          </li>
+        </ul>
+      </section>
+      <p class="small muted" data-state="emulator" style="margin-top: 8px">
+        Emulator yang baru menyala butuh waktu, biasanya kurang dari 1 menit dan paling lama 3 menit.
+      </p>
+
+      <section class="panel" style="margin-top: 20px" aria-label="Flow">
+        <ul class="rows">
+          <li>
+            <span class="grow row-title">Opening an item shows its detail</span>
+            <span class="row-meta" data-state="running signature cancelling">26,5 dtk</span>
+            <span class="status s-passed" data-state="running cancelling"><span class="glyph">✓</span>Lolos</span>
+            <span class="status s-waiting" data-state="emulator signature"><span class="glyph">○</span>Antre</span>
+          </li>
+          <li>
+            <span class="grow row-title">The item list shows items</span>
+            <span class="row-meta" data-state="running cancelling">25,3 dtk</span>
+            <span class="status s-passed" data-state="running cancelling"><span class="glyph">✓</span>Lolos</span>
+            <span class="status s-waiting" data-state="emulator signature"><span class="glyph">○</span>Antre</span>
+          </li>
+          <li class="is-current" style="display: block" data-state="running cancelling">
+            <div style="display: flex; align-items: center; gap: 12px">
+              <span class="grow row-title">Login works</span>
+              <span class="status s-running" data-state="running"><span class="spinner"></span>Berjalan</span>
+              <span class="status s-running" data-state="cancelling"><span class="spinner"></span>Dihentikan</span>
+            </div>
+            <p class="small" style="margin-top: 4px">Langkah terakhir: <code>Tap on "Sign in"</code></p>
+          </li>
+          <li data-state="emulator signature">
+            <span class="grow row-title">Login works</span>
+            <span class="status s-waiting"><span class="glyph">○</span>Antre</span>
+          </li>
+          <li>
+            <span class="grow row-title">Wrong password shows an error</span>
+            <span class="status s-waiting"><span class="glyph">○</span>Antre</span>
+          </li>
+          <li>
+            <span class="grow row-title">Renaming an item and saving it</span>
+            <span class="status s-waiting"><span class="glyph">○</span>Antre</span>
+          </li>
+        </ul>
+      </section>
+
+      <p class="small muted" style="margin-top: 12px">Setiap flow mulai dari data aplikasi yang bersih. Hasil disimpan begitu satu flow selesai.</p>
+    </main>
+
+    <div class="scrim" data-state="signature">
+      <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="signature-title">
+        <div class="dialog-body">
+          <h2 id="signature-title">Aplikasi di perangkat ditandatangani dengan key lain</h2>
+          <p>
+            <code>dev.jagra.sample</code> di Pixel_8 berasal dari build lain, jadi APK ini tidak bisa dipasang di atasnya.
+            Jagra bisa menghapus aplikasi itu lalu memasang APK ini.
+          </p>
+          <div class="note is-warning">
+            <span class="glyph" aria-hidden="true">!</span>
+            <p>Data aplikasi di perangkat ini ikut terhapus.</p>
+          </div>
+        </div>
+        <div class="dialog-foot">
+          <button class="btn" type="button" data-note="run berhenti; aplikasi di perangkat dibiarkan">Batalkan run</button>
+          <button class="btn btn-danger" type="button" data-show="running">Hapus dan pasang ulang</button>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

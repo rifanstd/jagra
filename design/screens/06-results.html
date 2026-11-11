@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>6 Hasil · Mockup Jagra</title>
+    <link rel="stylesheet" href="../system/theme.css" />
+    <link rel="stylesheet" href="mockup.css" />
+    <script src="mockup.js" defer></script>
+  </head>
+  <body>
+    <div class="review" role="region" aria-label="Kontrol review mockup, bukan bagian aplikasi">
+      <a href="05-running.html">Sebelumnya</a>
+      <a href="index.html">Semua layar</a>
+      <strong>6 · Hasil</strong>
+      <span class="group"
+        >Keadaan:
+        <button type="button" data-show="completed">Selesai, 1 gagal</button>
+        <button type="button" data-show="passed">Semua lolos</button>
+        <button type="button" data-show="cancelled">Dibatalkan</button>
+        <button type="button" data-show="stopped">Berhenti: HP terputus</button>
+        <button type="button" data-show="interrupted">Terputus: Jagra tertutup</button>
+      </span>
+      <span class="group push"
+        >Tema:
+        <button type="button" data-theme-choice="system">Ikuti sistem</button>
+        <button type="button" data-theme-choice="light">Terang</button>
+        <button type="button" data-theme-choice="dark">Gelap</button>
+      </span>
+      <a href="07-flow-detail.html">Berikutnya</a>
+    </div>
+
+    <header class="topbar">
+      <a class="brand" href="02-project-list.html">Jagra</a>
+      <nav class="crumbs" aria-label="Lokasi">
+        <a href="02-project-list.html">Proyek</a><span>/</span><a href="04-project-page.html">Jagra sample app</a><span>/</span
+        ><span aria-current="page">Hasil run</span>
+      </nav>
+      <nav class="topnav" aria-label="Utama">
+        <a href="11-settings.html">Pengaturan</a>
+        <a href="12-about.html">Tentang</a>
+      </nav>
+    </header>
+
+    <main class="page">
+      <div class="page-head">
+        <div>
+          <h1 data-state="completed"><span class="status s-failed" style="font-weight: 600"><span class="glyph">✕</span>1 flow gagal</span></h1>
+          <h1 data-state="passed"><span class="status s-passed" style="font-weight: 600"><span class="glyph">✓</span>Semua flow lolos</span></h1>
+          <h1 data-state="cancelled"><span class="status s-cancelled" style="font-weight: 600"><span class="glyph">–</span>Run dibatalkan</span></h1>
+          <h1 data-state="stopped"><span class="status s-warning" style="font-weight: 600"><span class="glyph">!</span>Run berhenti: HP terputus</span></h1>
+          <h1 data-state="interrupted"><span class="status s-interrupted" style="font-weight: 600"><span class="glyph">!</span>Run terputus</span></h1>
+          <p class="sub" data-state="completed">4 lolos, 1 gagal, dari 5 flow</p>
+          <p class="sub" data-state="passed">5 lolos dari 5 flow</p>
+          <p class="sub" data-state="cancelled">2 lolos, 3 dibatalkan. Hasil yang sudah selesai tetap disimpan.</p>
+          <p class="sub" data-state="stopped">1 lolos, 1 gagal, 3 tidak dijalankan</p>
+          <p class="sub" data-state="interrupted">Jagra tertutup saat run berjalan. 2 flow sempat selesai.</p>
+        </div>
+        <div class="actions">
+          <button class="btn" type="button" data-note="index laporan HTML terbuka di browser; folder laporannya bisa di-zip dan dikirim ke QA">Buka laporan</button>
+          <a class="btn btn-primary" href="05-running.html">Jalankan lagi</a>
+        </div>
+      </div>
+
+      <div class="split">
+        <section class="panel" aria-label="Flow">
+          <ul class="rows">
+            <li>
+              <span class="grow row-title">Opening an item shows its detail</span>
+              <span class="row-meta">26,5 dtk</span>
+              <span class="status s-passed"><span class="glyph">✓</span>Lolos</span>
+            </li>
+            <li data-state="completed passed cancelled interrupted">
+              <span class="grow row-title">The item list shows items</span>
+              <span class="row-meta">25,3 dtk</span>
+              <span class="status s-passed"><span class="glyph">✓</span>Lolos</span>
+            </li>
+            <li data-state="stopped" class="is-failed" style="align-items: flex-start">
+              <span class="grow">
+                <span class="row-title" style="display: block">The item list shows items</span>
+                <span class="row-meta">Perangkat terputus di tengah flow</span>
+              </span>
+              <span class="row-meta">11,2 dtk</span>
+              <span class="status s-failed"><span class="glyph">✕</span>Gagal</span>
+            </li>
+            <li data-state="completed passed">
+              <span class="grow row-title">Login works</span>
+              <span class="row-meta">24,9 dtk</span>
+              <span class="status s-passed"><span class="glyph">✓</span>Lolos</span>
+            </li>
+            <li data-state="completed passed">
+              <span class="grow row-title">Wrong password shows an error</span>
+              <span class="row-meta">26,3 dtk</span>
+              <span class="status s-passed"><span class="glyph">✓</span>Lolos</span>
+            </li>
+            <li data-state="cancelled">
+              <span class="grow row-title">Login works</span>
+              <span class="row-meta">9,8 dtk</span>
+              <span class="status s-cancelled"><span class="glyph">–</span>Dibatalkan</span>
+            </li>
+            <li data-state="cancelled">
+              <span class="grow row-title">Wrong password shows an error</span>
+              <span class="status s-cancelled"><span class="glyph">–</span>Dibatalkan</span>
+            </li>
+            <li data-state="cancelled">
+              <span class="grow row-title">Renaming an item and saving it</span>
+              <span class="status s-cancelled"><span class="glyph">–</span>Dibatalkan</span>
+            </li>
+            <li data-state="stopped interrupted">
+              <span class="grow row-title">Login works</span>
+              <span class="status s-notrun"><span class="glyph">–</span>Tidak dijalankan</span>
+            </li>
+            <li data-state="stopped interrupted">
+              <span class="grow row-title">Wrong password shows an error</span>
+              <span class="status s-notrun"><span class="glyph">–</span>Tidak dijalankan</span>
+            </li>
+            <li data-state="stopped interrupted">
+              <span class="grow row-title">Renaming an item and saving it</span>
+              <span class="status s-notrun"><span class="glyph">–</span>Tidak dijalankan</span>
+            </li>
+            <li data-state="completed" class="is-failed" style="align-items: flex-start">
+              <span class="grow">
+                <a class="row-title link" href="07-flow-detail.html" style="display: block">Renaming an item and saving it</a>
+                <span class="row-meta">Langkah 8: tombol "Save" tidak ditemukan</span>
+              </span>
+              <span class="row-meta">56,1 dtk</span>
+              <span class="status s-failed"><span class="glyph">✕</span>Gagal</span>
+            </li>
+            <li data-state="passed">
+              <span class="grow row-title">Renaming an item and saving it</span>
+              <span class="row-meta">40,9 dtk</span>
+              <span class="status s-passed"><span class="glyph">✓</span>Lolos</span>
+            </li>
+          </ul>
+        </section>
+
+        <section class="panel" aria-labelledby="about-run">
+          <div class="panel-head"><h2 id="about-run">Run ini</h2></div>
+          <div class="panel-body">
+            <dl class="kv">
+              <dt>Waktu</dt>
+              <dd>Hari ini, 18.39</dd>
+              <dt>Durasi</dt>
+              <dd data-state="completed passed">2 mnt 40 dtk</dd>
+              <dd data-state="cancelled">1 mnt 2 dtk</dd>
+              <dd data-state="stopped">37 dtk</dd>
+              <dd data-state="interrupted">Tidak diketahui</dd>
+              <dt>APK</dt>
+              <dd><span class="mono">app-debug.apk</span><br />versi 1.0 (1)</dd>
+              <dt>Perangkat</dt>
+              <dd data-state="completed passed cancelled interrupted">Pixel_8, Android 15</dd>
+              <dd data-state="stopped">SM-A525F, Android 14</dd>
+              <dt>Mockoon</dt>
+              <dd>Dimatikan setelah run</dd>
+            </dl>
+          </div>
+          <div class="panel-foot">
+            <a class="link small" href="10-history.html">Lihat semua run</a>
+          </div>
+        </section>
+      </div>
+    </main>
+  </body>
+</html>

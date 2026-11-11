@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>12 Tentang · Mockup Jagra</title>
+    <link rel="stylesheet" href="../system/theme.css" />
+    <link rel="stylesheet" href="mockup.css" />
+    <script src="mockup.js" defer></script>
+  </head>
+  <body>
+    <div class="review" role="region" aria-label="Kontrol review mockup, bukan bagian aplikasi">
+      <a href="11-settings.html">Sebelumnya</a>
+      <a href="index.html">Semua layar</a>
+      <strong>12 · Tentang</strong>
+      <span class="group"
+        >Keadaan:
+        <button type="button" data-show="latest">Versi terbaru</button>
+        <button type="button" data-show="update-win">Ada update (Windows)</button>
+        <button type="button" data-show="update-mac">Ada update (macOS)</button>
+        <button type="button" data-show="failed">Cek gagal</button>
+      </span>
+      <span class="group push"
+        >Tema:
+        <button type="button" data-theme-choice="system">Ikuti sistem</button>
+        <button type="button" data-theme-choice="light">Terang</button>
+        <button type="button" data-theme-choice="dark">Gelap</button>
+      </span>
+      <a href="13-first-ai-notice.html">Berikutnya</a>
+    </div>
+
+    <header class="topbar">
+      <a class="brand" href="02-project-list.html">Jagra</a>
+      <nav class="topnav" aria-label="Utama">
+        <a href="11-settings.html">Pengaturan</a>
+        <a href="12-about.html" aria-current="page">Tentang</a>
+      </nav>
+    </header>
+
+    <main class="page narrow">
+      <section class="panel">
+        <div class="panel-body" style="padding: 28px; display: grid; gap: 18px">
+          <div>
+            <h1 style="font-size: 2rem">Jagra</h1>
+            <p class="muted">Menguji build Android sebelum masuk ke QA.</p>
+          </div>
+          <dl class="kv">
+            <dt>Versi</dt>
+            <dd>0.1.0</dd>
+            <dt>Dibuat oleh</dt>
+            <dd>Rifan Setiadi</dd>
+            <dt>Lisensi</dt>
+            <dd>MIT</dd>
+            <dt>Kode sumber</dt>
+            <dd><a class="link" href="https://github.com/rifanstd/jagra">github.com/rifanstd/jagra</a></dd>
+          </dl>
+
+          <div class="note is-passed" data-state="latest">
+            <span class="glyph" aria-hidden="true">✓</span>
+            <p>Ini versi terbaru. Dicek hari ini, 09.12.</p>
+          </div>
+          <div class="note is-info" data-state="update-win">
+            <span class="glyph" aria-hidden="true">i</span>
+            <div>
+              <p>Versi 0.2.0 sudah terunduh. Jagra tidak akan restart selama run berjalan.</p>
+              <div class="actions" style="margin-top: 10px">
+                <button class="btn btn-primary btn-sm" type="button" data-note="Jagra tertutup, update terpasang, lalu terbuka lagi">Restart sekarang</button>
+                <button class="btn btn-sm" type="button" data-note="update terpasang saat Jagra ditutup berikutnya">Nanti</button>
+              </div>
+            </div>
+          </div>
+          <div class="note is-info" data-state="update-mac">
+            <span class="glyph" aria-hidden="true">i</span>
+            <div>
+              <p>Versi 0.2.0 tersedia. Di macOS, update dipasang manual dari halaman rilis.</p>
+              <div class="actions" style="margin-top: 10px">
+                <button class="btn btn-sm" type="button" data-note="halaman rilis Jagra di GitHub terbuka di browser">Buka halaman rilis</button>
+              </div>
+            </div>
+          </div>
+          <div class="note is-warning" data-state="failed">
+            <span class="glyph" aria-hidden="true">!</span>
+            <p>Pengecekan terakhir gagal, kemungkinan tidak ada koneksi internet. Jagra tetap bisa dipakai.</p>
+          </div>
+
+          <div class="actions">
+            <button class="btn" type="button" data-note="satu-satunya request internet Jagra: menanyakan versi terbaru ke GitHub Releases">Cek update</button>
+            <button class="btn" type="button" data-note="versi Jagra, sistem operasi, versi setiap tool, dan bagian akhir log tersalin, dengan secret disamarkan">Salin info untuk laporan bug</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

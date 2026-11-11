@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>7 Detail flow · Mockup Jagra</title>
+    <link rel="stylesheet" href="../system/theme.css" />
+    <link rel="stylesheet" href="mockup.css" />
+    <script src="mockup.js" defer></script>
+  </head>
+  <body>
+    <div class="review" role="region" aria-label="Kontrol review mockup, bukan bagian aplikasi">
+      <a href="06-results.html">Sebelumnya</a>
+      <a href="index.html">Semua layar</a>
+      <strong>7 · Detail flow</strong>
+      <span class="group"
+        >Keadaan:
+        <button type="button" data-show="step">Langkah gagal</button>
+        <button type="button" data-show="black">Screenshot hitam</button>
+        <button type="button" data-show="crash">Aplikasi crash</button>
+      </span>
+      <span class="group push"
+        >Tema:
+        <button type="button" data-theme-choice="system">Ikuti sistem</button>
+        <button type="button" data-theme-choice="light">Terang</button>
+        <button type="button" data-theme-choice="dark">Gelap</button>
+      </span>
+      <a href="08-create-flow-with-ai.html">Berikutnya</a>
+    </div>
+
+    <header class="topbar">
+      <a class="brand" href="02-project-list.html">Jagra</a>
+      <nav class="crumbs" aria-label="Lokasi">
+        <a href="02-project-list.html">Proyek</a><span>/</span><a href="04-project-page.html">Jagra sample app</a><span>/</span
+        ><a href="06-results.html">Hasil run</a><span>/</span><span aria-current="page">save-item.yaml</span>
+      </nav>
+      <nav class="topnav" aria-label="Utama">
+        <a href="11-settings.html">Pengaturan</a>
+        <a href="12-about.html">Tentang</a>
+      </nav>
+    </header>
+
+    <main class="page">
+      <div class="page-head">
+        <div>
+          <h1>Renaming an item and saving it</h1>
+          <p class="sub">
+            <span class="status s-failed"><span class="glyph">✕</span>Gagal</span>
+            <span data-state="step black"> di langkah 8 dari 9 · 56,1 dtk</span>
+            <span data-state="crash"> karena aplikasi crash di langkah 4 · 31,7 dtk</span>
+            · <span class="mono">save-item.yaml</span>
+          </p>
+        </div>
+        <button class="btn" type="button" data-note="save-item.yaml terbuka di editor pilihan di Pengaturan > Editor">Buka di editor</button>
+      </div>
+
+      <div class="note is-failed" style="margin-bottom: 20px" data-state="step black">
+        <span class="glyph" aria-hidden="true">✕</span>
+        <div>
+          <p>Tombol <strong>"Save"</strong> tidak ditemukan di layar.</p>
+          <details style="margin-top: 6px">
+            <summary class="small">Tampilkan detail dari Maestro</summary>
+            <pre class="code" style="margin-top: 8px">Element not found: Text matching regex: Save
+
+Element with Text matching regex: Save not found. Check the UI hierarchy
+in debug artifacts to verify if the element exists.</pre>
+          </details>
+        </div>
+      </div>
+      <div class="note is-failed" style="margin-bottom: 20px" data-state="crash">
+        <span class="glyph" aria-hidden="true">✕</span>
+        <div>
+          <p>Aplikasi crash saat flow berjalan. Laporan crash dari perangkat ada di bawah.</p>
+        </div>
+      </div>
+
+      <div class="split">
+        <section class="panel" aria-labelledby="steps">
+          <div class="panel-head"><h2 id="steps">Langkah</h2></div>
+          <ol class="rows" style="counter-reset: none">
+            <li><span class="status s-passed"><span class="glyph">✓</span></span><span class="grow">Buka aplikasi dengan data bersih</span></li>
+            <li style="display: block">
+              <details>
+                <summary style="font-weight: 400; display: flex; gap: 12px; align-items: center">
+                  <span class="status s-passed"><span class="glyph">✓</span></span>
+                  <span class="grow">Jalankan <span class="mono">parts/login.yaml</span> · Log in as the demo user</span>
+                </summary>
+                <ol class="rows" style="margin: 8px 0 0 24px">
+                  <li><span class="status s-passed"><span class="glyph">✓</span></span>Ketuk "Username"</li>
+                  <li><span class="status s-passed"><span class="glyph">✓</span></span>Ketik "demo"</li>
+                  <li><span class="status s-passed"><span class="glyph">✓</span></span>Ketuk "Password"</li>
+                  <li><span class="status s-passed"><span class="glyph">✓</span></span>Ketik "jagra123"</li>
+                  <li><span class="status s-passed"><span class="glyph">✓</span></span>Tutup keyboard</li>
+                  <li><span class="status s-passed"><span class="glyph">✓</span></span>Ketuk "Sign in"</li>
+                </ol>
+              </details>
+            </li>
+            <li><span class="status s-passed"><span class="glyph">✓</span></span><span class="grow">Ketuk "Oat milk 1 L"</span></li>
+            <li data-state="step black"><span class="status s-passed"><span class="glyph">✓</span></span><span class="grow">Ketuk "Oat milk 1 L" di bawah "Keep chilled after opening."</span></li>
+            <li data-state="crash" class="is-failed"><span class="status s-failed"><span class="glyph">✕</span></span><span class="grow">Ketuk "Oat milk 1 L" di bawah "Keep chilled after opening."</span></li>
+            <li data-state="step black"><span class="status s-passed"><span class="glyph">✓</span></span><span class="grow">Hapus teks</span></li>
+            <li data-state="step black"><span class="status s-passed"><span class="glyph">✓</span></span><span class="grow">Ketik "Oat milk 1 L, barista edition"</span></li>
+            <li data-state="step black"><span class="status s-passed"><span class="glyph">✓</span></span><span class="grow">Tutup keyboard</span></li>
+            <li data-state="step black" class="is-failed"><span class="status s-failed"><span class="glyph">✕</span></span><span class="grow">Ketuk "Save"</span></li>
+            <li data-state="crash"><span class="status s-notrun"><span class="glyph">–</span></span><span class="grow muted">Hapus teks</span></li>
+            <li data-state="crash"><span class="status s-notrun"><span class="glyph">–</span></span><span class="grow muted">Ketik "Oat milk 1 L, barista edition"</span></li>
+            <li data-state="crash"><span class="status s-notrun"><span class="glyph">–</span></span><span class="grow muted">Tutup keyboard</span></li>
+            <li data-state="crash"><span class="status s-notrun"><span class="glyph">–</span></span><span class="grow muted">Ketuk "Save"</span></li>
+            <li>
+              <span class="status s-notrun"><span class="glyph">–</span></span>
+              <span class="grow muted"><span class="chip">Cek</span> "✓ Saved" terlihat</span>
+              <span class="row-meta">Tidak dijalankan</span>
+            </li>
+          </ol>
+        </section>
+
+        <div class="stack">
+          <section class="panel" aria-labelledby="screen">
+            <div class="panel-head"><h2 id="screen">Layar saat gagal</h2></div>
+            <div class="panel-body" style="display: grid; gap: 16px">
+              <div class="shot" data-state="step crash">Screenshot dari Maestro tampil di sini</div>
+              <div class="shot is-black" data-state="black">Screenshot hitam</div>
+              <div class="note is-warning" data-state="black">
+                <span class="glyph" aria-hidden="true">!</span>
+                <div>
+                  <p>Screenshot ini hitam. Aplikasi kemungkinan memakai <code>FLAG_SECURE</code>, yang memblokir screenshot.</p>
+                  <p class="small" style="margin-top: 4px">Matikan <code>FLAG_SECURE</code> di build debug saja, supaya layar saat gagal terlihat.</p>
+                </div>
+              </div>
+              <div data-state="step black">
+                <h3>Teks di layar</h3>
+                <ul class="small" style="margin: 6px 0 0; padding-left: 1.2em; display: grid; gap: 2px">
+                  <li>Back</li>
+                  <li>Oat milk 1 L</li>
+                  <li>Keep chilled after opening.</li>
+                  <li>Oat milk 1 L, barista edition</li>
+                  <li>Name</li>
+                  <li>30</li>
+                  <li>Quantity</li>
+                </ul>
+                <p class="small muted" style="margin-top: 8px">Tidak ada tombol "Save" di layar ini.</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel" aria-labelledby="crash" data-state="crash">
+            <div class="panel-head"><h2 id="crash">Laporan crash</h2></div>
+            <div class="panel-body">
+              <pre class="code">FATAL EXCEPTION: main
+Process: dev.jagra.sample, PID: 6218
+android.app.RemoteServiceException$CrashedByAdbException: shell-induced crash
+  at android.app.ActivityThread.throwRemoteServiceException(ActivityThread.java:2257)
+  at android.os.Handler.dispatchMessage(Handler.java:107)
+  at android.os.Looper.loop(Looper.java:317)</pre>
+              <button class="btn btn-sm" type="button" style="margin-top: 10px" data-note="laporan crash lengkap tersalin ke clipboard">Salin laporan</button>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>

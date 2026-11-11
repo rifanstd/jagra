@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>2 Daftar proyek · Mockup Jagra</title>
+    <link rel="stylesheet" href="../system/theme.css" />
+    <link rel="stylesheet" href="mockup.css" />
+    <script src="mockup.js" defer></script>
+  </head>
+  <body>
+    <div class="review" role="region" aria-label="Kontrol review mockup, bukan bagian aplikasi">
+      <a href="01-environment-check.html">Sebelumnya</a>
+      <a href="index.html">Semua layar</a>
+      <strong>2 · Daftar proyek</strong>
+      <span class="group"
+        >Keadaan:
+        <button type="button" data-show="ready">Lingkungan siap</button>
+        <button type="button" data-show="tool">Ada tool bermasalah</button>
+      </span>
+      <span class="group push"
+        >Tema:
+        <button type="button" data-theme-choice="system">Ikuti sistem</button>
+        <button type="button" data-theme-choice="light">Terang</button>
+        <button type="button" data-theme-choice="dark">Gelap</button>
+      </span>
+      <a href="03-create-project.html">Berikutnya</a>
+    </div>
+
+    <header class="topbar">
+      <a class="brand" href="02-project-list.html">Jagra</a>
+      <a class="status s-passed" href="01-environment-check.html" data-state="ready" style="text-decoration: none"
+        ><span class="glyph">✓</span>Lingkungan siap</a
+      >
+      <a class="status s-failed" href="01-environment-check.html" data-state="tool" style="text-decoration: none"
+        ><span class="glyph">✕</span>Maestro tidak ditemukan</a
+      >
+      <nav class="topnav" aria-label="Utama">
+        <a href="11-settings.html">Pengaturan</a>
+        <a href="12-about.html">Tentang</a>
+      </nav>
+    </header>
+
+    <main class="page">
+      <div class="page-head">
+        <div>
+          <h1>Proyek</h1>
+          <p class="sub">Satu proyek untuk satu aplikasi. Flow dan pengaturannya ada di folder <code>.jagra</code> di repositori aplikasi.</p>
+        </div>
+        <a class="btn btn-primary" href="03-create-project.html">Buat proyek</a>
+      </div>
+
+      <section class="panel" aria-label="Daftar proyek">
+        <div class="rows">
+          <a class="row" href="04-project-page.html">
+            <span class="grow">
+              <span class="row-title">Jagra sample app</span>
+              <span class="row-meta mono truncate" style="display: block">C:\Users\rfan\Documents\Jagra\sample-app</span>
+            </span>
+            <span class="row-meta">Hari ini, 18.39</span>
+            <span class="status s-failed"><span class="glyph">✕</span>4 lolos, 1 gagal</span>
+          </a>
+          <a class="row" href="04-project-page.html">
+            <span class="grow">
+              <span class="row-title">toko-kopi</span>
+              <span class="row-meta mono truncate" style="display: block">D:\kerja\toko-kopi-android</span>
+            </span>
+            <span class="row-meta">Kemarin, 16.05</span>
+            <span class="status s-passed"><span class="glyph">✓</span>12 lolos</span>
+          </a>
+          <a class="row" href="04-project-page.html">
+            <span class="grow">
+              <span class="row-title">kasir-mobile</span>
+              <span class="row-meta mono truncate" style="display: block">D:\kerja\kasir-mobile</span>
+            </span>
+            <span class="row-meta">Senin, 10.12</span>
+            <span class="status s-cancelled"><span class="glyph">–</span>Dibatalkan</span>
+          </a>
+          <div class="row">
+            <span class="grow">
+              <span class="row-title">absensi</span>
+              <span class="row-meta mono truncate" style="display: block">D:\lama\absensi</span>
+            </span>
+            <span class="status s-warning"><span class="glyph">!</span>Folder tidak ditemukan</span>
+            <button class="btn btn-sm" type="button" data-note="dialog pilih folder terbuka; riwayat run proyek ini tetap ada setelah lokasinya dipilih (PRJ-8)">
+              Cari lokasi
+            </button>
+            <button class="btn btn-sm btn-ghost" type="button" data-note="proyek hilang dari daftar; tidak ada file yang dihapus">
+              Hapus dari daftar
+            </button>
+          </div>
+          <div class="row">
+            <span class="grow">
+              <span class="row-title">ojek-driver</span>
+              <span class="row-meta truncate" style="display: block"
+                ><code>.jagra/config.yaml</code> baris 4: <code>appId</code> harus berupa teks</span
+              >
+            </span>
+            <span class="status s-failed"><span class="glyph">✕</span>config.yaml bermasalah</span>
+            <button class="btn btn-sm" type="button" data-note="config.yaml terbuka di editor, di baris 4">Buka file</button>
+          </div>
+        </div>
+      </section>
+
+      <p class="small muted" style="margin-top: 12px">
+        Hapus dari daftar ada di halaman setiap proyek, dan tidak pernah menghapus file apa pun.
+      </p>
+      <p class="small" data-state="tool" style="margin-top: 8px">
+        <span class="status s-failed"><span class="glyph">✕</span></span> Run belum bisa dimulai sampai Maestro terpasang.
+        <a class="link" href="01-environment-check.html">Lihat cara memasang</a>
+      </p>
+    </main>
+  </body>
+</html>
