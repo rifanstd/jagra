@@ -83,6 +83,14 @@ export async function setUpProject(
   folder: string,
   setup: ProjectSetup,
 ): Promise<Result<void>> {
+  // Checked first: reading inside a file fails differently on Windows and macOS.
+  if (!(await isFolder(folder))) {
+    return fail({
+      code: "PROJECT_SETUP_FAILED",
+      folder,
+      detail: "not a folder",
+    });
+  }
   const file = configFile(folder);
   const current = await loadConfig(folder);
   const exists = current.ok || current.error.code !== "FILE_NOT_FOUND";
