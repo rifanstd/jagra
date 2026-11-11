@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>1 Cek lingkungan · Mockup Jagra</title>
+    <link rel="stylesheet" href="../system/theme.css" />
+    <link rel="stylesheet" href="mockup.css" />
+    <script src="mockup.js" defer></script>
+  </head>
+  <body>
+    <div class="review" role="region" aria-label="Kontrol review mockup, bukan bagian aplikasi">
+      <a href="index.html">Semua layar</a>
+      <strong>1 · Cek lingkungan</strong>
+      <span class="group"
+        >Keadaan:
+        <button type="button" data-show="missing">Maestro belum ada</button>
+        <button type="button" data-show="checking">Sedang memeriksa</button>
+        <button type="button" data-show="ready">Semua siap</button>
+      </span>
+      <span class="group push"
+        >Tema:
+        <button type="button" data-theme-choice="system">Ikuti sistem</button>
+        <button type="button" data-theme-choice="light">Terang</button>
+        <button type="button" data-theme-choice="dark">Gelap</button>
+      </span>
+      <a href="02-project-list.html">Berikutnya</a>
+    </div>
+
+    <header class="topbar">
+      <a class="brand" href="02-project-list.html">Jagra</a>
+      <nav class="topnav" aria-label="Utama">
+        <a href="11-settings.html">Pengaturan</a>
+        <a href="12-about.html">Tentang</a>
+      </nav>
+    </header>
+
+    <main class="page narrow">
+      <div class="page-head">
+        <div>
+          <h1>Cek lingkungan</h1>
+          <p class="sub">
+            Jagra memakai tool yang sudah terpasang di komputer ini. Jagra tidak memasang,
+            memperbarui, atau menghapus apa pun.
+          </p>
+        </div>
+        <div class="actions">
+          <button class="btn" type="button" data-note="pemeriksaan diulang, semua tool sekaligus, kurang dari 5 detik">
+            Cek ulang
+          </button>
+        </div>
+      </div>
+
+      <section class="panel" aria-labelledby="required">
+        <div class="panel-head">
+          <h2 id="required">Wajib</h2>
+          <span class="row-meta" data-state="missing ready">Selesai dalam 2,1 detik</span>
+          <span class="row-meta" data-state="checking">Memeriksa semua tool sekaligus</span>
+        </div>
+        <ul class="rows">
+          <li>
+            <span class="grow">
+              <span class="row-title">Java 17 atau lebih baru</span>
+              <span class="row-meta mono truncate" style="display: block" data-state="missing ready"
+                >C:\Program Files\Java\jdk-17\bin\java.exe</span
+              >
+            </span>
+            <span data-state="missing ready" class="row-meta">17.0.12</span>
+            <span data-state="missing ready" class="status s-passed"><span class="glyph">✓</span>Siap</span>
+            <span data-state="checking" class="status s-running"><span class="spinner"></span>Memeriksa</span>
+          </li>
+          <li>
+            <span class="grow">
+              <span class="row-title">Android platform tools (adb)</span>
+              <span class="row-meta mono truncate" style="display: block" data-state="missing ready"
+                >C:\Users\rfan\AppData\Local\Android\Sdk\platform-tools\adb.exe</span
+              >
+            </span>
+            <span data-state="missing ready" class="row-meta">37.0.0</span>
+            <span data-state="missing ready" class="status s-passed"><span class="glyph">✓</span>Siap</span>
+            <span data-state="checking" class="status s-running"><span class="spinner"></span>Memeriksa</span>
+          </li>
+          <li data-state="checking ready">
+            <span class="grow">
+              <span class="row-title">Maestro</span>
+              <span class="row-meta mono truncate" style="display: block" data-state="ready">C:\maestro\bin\maestro.bat</span>
+            </span>
+            <span data-state="ready" class="row-meta">2.12.1</span>
+            <span data-state="ready" class="status s-passed"><span class="glyph">✓</span>Siap</span>
+            <span data-state="checking" class="status s-running"><span class="spinner"></span>Memeriksa</span>
+          </li>
+          <li data-state="missing" style="display: block; padding-bottom: 18px">
+            <div style="display: flex; align-items: center; gap: 12px">
+              <span class="grow row-title">Maestro</span>
+              <span class="status s-failed"><span class="glyph">✕</span>Tidak ditemukan</span>
+            </div>
+            <div style="margin-top: 12px; display: grid; gap: 10px">
+              <p>Maestro yang menjalankan setiap flow, jadi run belum bisa dimulai. Cara memasangnya di Windows:</p>
+              <ol style="margin: 0; padding-left: 1.3em; display: grid; gap: 6px">
+                <li>Unduh <code>maestro.zip</code> dari halaman rilis Maestro di GitHub.</li>
+                <li>Ekstrak ke folder tetap, misalnya <code>C:\maestro</code>.</li>
+                <li>Tambahkan <code>C:\maestro\bin</code> ke variabel PATH di Environment Variables Windows.</li>
+                <li>Kembali ke sini dan tekan Cek ulang. Jagra tidak perlu ditutup.</li>
+              </ol>
+              <p class="small">
+                <a class="link" href="#" data-note="panduan resmi Maestro untuk Windows terbuka di browser">Panduan resmi Maestro</a>
+                ·
+                <a class="link" href="11-settings.html">Sudah terpasang di folder lain? Atur lokasinya</a>
+              </p>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <section class="panel" aria-labelledby="optional" style="margin-top: 20px">
+        <div class="panel-head">
+          <h2 id="optional">Opsional</h2>
+        </div>
+        <ul class="rows">
+          <li>
+            <span class="grow">
+              <span class="row-title">Android emulator</span>
+              <span class="row-meta" style="display: block">Tidak perlu kalau tes memakai HP lewat USB</span>
+            </span>
+            <span data-state="missing ready" class="row-meta">36.5.11.0</span>
+            <span data-state="missing ready" class="status s-passed"><span class="glyph">✓</span>Siap</span>
+            <span data-state="checking" class="status s-running"><span class="spinner"></span>Memeriksa</span>
+          </li>
+          <li>
+            <span class="grow">
+              <span class="row-title">Mockoon CLI</span>
+              <span class="row-meta" style="display: block">Hanya untuk proyek yang memakai file Mockoon</span>
+            </span>
+            <span data-state="missing" class="status s-optional"><span class="glyph">○</span>Belum ada, opsional</span>
+            <a data-state="missing" class="link small" href="#" data-note="cara memasang Mockoon CLI untuk Windows terbuka di bawah baris ini">Cara memasang</a>
+            <span data-state="ready" class="row-meta">9.12.0</span>
+            <span data-state="ready" class="status s-warning"><span class="glyph">!</span>Versi belum dites</span>
+            <span data-state="checking" class="status s-running"><span class="spinner"></span>Memeriksa</span>
+          </li>
+          <li>
+            <span class="grow">
+              <span class="row-title">Agen AI</span>
+              <span class="row-meta" style="display: block">Untuk menulis flow dengan AI. Ditemukan: Claude Code</span>
+            </span>
+            <span data-state="missing ready" class="status s-passed"><span class="glyph">✓</span>Siap</span>
+            <span data-state="checking" class="status s-running"><span class="spinner"></span>Memeriksa</span>
+          </li>
+        </ul>
+      </section>
+
+      <p data-state="ready" class="small muted" style="margin-top: 12px">
+        Versi belum dites tetap bisa dipakai. Kalau ada yang tidak jalan, laporkan versinya lewat Tentang > Salin info untuk laporan bug.
+      </p>
+
+      <div class="actions" style="margin-top: 24px; justify-content: flex-end">
+        <span class="small muted" data-state="missing">Lanjut setelah Maestro terpasang</span>
+        <a class="btn btn-primary btn-lg" href="09-empty-project-list.html" data-state="ready">Lanjut ke proyek</a>
+        <span class="btn btn-primary btn-lg" aria-disabled="true" data-state="missing checking">Lanjut ke proyek</span>
+      </div>
+    </main>
+  </body>
+</html>

@@ -51,6 +51,19 @@ export default defineConfig(
     files: ["**/*.js"],
     extends: [tseslint.configs.disableTypeChecked],
   },
+  {
+    // The mockups' review script runs in a browser.
+    files: ["design/screens/*.js"],
+    languageOptions: {
+      globals: {
+        window: "readonly",
+        document: "readonly",
+        localStorage: "readonly",
+        setTimeout: "readonly",
+        clearTimeout: "readonly",
+      },
+    },
+  },
   forbid("core", [
     [ELECTRON, "Electron"],
     [REACT, "React"],

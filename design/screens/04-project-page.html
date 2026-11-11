@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>4 Halaman proyek · Mockup Jagra</title>
+    <link rel="stylesheet" href="../system/theme.css" />
+    <link rel="stylesheet" href="mockup.css" />
+    <script src="mockup.js" defer></script>
+  </head>
+  <body>
+    <div class="review" role="region" aria-label="Kontrol review mockup, bukan bagian aplikasi">
+      <a href="03-create-project.html">Sebelumnya</a>
+      <a href="index.html">Semua layar</a>
+      <strong>4 · Halaman proyek</strong>
+      <span class="group"
+        >Keadaan:
+        <button type="button" data-show="ready">Siap</button>
+        <button type="button" data-show="phone">HP belum diizinkan</button>
+        <button type="button" data-show="nodevice">Tanpa perangkat</button>
+        <button type="button" data-show="broken">Ada flow rusak</button>
+        <button type="button" data-show="noagent">Tanpa agen AI</button>
+        <button type="button" data-show="secret">Secret belum diisi</button>
+        <button type="button" data-show="package">Paket APK beda</button>
+      </span>
+      <span class="group push"
+        >Tema:
+        <button type="button" data-theme-choice="system">Ikuti sistem</button>
+        <button type="button" data-theme-choice="light">Terang</button>
+        <button type="button" data-theme-choice="dark">Gelap</button>
+      </span>
+      <a href="05-running.html">Berikutnya</a>
+    </div>
+
+    <header class="topbar">
+      <a class="brand" href="02-project-list.html">Jagra</a>
+      <nav class="crumbs" aria-label="Lokasi">
+        <a href="02-project-list.html">Proyek</a><span>/</span><span aria-current="page">Jagra sample app</span>
+      </nav>
+      <nav class="topnav" aria-label="Utama">
+        <a href="11-settings.html">Pengaturan</a>
+        <a href="12-about.html">Tentang</a>
+      </nav>
+    </header>
+
+    <main class="page">
+      <div class="page-head">
+        <div>
+          <h1>Jagra sample app</h1>
+          <p class="sub mono small">C:\Users\rfan\Documents\Jagra\sample-app</p>
+        </div>
+        <div class="actions">
+          <a class="btn" href="10-history.html">Riwayat</a>
+          <button class="btn btn-ghost" type="button" data-note="proyek hilang dari daftar; tidak ada file yang dihapus">Hapus dari daftar</button>
+        </div>
+      </div>
+
+      <div class="split">
+        <div class="stack">
+          <section class="panel" aria-labelledby="flows">
+            <div class="panel-head">
+              <div>
+                <h2 id="flows">Flow</h2>
+                <p class="row-meta" data-state="ready phone nodevice noagent secret package">5 dari 5 dipilih</p>
+                <p class="row-meta" data-state="broken">5 dari 6 dipilih, 1 tidak bisa dijalankan</p>
+              </div>
+              <div class="actions">
+                <button class="btn btn-sm" type="button" data-note="minta nama flow, membuat file dari template di .jagra/flows, lalu membukanya di editor">
+                  Flow baru
+                </button>
+                <a class="btn btn-sm" href="08-create-flow-with-ai.html" data-state="ready phone nodevice broken secret package">Buat flow dengan AI</a>
+                <span class="btn btn-sm" aria-disabled="true" data-state="noagent">Buat flow dengan AI</span>
+              </div>
+            </div>
+            <p class="small muted" data-state="noagent" style="padding: 0 20px 12px">
+              Butuh agen AI yang terpasang di komputer ini, misalnya Claude Code.
+              <a class="link" href="11-settings.html">Atur di Pengaturan</a>
+            </p>
+            <ul class="rows">
+              <li>
+                <label class="check grow">
+                  <input type="checkbox" checked />
+                  <span class="grow">
+                    <span class="row-title" style="display: block">Opening an item shows its detail</span>
+                    <span class="row-meta mono">item-detail.yaml</span>
+                  </span>
+                </label>
+              </li>
+              <li>
+                <label class="check grow">
+                  <input type="checkbox" checked />
+                  <span class="grow">
+                    <span class="row-title" style="display: block">The item list shows items</span>
+                    <span class="row-meta mono">item-list.yaml</span>
+                  </span>
+                </label>
+              </li>
+              <li>
+                <label class="check grow">
+                  <input type="checkbox" checked />
+                  <span class="grow">
+                    <span class="row-title" style="display: block">Login works</span>
+                    <span class="row-meta mono">login-works.yaml</span>
+                  </span>
+                </label>
+              </li>
+              <li>
+                <label class="check grow">
+                  <input type="checkbox" checked />
+                  <span class="grow">
+                    <span class="row-title" style="display: block">Wrong password shows an error</span>
+                    <span class="row-meta mono">login-wrong-password.yaml</span>
+                  </span>
+                </label>
+              </li>
+              <li>
+                <label class="check grow">
+                  <input type="checkbox" checked />
+                  <span class="grow">
+                    <span class="row-title" style="display: block">Renaming an item and saving it</span>
+                    <span class="row-meta mono">save-item.yaml</span>
+                  </span>
+                </label>
+              </li>
+              <li data-state="broken" style="align-items: flex-start">
+                <label class="check grow" style="align-items: flex-start">
+                  <input type="checkbox" disabled style="margin-top: 3px" />
+                  <span class="grow">
+                    <span class="row-title" style="display: block">stock-low.yaml</span>
+                    <span class="row-meta">Baris 7: <code>tapOnn</code> bukan langkah Maestro. Flow ini tidak ikut dijalankan.</span>
+                  </span>
+                </label>
+                <span class="status s-failed"><span class="glyph">✕</span>Rusak</span>
+                <button class="btn btn-sm" type="button" data-note="stock-low.yaml terbuka di editor, di baris 7">Buka file</button>
+              </li>
+            </ul>
+          </section>
+
+          <section class="panel" aria-labelledby="parts">
+            <div class="panel-head">
+              <div>
+                <h2 id="parts">Flow pembantu</h2>
+                <p class="row-meta">Dipanggil dari flow lain dengan <code>runFlow</code>, tidak dijalankan sendiri.</p>
+              </div>
+            </div>
+            <ul class="rows">
+              <li>
+                <span class="grow">
+                  <span class="row-title mono">parts/login.yaml</span>
+                  <span class="row-meta" style="display: block">Dipakai oleh 4 flow</span>
+                </span>
+                <button class="btn btn-sm btn-ghost" type="button" data-note="login.yaml terbuka di editor">Buka</button>
+              </li>
+            </ul>
+          </section>
+
+          <p class="small muted">
+            Flow sering gagal karena nama tombol yang ditebak.
+            <a class="link" href="#" data-note="panduan singkat mencari nama elemen dengan Maestro Studio terbuka">Cara menemukan nama elemen dengan Maestro Studio</a>
+          </p>
+        </div>
+
+        <section class="panel" aria-labelledby="run">
+          <div class="panel-head">
+            <h2 id="run">Jalankan</h2>
+          </div>
+          <div class="panel-body" style="display: grid; gap: 18px">
+            <div class="field">
+              <span class="label">APK</span>
+              <div style="display: flex; align-items: center; gap: 8px">
+                <span class="grow">
+                  <span class="mono" style="display: block">app-debug.apk</span>
+                  <span class="row-meta">Versi 1.0 (1), dibuat 12 menit lalu</span>
+                </span>
+                <button class="btn btn-sm" type="button" data-note="pilih: APK terbaru dari build debug, atau file APK sendiri">Ubah</button>
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="label" for="device">Perangkat</label>
+              <select class="select" id="device" data-state="ready broken noagent secret package">
+                <option>Pixel_8 · emulator, menyala</option>
+                <option>Small_Phone_API_30 · emulator, mati</option>
+                <option>SM-A525F · HP, siap</option>
+              </select>
+              <select class="select" id="device-phone" aria-label="Perangkat" data-state="phone">
+                <option>2201117TY · HP, belum diizinkan</option>
+                <option>Pixel_8 · emulator, menyala</option>
+              </select>
+              <span class="hint" data-state="ready broken noagent secret package">Emulator yang mati akan dinyalakan dulu.</span>
+              <div class="note is-warning" data-state="phone">
+                <span class="glyph" aria-hidden="true">!</span>
+                <div>
+                  <p>HP ini belum mengizinkan USB debugging.</p>
+                  <ol style="margin: 6px 0 0; padding-left: 1.2em; display: grid; gap: 4px" class="small">
+                    <li>Buka kunci HP dan setujui permintaan USB debugging.</li>
+                    <li>Biarkan layar tetap menyala dan tidak terkunci selama run.</li>
+                    <li>Di HP Xiaomi, nyalakan juga "USB debugging (Security settings)" di Opsi pengembang.</li>
+                  </ol>
+                </div>
+              </div>
+              <div class="note is-warning" data-state="nodevice">
+                <span class="glyph" aria-hidden="true">!</span>
+                <div>
+                  <p>Belum ada emulator atau HP.</p>
+                  <p class="small" style="margin-top: 4px">
+                    Buat emulator di Android Studio (Device Manager), atau colokkan HP dengan USB debugging menyala.
+                    Daftar ini diperbarui sendiri.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="field">
+              <span class="label">Mockoon</span>
+              <span><code>.jagra/mockoon.json</code>, port 3000</span>
+            </div>
+
+            <a class="btn btn-primary btn-lg" href="05-running.html" data-state="ready broken noagent">Jalankan 5 flow</a>
+            <button class="btn btn-primary btn-lg" type="button" data-show="secret" data-state="secret">Jalankan 5 flow</button>
+            <button class="btn btn-primary btn-lg" type="button" data-show="package" data-state="package">Jalankan 5 flow</button>
+            <span class="btn btn-primary btn-lg" aria-disabled="true" data-state="phone nodevice">Jalankan 5 flow</span>
+          </div>
+          <div class="panel-foot">
+            <span class="grow">
+              <span class="row-meta" style="display: block">Run terakhir, hari ini 18.39</span>
+              <a class="status s-failed" href="06-results.html" style="text-decoration: none"><span class="glyph">✕</span>4 lolos, 1 gagal</a>
+            </span>
+            <a class="btn btn-sm btn-ghost" href="10-history.html">Riwayat</a>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <div class="scrim" data-state="secret">
+      <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="secret-title">
+        <div class="dialog-body">
+          <h2 id="secret-title">Isi nilai variabel</h2>
+          <p>Flow yang dipilih memakai <code>${PASSWORD}</code>, dan nilainya belum ada.</p>
+          <div class="field">
+            <label class="label" for="secret-value">PASSWORD</label>
+            <input class="input" id="secret-value" type="password" placeholder="Nilai untuk PASSWORD" />
+            <span class="hint">Disimpan terenkripsi di brankas sistem untuk proyek ini, dan tidak pernah tampil di layar, log, atau laporan.</span>
+          </div>
+        </div>
+        <div class="dialog-foot">
+          <button class="btn" type="button" data-show="ready">Batal</button>
+          <a class="btn btn-primary" href="05-running.html">Simpan dan jalankan</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="scrim" data-state="package">
+      <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="package-title">
+        <div class="dialog-body">
+          <h2 id="package-title">Paket APK berbeda</h2>
+          <p>
+            APK ini <code>dev.jagra.sample.staging</code>, sedangkan <code>appId</code> di <code>.jagra/config.yaml</code>
+            adalah <code>dev.jagra.sample</code>. Flow mungkin membuka aplikasi yang lain.
+          </p>
+        </div>
+        <div class="dialog-foot">
+          <button class="btn" type="button" data-show="ready">Batal</button>
+          <a class="btn btn-primary" href="05-running.html">Tetap jalankan</a>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

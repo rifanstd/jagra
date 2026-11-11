@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>10 Riwayat · Mockup Jagra</title>
+    <link rel="stylesheet" href="../system/theme.css" />
+    <link rel="stylesheet" href="mockup.css" />
+    <script src="mockup.js" defer></script>
+  </head>
+  <body>
+    <div class="review" role="region" aria-label="Kontrol review mockup, bukan bagian aplikasi">
+      <a href="09-empty-project-list.html">Sebelumnya</a>
+      <a href="index.html">Semua layar</a>
+      <strong>10 · Riwayat</strong>
+      <span class="group"
+        >Keadaan:
+        <button type="button" data-show="list">Ada riwayat</button>
+        <button type="button" data-show="empty">Belum ada run</button>
+      </span>
+      <span class="group push"
+        >Tema:
+        <button type="button" data-theme-choice="system">Ikuti sistem</button>
+        <button type="button" data-theme-choice="light">Terang</button>
+        <button type="button" data-theme-choice="dark">Gelap</button>
+      </span>
+      <a href="11-settings.html">Berikutnya</a>
+    </div>
+
+    <header class="topbar">
+      <a class="brand" href="02-project-list.html">Jagra</a>
+      <nav class="crumbs" aria-label="Lokasi">
+        <a href="02-project-list.html">Proyek</a><span>/</span><a href="04-project-page.html">Jagra sample app</a><span>/</span
+        ><span aria-current="page">Riwayat</span>
+      </nav>
+      <nav class="topnav" aria-label="Utama">
+        <a href="11-settings.html">Pengaturan</a>
+        <a href="12-about.html">Tentang</a>
+      </nav>
+    </header>
+
+    <main class="page narrow">
+      <div class="page-head">
+        <div>
+          <h1>Riwayat run</h1>
+          <p class="sub">20 run terakhir disimpan. Yang lebih lama dihapus beserta filenya.</p>
+        </div>
+      </div>
+
+      <section class="panel" aria-label="Run" data-state="list">
+        <div class="rows">
+          <a class="row" href="06-results.html">
+            <span class="status s-passed"><span class="glyph">✓</span></span>
+            <span class="grow">
+              <span class="row-title" style="display: block">5 lolos</span>
+              <span class="row-meta">Hari ini, 18.43 · Pixel_8</span>
+            </span>
+            <span class="row-meta">1.0 (1)</span>
+          </a>
+          <a class="row" href="06-results.html">
+            <span class="status s-failed"><span class="glyph">✕</span></span>
+            <span class="grow">
+              <span class="row-title" style="display: block">4 lolos, 1 gagal</span>
+              <span class="row-meta">Hari ini, 18.39 · Pixel_8</span>
+            </span>
+            <span class="row-meta">1.0 (1)</span>
+          </a>
+          <a class="row" href="06-results.html">
+            <span class="status s-interrupted"><span class="glyph">!</span></span>
+            <span class="grow">
+              <span class="row-title" style="display: block">Terputus, 2 flow sempat selesai</span>
+              <span class="row-meta">Kemarin, 16.40 · Pixel_8</span>
+            </span>
+            <span class="row-meta">1.0 (1)</span>
+          </a>
+          <a class="row" href="06-results.html">
+            <span class="status s-warning"><span class="glyph">!</span></span>
+            <span class="grow">
+              <span class="row-title" style="display: block">Berhenti: HP terputus</span>
+              <span class="row-meta">Kemarin, 11.20 · SM-A525F</span>
+            </span>
+            <span class="row-meta">1.0 (1)</span>
+          </a>
+          <a class="row" href="06-results.html">
+            <span class="status s-cancelled"><span class="glyph">–</span></span>
+            <span class="grow">
+              <span class="row-title" style="display: block">Dibatalkan, 2 lolos</span>
+              <span class="row-meta">Senin, 09.30 · Pixel_8</span>
+            </span>
+            <span class="row-meta">0.9 (1)</span>
+          </a>
+        </div>
+      </section>
+
+      <section class="panel" data-state="empty">
+        <div class="panel-body" style="padding: 28px; display: grid; gap: 12px">
+          <h2>Belum ada run</h2>
+          <p>Hasil setiap run tersimpan di sini, termasuk run yang dibatalkan atau terputus.</p>
+          <div><a class="btn" href="04-project-page.html">Ke halaman proyek</a></div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

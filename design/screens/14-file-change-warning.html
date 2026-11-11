@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>14 Peringatan perubahan file · Mockup Jagra</title>
+    <link rel="stylesheet" href="../system/theme.css" />
+    <link rel="stylesheet" href="mockup.css" />
+    <script src="mockup.js" defer></script>
+  </head>
+  <body>
+    <div class="review" role="region" aria-label="Kontrol review mockup, bukan bagian aplikasi">
+      <a href="13-first-ai-notice.html">Sebelumnya</a>
+      <a href="index.html">Semua layar</a>
+      <strong>14 · Peringatan perubahan file</strong>
+      <span class="group"
+        >Keadaan:
+        <button type="button" data-show="warn">Ada file berubah</button>
+        <button type="button" data-show="norestore">Tanpa cadangan</button>
+      </span>
+      <span class="group push"
+        >Tema:
+        <button type="button" data-theme-choice="system">Ikuti sistem</button>
+        <button type="button" data-theme-choice="light">Terang</button>
+        <button type="button" data-theme-choice="dark">Gelap</button>
+      </span>
+    </div>
+
+    <header class="topbar">
+      <a class="brand" href="02-project-list.html">Jagra</a>
+      <nav class="crumbs" aria-label="Lokasi">
+        <a href="02-project-list.html">Proyek</a><span>/</span><a href="04-project-page.html">toko-kopi</a><span>/</span
+        ><span aria-current="page">Flow dengan AI</span>
+      </nav>
+    </header>
+    <main class="page">
+      <div class="page-head">
+        <div>
+          <h1>Agen selesai</h1>
+          <p class="sub">Sebelum melihat flow-nya, periksa file di bawah.</p>
+        </div>
+      </div>
+    </main>
+
+    <div class="scrim">
+      <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="warn-title" style="width: min(600px, 100%)">
+        <div class="dialog-body">
+          <h2 id="warn-title">Agen mengubah file di luar folder flow</h2>
+          <p>Agen hanya boleh menulis di <code>.jagra/flows</code>, tapi file ini berubah selama agen bekerja:</p>
+          <ul class="rows" style="border: 1px solid var(--border); border-radius: var(--r-lg)">
+            <li>
+              <span class="status s-warning"><span class="glyph">!</span></span>
+              <span class="grow mono small truncate">app/src/main/res/values/strings.xml</span>
+              <span class="row-meta">diubah</span>
+            </li>
+            <li>
+              <span class="status s-warning"><span class="glyph">!</span></span>
+              <span class="grow mono small truncate">app/src/test/StockTest.kt</span>
+              <span class="row-meta">dibuat</span>
+            </li>
+          </ul>
+          <p class="small muted" data-state="warn">
+            Kembalikan membuat kedua file persis seperti sebelum agen mulai. Perubahan yang sudah ada sebelum itu tetap ada.
+          </p>
+          <div class="note is-warning" data-state="norestore">
+            <span class="glyph" aria-hidden="true">!</span>
+            <p class="small">
+              Folder ini bukan repositori git dan terlalu besar untuk dicadangkan, jadi Jagra hanya bisa menunjukkan file mana yang berubah.
+            </p>
+          </div>
+        </div>
+        <div class="dialog-foot">
+          <button class="btn" type="button" data-state="warn" data-note="perbedaan setiap file sebelum dan sesudah agen bekerja tampil">Lihat perubahan</button>
+          <a class="btn" href="08-create-flow-with-ai.html">Biarkan</a>
+          <a class="btn btn-primary" href="08-create-flow-with-ai.html" data-state="warn">Kembalikan</a>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
