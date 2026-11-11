@@ -2,7 +2,8 @@
   "extends": "../../../tsconfig.base.json",
   "compilerOptions": {
     "lib": ["ES2024", "DOM"],
-    "noEmit": true
+    "noEmit": true,
+    "customConditions": ["source"]
   },
   "include": [".", "../src/renderer/src/env.d.ts", "../src/shared"]
 }

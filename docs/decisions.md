@@ -368,3 +368,27 @@ Format of each entry: what was decided, why, and what was considered instead.
 ### D-77. The name as text, no logo, in version 1
 **Decided:** Version 1 has no logo. The top bar and the About screen show the name "Jagra" in the interface font.
 **Why:** There is no logo yet, and none should be made without the owner's direction. The owner agreed that the name as text is enough for version 1.
+
+### D-78. Buttons for later milestones stay hidden until those milestones
+**Decided:** M8 does not show New flow (M9), Create flow with AI (M10), Check for updates (M11), the AI agent row on screen 1 or the AI agent page in Settings (M10). Each appears in the milestone that makes it work.
+**Why:** A button that does nothing breaks trust the first time it is pressed, and a "coming soon" label adds text for a few weeks only. The owner agreed on 2026-11-11.
+
+### D-79. The bundled sample is the whole sample project with its APK
+**Decided:** The app ships a copy of `sample-app/` without its build and Gradle cache folders, plus the debug APK at `app/build/outputs/apk/debug/`, where the project's APK search looks. Try the sample app copies it into Jagra's local data folder (`SMP-5`, `SMP-6`).
+**Why:** The user sees a real Android project with its `.jagra` folder, and the sample runs without Gradle, Android Studio or a build step. The owner agreed on 2026-11-11.
+
+### D-80. M8 is checked with the built app, and on macOS by CI only
+**Decided:** M8's "Done when" is checked by running the built app (`electron-vite build`) directly. The installer is tested in M11. The owner has no Mac, so the screens are covered on macOS by the Playwright tests in CI, in test mode (D-81), and the first run on a real Mac waits for M12.
+**Why:** There is no installer before M11, and the owner cannot test on a Mac. The owner agreed on 2026-11-11.
+
+### D-81. A test mode for the screens, ignored by a packaged app
+**Decided:** When `JAGRA_TEST_MODE=1` is set and the app is not packaged, main uses fake tools instead of the real ones. Every tool is found by default; `JAGRA_TEST_TOOLS` changes them, for example `maestro=missing,mockoon=9.12.0`. Leftover cleanup is skipped. A packaged app ignores both variables.
+**Why:** CI has no Maestro, emulator or phone on its Windows and macOS runners, and the screens must still be tested there in every state. Ignoring the variables in a packaged app means a user's environment can never switch Jagra to fake tools.
+
+### D-82. Screen 1 opens the instructions only for what stops a run
+**Decided:** On screen 1, the instructions for a required tool that is missing, and for any tool that is too old or cannot start, show at once under its row. For an optional tool that is missing, or a tool with an untested version, they sit behind a "How to install" link. The approved mockup shows that link for a missing Mockoon CLI but nothing for an untested version; Jagra adds the link there too.
+**Why:** `ENV-4` asks for instructions for every tool that is not Ready, and Untested version is not Ready. Folding them keeps the screen calm for tools that do not block a run. The spec wins on behaviour (spec section 15).
+
+### D-83. Main stops every program it started when Jagra quits
+**Decided:** Main wraps its process runner in one that remembers every program it starts until that program exits. Before Jagra quits it stops all of them, with their children. Emulators are launched, not started, so they keep running (`DEV-5`).
+**Why:** `REL-3`. Tracking them in one place covers every way out of the app: closing the window, Cmd+Q and a quit from the operating system.

@@ -1,21 +1,38 @@
+import type { ToolStatus } from "@jagra/core";
 import { z } from "zod";
-import { CHANNELS, type AppInfo, type SettingsView } from "../shared/api.js";
+import {
+  CHANNELS,
+  EVENTS,
+  type AppInfo,
+  type EnvironmentView,
+  type SettingsView,
+} from "../shared/api.js";
 import { settingsSchema, type SettingsFile } from "./settings.js";
 
 /** What main does for each preload function. */
 export interface Handlers {
   appInfo(): AppInfo;
+  /** Opens a link only when `isKnownLink` allows it. */
+  openLink(url: string): Promise<void>;
+  isKnownLink(url: string): boolean;
+  copyText(text: string): Promise<void>;
   settings: SettingsFile;
+  checkEnvironment(
+    onProgress: (status: ToolStatus) => void,
+  ): Promise<EnvironmentView>;
+}
+
+/** The part of an IPC event the handlers use. */
+export interface CallEvent {
+  senderFrame: { url: string } | null;
+  sender: { send(channel: string, ...args: unknown[]): void };
 }
 
 /** The part of `ipcMain` the handlers need, so tests can pass a fake. */
 export interface IpcMainLike {
   handle(
     channel: string,
-    listener: (
-      event: { senderFrame: { url: string } | null },
-      ...args: unknown[]
-    ) => unknown,
+    listener: (event: CallEvent, ...args: unknown[]) => unknown,
   ): void;
 }
 
@@ -34,7 +51,7 @@ export function registerIpc(
   const on = <T extends z.ZodType>(
     channel: string,
     schema: T,
-    run: (args: z.infer<T>) => unknown,
+    run: (args: z.infer<T>, event: CallEvent) => unknown,
   ) => {
     ipc.handle(channel, (event, ...args) => {
       if (!event.senderFrame || !isOwnPage(event.senderFrame.url)) {
@@ -43,15 +60,28 @@ export function registerIpc(
       const parsed = schema.safeParse(args);
       if (!parsed.success)
         throw new RejectedCallError(`${channel}: invalid arguments`);
-      return run(parsed.data);
+      return run(parsed.data, event);
     });
   };
 
   on(CHANNELS.appInfo, z.tuple([]), () => handlers.appInfo());
+  on(CHANNELS.appOpenLink, z.tuple([z.string().max(2048)]), ([url]) => {
+    if (!handlers.isKnownLink(url))
+      throw new RejectedCallError(`${CHANNELS.appOpenLink}: unknown link`);
+    return handlers.openLink(url);
+  });
+  on(CHANNELS.appCopyText, z.tuple([z.string().max(100_000)]), ([text]) =>
+    handlers.copyText(text),
+  );
   on(CHANNELS.settingsGet, z.tuple([]), (): Promise<SettingsView> =>
     handlers.settings.view(),
   );
   on(CHANNELS.settingsSet, z.tuple([settingsSchema]), ([change]) =>
     handlers.settings.update(change),
+  );
+  on(CHANNELS.environmentCheck, z.tuple([]), (_args, event) =>
+    handlers.checkEnvironment((status) =>
+      event.sender.send(EVENTS.environmentProgress, status),
+    ),
   );
 }

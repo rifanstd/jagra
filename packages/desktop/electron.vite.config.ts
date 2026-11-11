@@ -23,7 +23,15 @@ function devServerCsp(): Plugin {
 export default defineConfig({
   main: {
     // core is bundled from its source, so the app needs no separate core build (D-58).
-    resolve: { alias: { "@jagra/core": coreSource } },
+    resolve: {
+      alias: [
+        { find: /^@jagra\/core$/, replacement: coreSource },
+        {
+          find: /^@jagra\/core\/fakes$/,
+          replacement: resolve(root, "../core/src/fakes/index.ts"),
+        },
+      ],
+    },
     build: {
       externalizeDeps: { exclude: ["@jagra/core"] },
       rollupOptions: { input: { index: resolve(root, "src/main/index.ts") } },

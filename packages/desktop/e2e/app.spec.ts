@@ -2,41 +2,19 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
-  _electron as electron,
   expect,
   test,
   type ElectronApplication,
   type Page,
 } from "@playwright/test";
-
-// The package folder, as `electron .` does: Electron reads package.json for the name, version
-// and the built main script.
-const APP = join(import.meta.dirname, "..");
+import { launch } from "./launch.js";
 
 let home: string;
 let app: ElectronApplication;
 let page: Page;
 
-/**
- * Starts the built app with its own data folders, so tests never touch the user's settings.
- * Jagra's data folder follows LOCALAPPDATA on Windows and the home folder on macOS (D-58).
- */
-async function launch(language = "en-US"): Promise<void> {
-  app = await electron.launch({
-    args: [
-      APP,
-      `--user-data-dir=${join(home, "electron")}`,
-      `--lang=${language}`,
-    ],
-    env: {
-      ...process.env,
-      LOCALAPPDATA: join(home, "local"),
-      HOME: home,
-      LANG: language,
-    },
-  });
-  page = await app.firstWindow();
-  await page.waitForSelector("[data-testid=version]");
+async function start(options?: Parameters<typeof launch>[1]): Promise<void> {
+  ({ app, page } = await launch(home, options));
 }
 
 test.beforeEach(async () => {
@@ -49,7 +27,7 @@ test.afterEach(async () => {
 });
 
 test("opens with the renderer isolated (SEC-6)", async () => {
-  await launch();
+  await start();
   // getLastWebPreferences is not in Electron's typings, but it reports what the window really got.
   const preferences = await app.evaluate(({ BrowserWindow }) =>
     (
@@ -72,17 +50,16 @@ test("opens with the renderer isolated (SEC-6)", async () => {
   expect(exposed).toEqual({
     require: "undefined",
     process: "undefined",
-    api: ["app", "settings"],
+    api: ["app", "environment", "settings"],
   });
-  await expect(page.getByTestId("version")).toHaveText("Version 0.0.0");
 });
 
 test("makes no network request (SEC-1, SEC-2)", async () => {
-  await launch();
+  await start();
   const requested: string[] = [];
   page.on("request", (request) => requested.push(request.url()));
   await page.reload();
-  await page.waitForSelector("[data-testid=version]");
+  await page.waitForSelector("main h1");
   expect(requested.length).toBeGreaterThan(0);
   for (const url of requested) expect(url).toMatch(/^(file|data):/);
 
@@ -98,8 +75,10 @@ test("makes no network request (SEC-1, SEC-2)", async () => {
 });
 
 test("shows the theme with its bundled font, in light and dark mode (SET-2)", async () => {
-  await launch();
-  await expect(page.getByText("Jagra", { exact: true })).toBeVisible();
+  await start();
+  await expect(
+    page.getByRole("button", { name: "Jagra", exact: true }),
+  ).toBeVisible();
   const look = () =>
     page.evaluate(() => ({
       dark: document.documentElement.classList.contains("dark"),
@@ -122,8 +101,6 @@ test("shows the theme with its bundled font, in light and dark mode (SET-2)", as
   await expect.poll(look).toMatchObject({ dark: true });
   const dark = await look();
 
-  expect(light.dark).toBe(false);
-  expect(dark.dark).toBe(true);
   expect(dark.background).not.toBe(light.background);
   expect(light.font).toContain("Outfit");
   expect(await page.evaluate(() => document.fonts.check("16px Outfit"))).toBe(
@@ -132,20 +109,128 @@ test("shows the theme with its bundled font, in light and dark mode (SET-2)", as
 });
 
 test("switches language without a restart, and keeps it (LNG-1)", async () => {
-  await launch("en-US");
+  await start({ language: "en-US" });
   await expect(
-    page.getByText("Tests Android builds before they go to QA."),
+    page.getByRole("heading", { name: "Environment check" }),
   ).toBeVisible();
 
+  await page.getByRole("button", { name: "Settings" }).click();
   await page.getByRole("combobox").click();
   await page.getByRole("option", { name: "Bahasa Indonesia" }).click();
   await expect(
-    page.getByText("Menguji build Android sebelum masuk ke QA."),
+    page.getByRole("heading", { name: "Pengaturan", level: 1 }),
   ).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.lang)).toBe("id");
 
   await app.close();
-  await launch("en-US");
+  await start({ language: "en-US" });
   await expect(
-    page.getByText("Menguji build Android sebelum masuk ke QA."),
+    page.getByRole("heading", { name: "Cek lingkungan" }),
   ).toBeVisible();
+});
+
+test.describe("environment check (ENV)", () => {
+  test("opens first, shows every tool ready, and is skipped once continued (ENV-7)", async () => {
+    await start();
+    await expect(
+      page.getByRole("heading", { name: "Environment check" }),
+    ).toBeVisible();
+    for (const tool of ["java", "adb", "maestro", "emulator", "mockoon"]) {
+      await expect(page.getByTestId(`tool-${tool}`)).toContainText("Ready");
+    }
+    await expect(page.getByTestId("tool-maestro")).toContainText("2.12.1");
+    await expect(page.getByTestId("check-summary")).toContainText("Done in");
+
+    await page.getByRole("button", { name: "Continue to projects" }).click();
+    await expect(page.getByRole("heading", { name: "Projects" })).toBeVisible();
+    await expect(page.getByTestId("environment-indicator")).toHaveText(
+      /Environment ready/,
+    );
+
+    await app.close();
+    await start();
+    await expect(page.getByRole("heading", { name: "Projects" })).toBeVisible();
+    await page.getByTestId("environment-indicator").click();
+    await expect(
+      page.getByRole("heading", { name: "Environment check" }),
+    ).toBeVisible();
+  });
+
+  test("blocks continuing while Maestro is missing, with this system's steps (ENV-2, ENV-4)", async () => {
+    await start({ tools: "maestro=missing" });
+    const maestro = page.getByTestId("tool-maestro");
+    await expect(maestro).toContainText("Not found");
+    const guide = page.getByTestId("guide-maestro");
+    await expect(guide).toBeVisible();
+    await expect(guide).toContainText(
+      process.platform === "win32"
+        ? "Download maestro.zip"
+        : "Run Maestro's install script",
+    );
+    await expect(
+      page.getByRole("button", { name: "Maestro official guide" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Continue to projects" }),
+    ).toBeDisabled();
+    await expect(
+      page.getByText("You can continue once Maestro is ready"),
+    ).toBeVisible();
+
+    // The brand still leads to the project list, where the indicator names the problem.
+    await page.getByRole("button", { name: "Jagra", exact: true }).click();
+    await expect(page.getByTestId("environment-indicator")).toHaveText(
+      /Maestro not found/,
+    );
+  });
+
+  test("copies a step's command to the clipboard", async () => {
+    await start({ tools: "maestro=missing" });
+    const guide = page.getByTestId("guide-maestro");
+    await guide.getByRole("button", { name: "Copy" }).first().click();
+    await expect(guide.getByRole("button", { name: "Copied" })).toBeVisible();
+    const copied = await app.evaluate(({ clipboard }) => clipboard.readText());
+    expect(copied).toBe(
+      process.platform === "win32"
+        ? "C:\\maestro"
+        : 'curl -Ls "https://get.maestro.mobile.dev" | bash',
+    );
+  });
+
+  test("lets an optional tool be missing, and an untested version run (ENV-2, ENV-3)", async () => {
+    await start({ tools: "mockoon=missing,maestro=2.13.0" });
+    const mockoon = page.getByTestId("tool-mockoon");
+    await expect(mockoon).toContainText("Not installed, optional");
+    await expect(page.getByTestId("guide-mockoon")).toHaveCount(0);
+    await mockoon.getByRole("button", { name: "How to install" }).click();
+    await expect(page.getByTestId("guide-mockoon")).toContainText(
+      "npm install -g @mockoon/cli",
+    );
+
+    await expect(page.getByTestId("tool-maestro")).toContainText(
+      "Untested version",
+    );
+    await expect(
+      page.getByText("An untested version can still be used."),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Continue to projects" }),
+    ).toBeEnabled();
+  });
+
+  test("names the reason a tool cannot start (D-35)", async () => {
+    await start({ tools: "maestro=needs-java" });
+    await expect(page.getByTestId("tool-maestro")).toContainText("Can't start");
+    await expect(page.getByTestId("guide-maestro")).toContainText(
+      "fix Java first",
+    );
+  });
+
+  test("checks again (ENV-5)", async () => {
+    await start();
+    await expect(page.getByTestId("check-summary")).toContainText("Done in");
+    await page.getByRole("button", { name: "Check again" }).click();
+    await expect(page.getByTestId("check-summary")).toContainText("Done in");
+    await expect(page.getByTestId("tool-java")).toContainText("Ready");
+  });
 });
