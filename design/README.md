@@ -11,19 +11,19 @@
 
 | # | Screen | Wireframe | Mockup |
 |---|---|---|---|
-| 1 | Environment check | Done | Draft, waiting for approval |
-| 2 | Project list | Done | Draft, waiting for approval |
-| 3 | Create project | Done | Draft, waiting for approval |
-| 4 | Project page | Done | Draft, waiting for approval |
-| 5 | Running | Done | Draft, waiting for approval |
-| 6 | Results | Done | Draft, waiting for approval |
-| 7 | Flow detail | Done | Draft, waiting for approval |
-| 8 | Create flow with AI and Review flow | Done | Draft, waiting for approval |
-| 9 | Empty project list | Done | Draft, waiting for approval |
-| 10 | History | Done | Draft, waiting for approval |
-| 11 | Settings | Done | Draft, waiting for approval |
-| 12 | About | Done | Draft, waiting for approval |
-| 13 | First AI use notice | Done | Draft, waiting for approval |
-| 14 | File change warning | Done | Draft, waiting for approval |
+| 1 | Environment check | Done | Approved |
+| 2 | Project list | Done | Approved |
+| 3 | Create project | Done | Approved |
+| 4 | Project page | Done | Approved |
+| 5 | Running | Done | Approved |
+| 6 | Results | Done | Approved |
+| 7 | Flow detail | Done | Approved |
+| 8 | Create flow with AI and Review flow | Done | Approved |
+| 9 | Empty project list | Done | Approved |
+| 10 | History | Done | Approved |
+| 11 | Settings | Done | Approved |
+| 12 | About | Done | Approved |
+| 13 | First AI use notice | Done | Approved |
+| 14 | File change warning | Done | Approved |
 
-Every mockup must be approved before `docs/plan.md` M8 starts.
+Every mockup must be approved before `docs/plan.md` M8 starts. The owner approved all 14 on 2026-11-11 (D-74).

@@ -352,3 +352,19 @@ Format of each entry: what was decided, why, and what was considered instead.
 ### D-73. Electron 45
 **Decided:** The desktop app uses Electron 45 (45.2.3 at the start of M7), with React 19, Tailwind CSS 4.3, shadcn/ui and i18next 26.
 **Why:** It is the current stable line (`to-verify.md`). It runs on Windows 10 and up (64-bit and ARM) and macOS 13 and up, which covers `COMP-1` and `COMP-2`. 32-bit Windows is not supported.
+
+### D-74. The screen mockups are approved
+**Decided:** The 14 mockups in `design/screens/` are approved as the look of version 1. `design/screens/index.html` shows them in a viewer: the screens on the left, the mockup in a desktop window in the middle, and what the screen is for, its states and its requirements on the right. They use the tweakcn AstroVista theme in `design/system/theme.css` with shadcn/ui's component sizes. Where they differ from the wireframes (two columns on the project page, five Settings pages as `SET-1` asks, and the dialogs for `RUN-3`, `RUN-10` and `PRJ-6`), the mockups win on looks and the spec on behaviour, as spec section 15 says.
+**Why:** `plan.md` requires approved mockups before M8. The owner approved them on 2026-11-11.
+
+### D-75. Interface Indonesian is standard and neutral
+**Decided:** The Indonesian interface text uses standard Indonesian (bahasa baku) in a neutral tone, and avoids pronouns where it can ("Pilih folder kode aplikasi", not "Pilih folder aplikasi lu"). The casual tone of the wireframes was for the wireframes only.
+**Why:** The owner chose it. Jagra is a work tool used in teams, and standard Indonesian reads the same to everyone.
+
+### D-76. Two more statuses: Stopped and Not run
+**Decided:** `design/system/README.md` gains two statuses. Stopped / Berhenti, with `!` and `warning`, for a run that stopped because the device was lost or a required step failed (`RUN-12`). Not run / Tidak dijalankan, with `–` and `muted-foreground`, for a flow the run never reached (D-54). Not run shares its mark with Cancelled; the word and the color tell them apart.
+**Why:** Both states exist since M5, and the status table had no entry for them. The owner approved the styles shown in the mockups.
+
+### D-77. The name as text, no logo, in version 1
+**Decided:** Version 1 has no logo. The top bar and the About screen show the name "Jagra" in the interface font.
+**Why:** There is no logo yet, and none should be made without the owner's direction. The owner agreed that the name as text is enough for version 1.
