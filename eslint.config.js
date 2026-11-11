@@ -59,6 +59,7 @@ export default defineConfig(
         window: "readonly",
         document: "readonly",
         localStorage: "readonly",
+        location: "readonly",
         setTimeout: "readonly",
         clearTimeout: "readonly",
       },
