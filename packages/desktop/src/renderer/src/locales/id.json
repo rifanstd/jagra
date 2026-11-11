@@ -3,9 +3,128 @@
     "name": "Jagra",
     "tagline": "Menguji build Android sebelum masuk ke QA."
   },
-  "home": {
-    "version": "Versi {{version}}",
-    "language": "Bahasa"
+  "nav": {
+    "label": "Utama",
+    "settings": "Pengaturan"
+  },
+  "projects": {
+    "title": "Proyek"
+  },
+  "settings": {
+    "title": "Pengaturan",
+    "language": {
+      "title": "Bahasa",
+      "description": "Bahasa layar Jagra.",
+      "label": "Bahasa"
+    }
+  },
+  "system": {
+    "win32": "Windows",
+    "darwin": "macOS",
+    "linux": "Linux"
+  },
+  "env": {
+    "title": "Cek lingkungan",
+    "subtitle": "Jagra memakai tool yang sudah terpasang di komputer ini. Jagra tidak memasang, memperbarui, atau menghapus apa pun.",
+    "checkAgain": "Cek ulang",
+    "required": "Wajib",
+    "optional": "Opsional",
+    "checking": "Memeriksa semua tool sekaligus",
+    "took": "Selesai dalam {{seconds}} detik",
+    "failed": "Pemeriksaan tidak bisa selesai. Tekan Cek ulang.",
+    "untestedNote": "Versi belum dites tetap bisa dipakai. Kalau ada yang tidak jalan, laporkan versinya lewat Tentang > Salin info untuk laporan bug.",
+    "continueAfter": "Lanjut setelah {{tool}} siap",
+    "continue": "Lanjut ke proyek",
+    "howToInstall": "Cara memasang",
+    "stepsFor": "Langkah untuk {{system}}:",
+    "openPage": "Buka halaman",
+    "officialGuide": "Panduan resmi {{tool}}",
+    "copy": "Salin",
+    "copied": "Tersalin",
+    "state": {
+      "checking": "Memeriksa",
+      "ready": "Siap",
+      "untested-version": "Versi belum dites",
+      "too-old": "Versi terlalu lama",
+      "missing": "Tidak ditemukan",
+      "missing-optional": "Belum ada, opsional",
+      "cant-start": "Tidak bisa berjalan"
+    },
+    "problem": {
+      "needs-java": "Tool ini tidak bisa berjalan tanpa Java 17 atau lebih baru, jadi perbaiki Java dulu.",
+      "needs-node": "Tool ini tidak bisa berjalan tanpa Node.js.",
+      "timed-out": "Tool ini tidak menjawab tepat waktu.",
+      "failed": "Tool ini ditemukan tetapi tidak berjalan.",
+      "too-old": "Versi {{version}} lebih lama dari yang didukung Jagra.",
+      "untested-version": "Versi ini lebih baru dari versi yang sudah dites dengan Jagra, dan tetap bisa dipakai."
+    },
+    "indicator": {
+      "checking": "Memeriksa tool",
+      "ready": "Lingkungan siap",
+      "failed": "Pemeriksaan tidak selesai",
+      "missing": "{{tool}} tidak ditemukan",
+      "too-old": "Versi {{tool}} terlalu lama",
+      "cant-start": "{{tool}} tidak bisa berjalan"
+    },
+    "tool": {
+      "java": {
+        "name": "Java",
+        "title": "Java 17 atau lebih baru",
+        "why": "Maestro butuh Java untuk berjalan."
+      },
+      "adb": {
+        "name": "adb",
+        "title": "Android platform tools (adb)",
+        "why": "Jagra memakai adb untuk memasang APK dan berkomunikasi dengan perangkat."
+      },
+      "maestro": {
+        "name": "Maestro",
+        "title": "Maestro",
+        "why": "Maestro yang menjalankan setiap flow, jadi run belum bisa dimulai."
+      },
+      "emulator": {
+        "name": "Android emulator",
+        "title": "Android emulator",
+        "note": "Tidak perlu kalau tes memakai HP lewat USB",
+        "why": "Tanpa emulator, tes berjalan di HP lewat USB."
+      },
+      "mockoon": {
+        "name": "Mockoon CLI",
+        "title": "Mockoon CLI",
+        "note": "Hanya untuk proyek yang memakai file Mockoon",
+        "why": "Proyek yang memakai file Mockoon tidak bisa dijalankan tanpanya."
+      }
+    }
+  },
+  "install": {
+    "java": {
+      "install-jdk-17-or-newer": "Pasang JDK versi 17 atau lebih baru, misalnya Eclipse Temurin.",
+      "set-java-home": "Atur JAVA_HOME ke folder JDK, atau tambahkan folder bin JDK ke PATH."
+    },
+    "adb": {
+      "install-android-studio": "Pasang Android Studio, yang sudah berisi Android SDK dan adb.",
+      "set-android-home": "Atur ANDROID_HOME ke folder Android SDK, atau tambahkan folder platform-tools di dalamnya ke PATH."
+    },
+    "emulator": {
+      "install-from-sdk-manager": "Di Android Studio, buka SDK Manager dan pasang Android Emulator.",
+      "create-virtual-device": "Buat perangkat virtual di Device Manager."
+    },
+    "mockoon": {
+      "install-node": "Pasang Node.js.",
+      "install-with-npm": "Pasang Mockoon CLI dengan npm:"
+    },
+    "maestro": {
+      "install-java-first": "Pastikan Java 17 atau lebih baru sudah siap. Maestro membutuhkannya.",
+      "windows": {
+        "download-zip": "Unduh maestro.zip dari halaman rilis Maestro di GitHub.",
+        "extract": "Ekstrak ke folder tetap, misalnya:",
+        "add-to-path": "Tambahkan folder ini ke PATH di jendela Environment Variables Windows:"
+      },
+      "macos": {
+        "run-install-script": "Jalankan skrip pemasangan Maestro di Terminal:"
+      },
+      "check-again": "Kembali ke sini dan tekan Cek ulang. Jagra tidak perlu ditutup."
+    }
   },
   "language": {
     "en": "English",

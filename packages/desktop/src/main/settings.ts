@@ -5,6 +5,7 @@ import type { Language, Settings, SettingsView } from "../shared/api.js";
 
 export const settingsSchema = z.strictObject({
   language: z.enum(["en", "id"]).optional(),
+  environmentSeen: z.boolean().optional(),
 });
 
 /**
@@ -40,7 +41,9 @@ export class SettingsFile {
   update(change: Settings): Promise<SettingsView> {
     const next = this.queue.then(async () => {
       const merged: Settings = { ...(await this.read()), ...change };
-      if (merged.language === undefined) delete merged.language;
+      for (const key of Object.keys(merged) as (keyof Settings)[]) {
+        if (merged[key] === undefined) delete merged[key];
+      }
       await this.write(merged);
       return this.view();
     });

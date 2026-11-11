@@ -22,6 +22,17 @@
   font-display: block;
 }
 
+@layer components {
+  /* Status marks come from the system font: Fira Code and Outfit draw ✓ like a root sign. */
+  .status-mark {
+    display: inline-grid;
+    place-items: center;
+    width: 1.1em;
+    font-family: system-ui, sans-serif;
+    font-weight: 700;
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

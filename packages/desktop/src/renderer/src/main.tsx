@@ -8,12 +8,14 @@ import "./styles.css";
 followSystemTheme();
 const root = document.getElementById("root");
 if (root) {
-  void window.jagra.settings.get().then(({ language }) => {
-    startI18n(language);
-    createRoot(root).render(
-      <StrictMode>
-        <App initialLanguage={language} />
-      </StrictMode>,
-    );
-  });
+  void Promise.all([window.jagra.settings.get(), window.jagra.app.info()]).then(
+    ([settings, info]) => {
+      startI18n(settings.language);
+      createRoot(root).render(
+        <StrictMode>
+          <App initial={settings} platform={info.platform} />
+        </StrictMode>,
+      );
+    },
+  );
 }

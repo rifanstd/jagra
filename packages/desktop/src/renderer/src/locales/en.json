@@ -3,9 +3,128 @@
     "name": "Jagra",
     "tagline": "Tests Android builds before they go to QA."
   },
-  "home": {
-    "version": "Version {{version}}",
-    "language": "Language"
+  "nav": {
+    "label": "Main",
+    "settings": "Settings"
+  },
+  "projects": {
+    "title": "Projects"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": {
+      "title": "Language",
+      "description": "The language of Jagra's screens.",
+      "label": "Language"
+    }
+  },
+  "system": {
+    "win32": "Windows",
+    "darwin": "macOS",
+    "linux": "Linux"
+  },
+  "env": {
+    "title": "Environment check",
+    "subtitle": "Jagra uses the tools already installed on this computer. It never installs, updates or removes anything.",
+    "checkAgain": "Check again",
+    "required": "Required",
+    "optional": "Optional",
+    "checking": "Checking every tool at once",
+    "took": "Done in {{seconds}} s",
+    "failed": "The check could not finish. Press Check again.",
+    "untestedNote": "An untested version can still be used. If something does not work, report the version with About > Copy info for bug report.",
+    "continueAfter": "You can continue once {{tool}} is ready",
+    "continue": "Continue to projects",
+    "howToInstall": "How to install",
+    "stepsFor": "Steps for {{system}}:",
+    "openPage": "Open page",
+    "officialGuide": "{{tool}} official guide",
+    "copy": "Copy",
+    "copied": "Copied",
+    "state": {
+      "checking": "Checking",
+      "ready": "Ready",
+      "untested-version": "Untested version",
+      "too-old": "Too old",
+      "missing": "Not found",
+      "missing-optional": "Not installed, optional",
+      "cant-start": "Can't start"
+    },
+    "problem": {
+      "needs-java": "It cannot start without Java 17 or newer, so fix Java first.",
+      "needs-node": "It cannot start without Node.js.",
+      "timed-out": "It did not answer in time.",
+      "failed": "It was found but did not run.",
+      "too-old": "Version {{version}} is older than Jagra supports.",
+      "untested-version": "This version is newer than the ones Jagra was tested with, and can still be used."
+    },
+    "indicator": {
+      "checking": "Checking tools",
+      "ready": "Environment ready",
+      "failed": "Check did not finish",
+      "missing": "{{tool}} not found",
+      "too-old": "{{tool}} is too old",
+      "cant-start": "{{tool}} can't start"
+    },
+    "tool": {
+      "java": {
+        "name": "Java",
+        "title": "Java 17 or newer",
+        "why": "Maestro needs Java to run."
+      },
+      "adb": {
+        "name": "adb",
+        "title": "Android platform tools (adb)",
+        "why": "Jagra uses adb to install the APK and talk to the device."
+      },
+      "maestro": {
+        "name": "Maestro",
+        "title": "Maestro",
+        "why": "Maestro runs every flow, so a run cannot start yet."
+      },
+      "emulator": {
+        "name": "Android emulator",
+        "title": "Android emulator",
+        "note": "Not needed when tests use a phone over USB",
+        "why": "Without it, tests run on a phone over USB."
+      },
+      "mockoon": {
+        "name": "Mockoon CLI",
+        "title": "Mockoon CLI",
+        "note": "Only for projects that use a Mockoon file",
+        "why": "Projects that use a Mockoon file cannot run without it."
+      }
+    }
+  },
+  "install": {
+    "java": {
+      "install-jdk-17-or-newer": "Install a JDK, version 17 or newer, for example Eclipse Temurin.",
+      "set-java-home": "Set JAVA_HOME to the JDK folder, or add the JDK's bin folder to PATH."
+    },
+    "adb": {
+      "install-android-studio": "Install Android Studio, which includes the Android SDK and adb.",
+      "set-android-home": "Set ANDROID_HOME to the Android SDK folder, or add its platform-tools folder to PATH."
+    },
+    "emulator": {
+      "install-from-sdk-manager": "In Android Studio, open SDK Manager and install Android Emulator.",
+      "create-virtual-device": "Create a virtual device in Device Manager."
+    },
+    "mockoon": {
+      "install-node": "Install Node.js.",
+      "install-with-npm": "Install Mockoon CLI with npm:"
+    },
+    "maestro": {
+      "install-java-first": "Make sure Java 17 or newer is ready first. Maestro needs it.",
+      "windows": {
+        "download-zip": "Download maestro.zip from the Maestro releases page on GitHub.",
+        "extract": "Extract it to a folder that stays where it is, for example:",
+        "add-to-path": "Add this folder to PATH in the Windows Environment Variables window:"
+      },
+      "macos": {
+        "run-install-script": "Run Maestro's install script in Terminal:"
+      },
+      "check-again": "Come back here and press Check again. Jagra does not need to restart."
+    }
   },
   "language": {
     "en": "English",
