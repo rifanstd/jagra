@@ -5,7 +5,7 @@
 | `system/theme.css` | The theme: the only place colors, fonts, radius and shadows are defined |
 | `system/README.md` | How to use the theme: color roles, status rules, fonts |
 | `wireframes.html` | Low fidelity wireframes of all 14 screens |
-| `screens/` | Mockups, one HTML file per screen. Open `screens/index.html`; the dashed bar on each screen switches theme and state |
+| `screens/` | Mockups, one HTML file per screen. Open `screens/index.html`: screens on the left, the mockup in a desktop window in the middle, its explanation and states on the right |
 
 ## Screens
 

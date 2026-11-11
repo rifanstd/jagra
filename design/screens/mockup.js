@@ -20,6 +20,9 @@
   system.addEventListener("change", applyTheme);
 
   const showState = (name) => {
+    if (window.self !== window.top) {
+      window.parent.postMessage({ source: "jagra-mockup", state: name }, "*");
+    }
     for (const element of document.querySelectorAll("[data-state]")) {
       element.hidden = !element.dataset.state.split(" ").includes(name);
     }
@@ -86,11 +89,31 @@
     if (event.key === "Escape") note.hidden = true;
   });
 
+  // Inside the viewer (index.html), the viewer chooses the theme and the state, so the review
+  // bar is hidden and the page reports which screen it is.
+  const embedded = window.self !== window.top;
+  if (embedded) root.classList.add("embedded");
+  window.addEventListener("message", (event) => {
+    const data = event.data;
+    if (!data || data.source !== "jagra-viewer") return;
+    if (data.theme) {
+      theme = data.theme;
+      applyTheme();
+    }
+    if (data.state) showState(data.state);
+  });
+
   document.addEventListener("DOMContentLoaded", () => {
     document.body.append(note);
     applyTheme();
     const first = document.querySelector("[data-show]");
     if (first) showState(first.dataset.show);
+    if (embedded) {
+      window.parent.postMessage(
+        { source: "jagra-mockup", file: location.pathname.split("/").pop() },
+        "*",
+      );
+    }
   });
   applyTheme();
 })();
