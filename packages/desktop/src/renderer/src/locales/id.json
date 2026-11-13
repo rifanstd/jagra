@@ -198,7 +198,70 @@
     "addAsIs": "Tambahkan apa adanya"
   },
   "project": {
-    "remove": "Hapus dari daftar"
+    "remove": "Hapus dari daftar",
+    "lastRun": "Run terakhir: {{when}}",
+    "flows": {
+      "title": "Flow",
+      "chosen": "{{chosen}} dari {{total}} dipilih",
+      "cannotRun_one": ", {{count}} tidak bisa dijalankan",
+      "cannotRun_other": ", {{count}} tidak bisa dijalankan",
+      "noneBefore": "Belum ada flow. Flow adalah file YAML di",
+      "noneAfter": ".",
+      "leftOut": "Flow ini tidak ikut dijalankan.",
+      "broken": "Rusak"
+    },
+    "helpers": {
+      "title": "Flow pembantu",
+      "subtitleBefore": "Dipanggil dari flow lain dengan",
+      "subtitleAfter": ", tidak dijalankan sendiri.",
+      "usedBy_one": "Dipakai oleh {{count}} flow",
+      "usedBy_other": "Dipakai oleh {{count}} flow",
+      "open": "Buka"
+    },
+    "run": {
+      "title": "Jalankan",
+      "apk": "APK",
+      "apkVersion": "Versi {{version}} ({{code}}), dibuat {{ago}}",
+      "apkPicked": "Dipilih sendiri",
+      "apkChange": "Ubah",
+      "apkNewest": "APK terbaru di {{searchPath}}",
+      "apkFile": "Pilih file APK",
+      "device": "Perangkat",
+      "refresh": "Muat ulang",
+      "mockoon": "Mockoon",
+      "noMockoon": "Tidak dipakai",
+      "mockoonPort": ", port {{port}}"
+    },
+    "device": {
+      "noAdb": "adb tidak ditemukan, jadi perangkat belum bisa ditampilkan.",
+      "openCheck": "Buka cek lingkungan",
+      "none": "Belum ada emulator atau HP.",
+      "noneHelp": "Buat emulator di Android Studio (Device Manager), atau colokkan HP dengan USB debugging menyala. Daftar ini diperbarui sendiri.",
+      "option": "{{name}} · {{kind}}, {{state}}",
+      "kind": {
+        "emulator": "emulator",
+        "phone": "HP"
+      },
+      "state": {
+        "emulator-running": "menyala",
+        "emulator-starting": "sedang menyala",
+        "emulator-off": "mati",
+        "phone-ready": "siap",
+        "phone-not-authorised": "belum diizinkan",
+        "phone-not-responding": "tidak merespons"
+      },
+      "starting": "Emulator ini masih dalam proses menyala. Run menunggu sampai siap.",
+      "offStarts": "Emulator yang mati akan dinyalakan dulu.",
+      "notAuthorised": "HP ini belum mengizinkan USB debugging.",
+      "notResponding": "HP ini tidak merespons. Cabut lalu colokkan lagi.",
+      "phoneReady": "Sebelum run:",
+      "checklist": {
+        "usb-debugging": "Nyalakan USB debugging di Opsi pengembang.",
+        "accept-prompt": "Buka kunci HP dan setujui permintaan USB debugging.",
+        "screen-on-unlocked": "Biarkan layar tetap menyala dan tidak terkunci selama run.",
+        "simulated-input": "Di HP Xiaomi, nyalakan juga \"USB debugging (Security settings)\" di Opsi pengembang."
+      }
+    }
   },
   "errors": {
     "PROGRAM_NOT_FOUND": "{{program}} tidak ditemukan. Instal dulu, atau atur lokasinya di Pengaturan > Lokasi tool.",

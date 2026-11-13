@@ -408,3 +408,19 @@ Format of each entry: what was decided, why, and what was considered instead.
 ### D-87. Test mode puts the sample copy in Jagra's data folder
 **Decided:** In test mode (D-81), the Documents folder for Try the sample app is `documents/` inside Jagra's local data folder, which the tests point at a temporary folder.
 **Why:** The tests must never write to the real Documents folder of the person or the CI runner. A packaged app ignores test mode.
+
+### D-88. Checkboxes and radio buttons use `secondary`
+**Decided:** The shadcn/ui Checkbox and RadioGroup use `secondary` (navy) for their checked state instead of shadcn's default `primary`, as the approved mockups do. In dark mode the radio dot uses `foreground`, so it stays visible on the dark field.
+**Why:** `primary` (orange) is for the main action of a screen only (`design/system/README.md`). A page with five checked flows would otherwise be covered in orange next to the one orange button that matters.
+
+### D-89. The project page reads the APK again every 5 seconds
+**Decided:** While a project page is open, it asks main for the APK every 5 seconds, and reads the flows again when the window gets focus. Main reads an APK's package and version again only when its file changes.
+**Why:** `PRJ-4` and spec section 4 "Done when": a new debug build must show without any action. The file watcher (`FileWatcher`) arrives with the flow work in M9; until then a short poll of one folder is cheap and enough.
+
+### D-90. A Refresh button next to the device list
+**Decided:** The project page has a Refresh button beside the device list, which the approved mockup does not show.
+**Why:** `DEV-2` asks for one in addition to the live list, and the spec wins on behaviour (spec section 15).
+
+### D-91. The `minimatch` alert waits for ESLint
+**Decided:** The Dependabot alert for `minimatch` 10.2.6 (denial of service through glob patterns, fixed in 11.0.1) stays open until ESLint moves to minimatch 11. Jagra does not force the version with `pnpm.overrides`.
+**Why:** minimatch is only a development dependency of ESLint and only reads the repository's own lint patterns, so the risk to Jagra and its users is low, while forcing a major version on ESLint could break linting. The owner agreed on 2026-11-13.

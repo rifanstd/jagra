@@ -6,6 +6,7 @@ import { FakeApkReader } from "@jagra/core/fakes";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { CHANNELS, EVENTS } from "../shared/api.js";
 import { registerIpc, type IpcMainLike } from "./ipc.js";
+import { Devices } from "./devices.js";
 import { Projects } from "./projects.js";
 import { SettingsFile } from "./settings.js";
 
@@ -62,6 +63,10 @@ function setup() {
         },
         openPath: () => Promise.resolve(),
       }),
+      devices: new Devices(
+        () => undefined,
+        () => undefined,
+      ),
       checkEnvironment: (onProgress) => {
         onProgress(STATUS);
         return Promise.resolve({
@@ -184,5 +189,26 @@ describe("registerIpc (SEC-6)", () => {
     await expect(call(CHANNELS.projectsLocate, [1])).rejects.toThrow(
       "invalid arguments",
     );
+  });
+
+  it("checks the project page and device calls", async () => {
+    const { call } = setup();
+    expect(await call(CHANNELS.devicesWatch, [])).toEqual({
+      adb: false,
+      devices: [],
+    });
+    expect(await call(CHANNELS.projectsApk, ["nope"])).toBeUndefined();
+    await call(CHANNELS.projectsChooseFlows, ["nope", ["a.yaml"]]);
+    for (const [channel, args] of [
+      [CHANNELS.projectsChooseFlows, ["p", "a.yaml"]],
+      [CHANNELS.projectsChooseDevice, ["p", ""]],
+      [CHANNELS.projectsChangeApk, ["p", "C:/my.apk"]],
+      [CHANNELS.projectsOpenFlow, ["p"]],
+      [CHANNELS.devicesRefresh, ["now"]],
+    ] as const) {
+      await expect(call(channel, [...args])).rejects.toThrow(
+        "invalid arguments",
+      );
+    }
   });
 });

@@ -198,7 +198,70 @@
     "addAsIs": "Add project as it is"
   },
   "project": {
-    "remove": "Remove from list"
+    "remove": "Remove from list",
+    "lastRun": "Last run: {{when}}",
+    "flows": {
+      "title": "Flows",
+      "chosen": "{{chosen}} of {{total}} chosen",
+      "cannotRun_one": ", {{count}} cannot run",
+      "cannotRun_other": ", {{count}} cannot run",
+      "noneBefore": "No flows yet. Flows are YAML files in",
+      "noneAfter": ".",
+      "leftOut": "It is left out of runs.",
+      "broken": "Broken"
+    },
+    "helpers": {
+      "title": "Helper flows",
+      "subtitleBefore": "Called from other flows with",
+      "subtitleAfter": ", never run on their own.",
+      "usedBy_one": "Used by {{count}} flow",
+      "usedBy_other": "Used by {{count}} flows",
+      "open": "Open"
+    },
+    "run": {
+      "title": "Run",
+      "apk": "APK",
+      "apkVersion": "Version {{version}} ({{code}}), built {{ago}}",
+      "apkPicked": "Chosen by hand",
+      "apkChange": "Change",
+      "apkNewest": "Newest APK in {{searchPath}}",
+      "apkFile": "Choose APK file",
+      "device": "Device",
+      "refresh": "Refresh",
+      "mockoon": "Mockoon",
+      "noMockoon": "Not used",
+      "mockoonPort": ", port {{port}}"
+    },
+    "device": {
+      "noAdb": "adb was not found, so devices cannot be listed.",
+      "openCheck": "Open the environment check",
+      "none": "There is no emulator or phone yet.",
+      "noneHelp": "Create an emulator in Android Studio (Device Manager), or connect a phone with USB debugging on. This list updates on its own.",
+      "option": "{{name}} · {{kind}}, {{state}}",
+      "kind": {
+        "emulator": "emulator",
+        "phone": "phone"
+      },
+      "state": {
+        "emulator-running": "running",
+        "emulator-starting": "starting",
+        "emulator-off": "off",
+        "phone-ready": "ready",
+        "phone-not-authorised": "not authorised",
+        "phone-not-responding": "not responding"
+      },
+      "starting": "This emulator is still starting. The run waits until it is ready.",
+      "offStarts": "An emulator that is off is started first.",
+      "notAuthorised": "This phone has not allowed USB debugging.",
+      "notResponding": "This phone does not respond. Unplug it and plug it in again.",
+      "phoneReady": "Before the run:",
+      "checklist": {
+        "usb-debugging": "Turn on USB debugging in Developer options.",
+        "accept-prompt": "Unlock the phone and accept the USB debugging prompt.",
+        "screen-on-unlocked": "Keep the screen on and unlocked during the run.",
+        "simulated-input": "On Xiaomi phones, also turn on \"USB debugging (Security settings)\" in Developer options."
+      }
+    }
   },
   "errors": {
     "PROGRAM_NOT_FOUND": "{{program}} was not found. Install it, or set its location in Settings > Tool locations.",

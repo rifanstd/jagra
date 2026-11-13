@@ -98,6 +98,9 @@ test("project screens", async () => {
   await shoot("create-existing");
 
   await page.getByRole("button", { name: "Create project" }).click();
+  await page.getByTestId("flows-chosen").waitFor();
+  await page.getByTestId("device").getByRole("combobox").waitFor();
+  await shoot("project-sample");
   await page.getByRole("button", { name: "Jagra", exact: true }).click();
   await page.getByRole("button", { name: "Create project" }).click();
   await answer([home]);

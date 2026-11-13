@@ -50,7 +50,7 @@ test("opens with the renderer isolated (SEC-6)", async () => {
   expect(exposed).toEqual({
     require: "undefined",
     process: "undefined",
-    api: ["app", "environment", "projects", "settings"],
+    api: ["app", "devices", "environment", "projects", "settings"],
   });
 });
 
@@ -142,14 +142,34 @@ test.describe("environment check (ENV)", () => {
     await expect(page.getByTestId("check-summary")).toContainText("Done in");
 
     await page.getByRole("button", { name: "Continue to projects" }).click();
-    await expect(page.getByRole("heading", { name: "Projects" })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "No projects yet" }),
+    ).toBeVisible();
     await expect(page.getByTestId("environment-indicator")).toHaveText(
       /Environment ready/,
     );
+    // The choice is saved before the app closes, or the next start would still show the check.
+    await expect
+      .poll(() =>
+        page.evaluate(() =>
+          (
+            window as unknown as {
+              jagra: {
+                settings: {
+                  get(): Promise<{ settings: { environmentSeen?: boolean } }>;
+                };
+              };
+            }
+          ).jagra.settings.get(),
+        ),
+      )
+      .toMatchObject({ settings: { environmentSeen: true } });
 
     await app.close();
     await start();
-    await expect(page.getByRole("heading", { name: "Projects" })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "No projects yet" }),
+    ).toBeVisible();
     await page.getByTestId("environment-indicator").click();
     await expect(
       page.getByRole("heading", { name: "Environment check" }),

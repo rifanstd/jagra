@@ -3,6 +3,7 @@ import type { ToolStatus } from "@jagra/core/types";
 import {
   CHANNELS,
   EVENTS,
+  type DevicesView,
   type JagraApi,
   type NewProject,
   type Settings,
@@ -40,6 +41,20 @@ const api: JagraApi = {
       ipcRenderer.invoke(CHANNELS.projectsOpenConfig, id),
     sampleFolder: () => ipcRenderer.invoke(CHANNELS.projectsSampleFolder),
     trySample: () => ipcRenderer.invoke(CHANNELS.projectsTrySample),
+    apk: (id: string) => ipcRenderer.invoke(CHANNELS.projectsApk, id),
+    chooseFlows: (id: string, files: string[]) =>
+      ipcRenderer.invoke(CHANNELS.projectsChooseFlows, id, files),
+    chooseDevice: (id: string, deviceId: string) =>
+      ipcRenderer.invoke(CHANNELS.projectsChooseDevice, id, deviceId),
+    changeApk: (id: string, to: "file" | "newest") =>
+      ipcRenderer.invoke(CHANNELS.projectsChangeApk, id, to),
+    openFlow: (id: string, file: string) =>
+      ipcRenderer.invoke(CHANNELS.projectsOpenFlow, id, file),
+  },
+  devices: {
+    watch: () => ipcRenderer.invoke(CHANNELS.devicesWatch),
+    refresh: () => ipcRenderer.invoke(CHANNELS.devicesRefresh),
+    onChange: (listener) => listen<DevicesView>(EVENTS.devicesChange, listener),
   },
   environment: {
     check: () => ipcRenderer.invoke(CHANNELS.environmentCheck),

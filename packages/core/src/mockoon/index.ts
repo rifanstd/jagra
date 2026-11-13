@@ -1,1 +1,5 @@
-export { projectMockoon, type ProjectMockoon } from "./project.js";
+export {
+  mockoonSettings,
+  projectMockoon,
+  type ProjectMockoon,
+} from "./project.js";

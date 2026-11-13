@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { ALL_TOOLS, installGuide } from "@jagra/core";
+import { ALL_TOOLS, installGuide, PHONE_CHECKLIST } from "@jagra/core";
 import { FakeToolProbe } from "@jagra/core/fakes";
 import { describe, expect, it } from "vitest";
 import { checkTools, knownLinks } from "./environment.js";
@@ -145,6 +145,19 @@ describe("install step texts", () => {
         (node, part) => (node as Record<string, unknown> | undefined)?.[part],
         texts,
       );
+
+  it.each(["en", "id"])(
+    "%s has a text for every item of the phone checklist (DEV-6)",
+    (language) => {
+      const texts = locale(language);
+      for (const item of PHONE_CHECKLIST) {
+        expect(
+          typeof lookUp(texts, `project.device.checklist.${item}`),
+          item,
+        ).toBe("string");
+      }
+    },
+  );
 
   it.each(["en", "id"])(
     "%s has a text for every step, on both systems",

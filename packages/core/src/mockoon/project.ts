@@ -20,6 +20,18 @@ export async function projectMockoon(
   config: ProjectConfig,
   ports: PortChecker,
 ): Promise<Result<ProjectMockoon | undefined>> {
+  const settings = await mockoonSettings(projectFolder, config);
+  if (!settings.ok || settings.value === undefined) return settings;
+  if (!(await ports.isFree(settings.value.port)))
+    return fail({ code: "MOCKOON_PORT_BUSY", port: settings.value.port });
+  return settings;
+}
+
+/** The Mockoon file and port without checking the port, for the project page. */
+export async function mockoonSettings(
+  projectFolder: string,
+  config: ProjectConfig,
+): Promise<Result<ProjectMockoon | undefined>> {
   if (config.mockoon === undefined) return ok(undefined);
   const file = resolve(projectFolder, config.mockoon.file);
   let text: string;
@@ -54,8 +66,5 @@ export async function projectMockoon(
     }
     port = filePort;
   }
-
-  if (!(await ports.isFree(port)))
-    return fail({ code: "MOCKOON_PORT_BUSY", port });
   return ok({ file, port });
 }

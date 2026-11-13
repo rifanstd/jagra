@@ -2,6 +2,7 @@
 // Shared by main, preload and renderer, so it holds types and names only.
 import type {
   ApkInfo,
+  Device,
   JagraError,
   Result,
   RunStatus,
@@ -111,6 +112,46 @@ export interface ProjectView {
   folder: string;
   name: string;
   configError?: JagraError;
+  /** Everything the project page shows, when `config.yaml` can be read. */
+  details?: ProjectDetails;
+}
+
+/** A flow in `.jagra/flows` (FLOW-6). */
+export interface FlowView {
+  /** File name, which is how runs choose flows (RUN-2). */
+  file: string;
+  name: string;
+  /** Why it cannot run. A flow with a problem is left out of runs. */
+  problem?: JagraError;
+}
+
+/** A helper flow in `.jagra/flows/parts`, never run on its own (FLOW-3). */
+export interface HelperView {
+  /** Path inside `.jagra/flows`, with `/`. */
+  file: string;
+  /** How many flows call it. */
+  usedBy: number;
+  problem?: JagraError;
+}
+
+export interface ProjectDetails {
+  flows: FlowView[];
+  helpers: HelperView[];
+  /** File names of the flows chosen for the next run (RUN-2). */
+  chosen: string[];
+  searchPath: string;
+  apk: Result<ApkView>;
+  /** File as written in `config.yaml`, and the port. Undefined when the project has no Mockoon. */
+  mockoon?: Result<{ file: string; port: number }>;
+  /** The device used last (DEV-3). */
+  device?: string;
+  lastRun?: LastRun;
+}
+
+/** The device list (DEV-1). Without adb, nothing can be listed. */
+export interface DevicesView {
+  adb: boolean;
+  devices: Device[];
 }
 
 export interface JagraApi {
@@ -143,6 +184,25 @@ export interface JagraApi {
     sampleFolder(): Promise<string>;
     /** Copies the sample project to Documents and adds it, or adds the copy already there (SMP-6). */
     trySample(): Promise<Result<{ id: string }>>;
+    /** The APK again, so a new build shows without any action (PRJ-4). */
+    apk(id: string): Promise<Result<ApkView> | undefined>;
+    /** Keeps the chosen flows for next time (RUN-2). */
+    chooseFlows(id: string, files: string[]): Promise<void>;
+    /** Keeps the device for next time (DEV-3). */
+    chooseDevice(id: string, deviceId: string): Promise<void>;
+    /** Picks an APK file, or goes back to the newest under the search path (PRJ-4). */
+    changeApk(
+      id: string,
+      to: "file" | "newest",
+    ): Promise<Result<ApkView> | undefined>;
+    /** Opens a flow or helper flow with the system's default app (FLOW-5). */
+    openFlow(id: string, file: string): Promise<void>;
+  };
+  devices: {
+    /** The current list. Changes come through `onChange` from then on (DEV-2). */
+    watch(): Promise<DevicesView>;
+    refresh(): Promise<DevicesView>;
+    onChange(listener: (view: DevicesView) => void): () => void;
   };
   environment: {
     check(): Promise<EnvironmentView>;
@@ -170,9 +230,17 @@ export const CHANNELS = {
   projectsOpenConfig: "projects:open-config",
   projectsSampleFolder: "projects:sample-folder",
   projectsTrySample: "projects:try-sample",
+  projectsApk: "projects:apk",
+  projectsChooseFlows: "projects:choose-flows",
+  projectsChooseDevice: "projects:choose-device",
+  projectsChangeApk: "projects:change-apk",
+  projectsOpenFlow: "projects:open-flow",
+  devicesWatch: "devices:watch",
+  devicesRefresh: "devices:refresh",
 } as const;
 
 /** Channels main sends on, never answers. */
 export const EVENTS = {
   environmentProgress: "environment:progress",
+  devicesChange: "devices:change",
 } as const;

@@ -7,6 +7,7 @@ import {
   type EnvironmentView,
   type SettingsView,
 } from "../shared/api.js";
+import type { Devices } from "./devices.js";
 import type { Projects } from "./projects.js";
 import { settingsSchema, type SettingsFile } from "./settings.js";
 
@@ -19,6 +20,7 @@ export interface Handlers {
   copyText(text: string): Promise<void>;
   settings: SettingsFile;
   projects: Projects;
+  devices: Devices;
   checkEnvironment(
     onProgress: (status: ToolStatus) => void,
   ): Promise<EnvironmentView>;
@@ -111,4 +113,30 @@ export function registerIpc(
   );
   on(CHANNELS.projectsSampleFolder, z.tuple([]), () => projects.sampleFolder());
   on(CHANNELS.projectsTrySample, z.tuple([]), () => projects.trySample());
+  on(CHANNELS.projectsApk, id, ([projectId]) => projects.apkOf(projectId));
+  on(
+    CHANNELS.projectsChooseFlows,
+    z.tuple([
+      z.string().min(1).max(100),
+      z.array(z.string().min(1).max(255)).max(1000),
+    ]),
+    ([projectId, files]) => projects.chooseFlows(projectId, files),
+  );
+  on(
+    CHANNELS.projectsChooseDevice,
+    z.tuple([z.string().min(1).max(100), z.string().min(1).max(255)]),
+    ([projectId, deviceId]) => projects.chooseDevice(projectId, deviceId),
+  );
+  on(
+    CHANNELS.projectsChangeApk,
+    z.tuple([z.string().min(1).max(100), z.enum(["file", "newest"])]),
+    ([projectId, to]) => projects.changeApk(projectId, to),
+  );
+  on(
+    CHANNELS.projectsOpenFlow,
+    z.tuple([z.string().min(1).max(100), z.string().min(1).max(1024)]),
+    ([projectId, file]) => projects.openFlow(projectId, file),
+  );
+  on(CHANNELS.devicesWatch, z.tuple([]), () => handlers.devices.watch());
+  on(CHANNELS.devicesRefresh, z.tuple([]), () => handlers.devices.refresh());
 }
