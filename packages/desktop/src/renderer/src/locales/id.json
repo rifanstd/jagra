@@ -5,7 +5,8 @@
   },
   "nav": {
     "label": "Utama",
-    "settings": "Pengaturan"
+    "settings": "Pengaturan",
+    "about": "Tentang"
   },
   "projects": {
     "title": "Proyek",
@@ -32,10 +33,49 @@
   },
   "settings": {
     "title": "Pengaturan",
+    "pages": {
+      "secrets": "Secret",
+      "language": "Bahasa",
+      "tools": "Lokasi tool",
+      "editor": "Editor"
+    },
+    "secrets": {
+      "description": "Nilai untuk variabel seperti ${PASSWORD} di flow. Disimpan terenkripsi di brankas sistem, per proyek.",
+      "project": "Proyek",
+      "noProjects": "Belum ada proyek.",
+      "none": "Belum ada flow di proyek ini yang memakai variabel.",
+      "unused": "Sudah tidak dipakai flow mana pun",
+      "hidden": "Nilai sudah diisi, disembunyikan",
+      "notSet": "Belum diisi",
+      "set": "Isi nilai",
+      "change": "Ganti",
+      "remove": "Hapus",
+      "save": "Simpan",
+      "note": "Daftar ini diambil dari variabel yang dipakai flow proyek. Nilai tidak pernah tampil di layar, log, atau laporan."
+    },
     "language": {
       "title": "Bahasa",
       "description": "Bahasa layar Jagra.",
-      "label": "Bahasa"
+      "label": "Bahasa",
+      "system": "Ikuti sistem (sekarang: {{current}})",
+      "note": "Langsung berlaku, tanpa membuka ulang Jagra. File flow dan log tetap dalam bahasa Inggris."
+    },
+    "tools": {
+      "description": "Untuk tool yang terpasang di folder yang tidak biasa. Lokasi yang diatur di sini dipakai lebih dulu.",
+      "automatic": "Otomatis: {{path}}",
+      "byHand": "Diatur sendiri: {{path}}",
+      "notFound": "Tidak ditemukan",
+      "set": "Atur",
+      "reset": "Kembalikan ke otomatis",
+      "checkAgain": "Cek lingkungan lagi"
+    },
+    "editor": {
+      "description": "Cara membuka file flow.",
+      "system": "Aplikasi bawaan sistem untuk file .yaml",
+      "program": "Program pilihan sendiri",
+      "choose": "Pilih program",
+      "hintWindows": "Misalnya Code.exe dari Visual Studio Code. Jagra menambahkan path file di akhir.",
+      "hintMac": "Misalnya Visual Studio Code.app. Jagra membuka file dengan aplikasi itu."
     }
   },
   "system": {
@@ -476,6 +516,17 @@
     "version": "{{version}} ({{code}})",
     "allRuns": "Lihat semua run",
     "button": "Riwayat"
+  },
+  "about": {
+    "version": "Versi",
+    "createdBy": "Dibuat oleh",
+    "creator": "Rifan Setiadi",
+    "license": "Lisensi",
+    "mit": "MIT",
+    "source": "Kode sumber",
+    "copyBugInfo": "Salin info untuk laporan bug",
+    "copied": "Tersalin",
+    "bugInfoNote": "Yang disalin: versi Jagra, sistem operasi, versi setiap tool, dan bagian terakhir log, dengan secret disamarkan."
   },
   "errors": {
     "PROGRAM_NOT_FOUND": "{{program}} tidak ditemukan. Instal dulu, atau atur lokasinya di Pengaturan > Lokasi tool.",

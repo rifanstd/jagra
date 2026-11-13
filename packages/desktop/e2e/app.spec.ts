@@ -123,6 +123,7 @@ test("switches language without a restart, and keeps it (LNG-1)", async () => {
   ).toBeVisible();
 
   await page.getByRole("button", { name: "Settings" }).click();
+  await page.getByRole("button", { name: "Language" }).click();
   await page.getByRole("combobox").click();
   await page.getByRole("option", { name: "Bahasa Indonesia" }).click();
   await expect(

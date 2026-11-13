@@ -1,4 +1,5 @@
-import type { StepMark } from "@jagra/core/types";
+import type { FlowResult, StepMark } from "@jagra/core/types";
+import { ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { FlowDetail, StepView } from "../../../shared/api";
@@ -150,7 +151,10 @@ export function FlowDetailScreen({
           </h2>
           {detail.steps ? (
             <ol data-testid="steps">
-              <Steps steps={detail.steps} marks={flow.steps} />
+              <Steps
+                steps={detail.steps}
+                marks={withNotRun(detail.steps, flow)}
+              />
             </ol>
           ) : (
             <p className="px-5 pb-4 text-sm text-muted-foreground">
@@ -264,9 +268,13 @@ function Steps({
         data-failed={mark?.mark === "failed"}
       >
         {step.steps && step.steps.length > 0 ? (
-          <details open={mark?.mark === "failed"}>
-            <summary className="flex cursor-pointer items-center">
+          <details className="group" open={mark?.mark === "failed"}>
+            <summary className="flex cursor-pointer list-none items-center gap-1">
               {line}
+              <ChevronRight
+                aria-hidden="true"
+                className="size-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-90"
+              />
             </summary>
             <ol className="mt-2 ml-6 rounded-md border">
               <Steps steps={step.steps} marks={mark?.steps} depth={depth + 1} />
@@ -307,4 +315,18 @@ function CrashReport({ text }: { text: string }) {
       </pre>
     </Card>
   );
+}
+
+/**
+ * Maestro reports no mark for the steps after the one that failed. Those steps did not run, as
+ * mockup 07 shows them (RES-4).
+ */
+function withNotRun(
+  steps: StepView[],
+  flow: FlowResult,
+): StepMark[] | undefined {
+  const marks = flow.steps;
+  if (!marks || (flow.status !== "failed" && flow.status !== "cancelled"))
+    return marks;
+  return steps.map((_, i) => marks[i] ?? { mark: "not-run" });
 }

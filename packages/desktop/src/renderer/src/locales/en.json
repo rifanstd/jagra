@@ -5,7 +5,8 @@
   },
   "nav": {
     "label": "Main",
-    "settings": "Settings"
+    "settings": "Settings",
+    "about": "About"
   },
   "projects": {
     "title": "Projects",
@@ -32,10 +33,49 @@
   },
   "settings": {
     "title": "Settings",
+    "pages": {
+      "secrets": "Secrets",
+      "language": "Language",
+      "tools": "Tool locations",
+      "editor": "Editor"
+    },
+    "secrets": {
+      "description": "Values for variables such as ${PASSWORD} in flows, stored encrypted in the system's credential store for each project.",
+      "project": "Project",
+      "noProjects": "There is no project yet.",
+      "none": "No flow of this project uses a variable.",
+      "unused": "No flow uses it any more",
+      "hidden": "Value set, hidden",
+      "notSet": "Not set",
+      "set": "Set value",
+      "change": "Change",
+      "remove": "Remove",
+      "save": "Save",
+      "note": "The list comes from the variables the project's flows use. Values never show on screen, in logs or in reports."
+    },
     "language": {
       "title": "Language",
       "description": "The language of Jagra's screens.",
-      "label": "Language"
+      "label": "Language",
+      "system": "Follow the system (now: {{current}})",
+      "note": "It changes at once, without restarting Jagra. Flow files and logs stay in English."
+    },
+    "tools": {
+      "description": "For tools installed in an unusual folder. A location set here is used first.",
+      "automatic": "Automatic: {{path}}",
+      "byHand": "Set by hand: {{path}}",
+      "notFound": "Not found",
+      "set": "Set",
+      "reset": "Back to automatic",
+      "checkAgain": "Check the environment again"
+    },
+    "editor": {
+      "description": "How flow files open.",
+      "system": "The system's default app for .yaml files",
+      "program": "A program you choose",
+      "choose": "Choose program",
+      "hintWindows": "For example Code.exe of Visual Studio Code. Jagra adds the file path at the end.",
+      "hintMac": "For example Visual Studio Code.app. Jagra opens the file with it."
     }
   },
   "system": {
@@ -476,6 +516,17 @@
     "version": "{{version}} ({{code}})",
     "allRuns": "See all runs",
     "button": "History"
+  },
+  "about": {
+    "version": "Version",
+    "createdBy": "Created by",
+    "creator": "Rifan Setiadi",
+    "license": "License",
+    "mit": "MIT",
+    "source": "Source code",
+    "copyBugInfo": "Copy info for bug report",
+    "copied": "Copied",
+    "bugInfoNote": "It copies Jagra's version, the operating system, each tool's version and the latest part of the log, with secrets masked."
   },
   "errors": {
     "PROGRAM_NOT_FOUND": "{{program}} was not found. Install it, or set its location in Settings > Tool locations.",

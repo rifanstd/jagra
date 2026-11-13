@@ -6,6 +6,7 @@ import {
   type AppInfo,
   type EnvironmentView,
   type SettingsView,
+  type SecretName,
 } from "../shared/api.js";
 import type { SecretStore } from "@jagra/core";
 import type { Devices } from "./devices.js";
@@ -28,6 +29,15 @@ export interface Handlers {
   checkEnvironment(
     onProgress: (status: ToolStatus) => void,
   ): Promise<EnvironmentView>;
+  /** ENV-6, FLOW-5: paths come only from system dialogs that main opens. */
+  pickToolPath(tool: ToolStatus["tool"]): Promise<SettingsView | undefined>;
+  resetToolPath(tool: ToolStatus["tool"]): Promise<SettingsView>;
+  pickEditor(): Promise<SettingsView | undefined>;
+  resetEditor(): Promise<SettingsView>;
+  /** REL-7 */
+  copyBugInfo(): Promise<void>;
+  /** FLOW-7 */
+  secretNames(projectId: string): Promise<SecretName[] | undefined>;
 }
 
 /** The part of an IPC event the handlers use. */
@@ -199,4 +209,34 @@ export function registerIpc(
       await handlers.secrets.set(projectId, name, value);
     },
   );
+  on(
+    CHANNELS.secretsList,
+    z.tuple([z.string().min(1).max(100)]),
+    ([projectId]) => handlers.secretNames(projectId),
+  );
+  on(
+    CHANNELS.secretsRemove,
+    z.tuple([
+      z.string().min(1).max(100),
+      z.string().regex(/^[A-Za-z_][A-Za-z0-9_]{0,99}$/),
+    ]),
+    async ([projectId, name]) => {
+      if (!(await projects.exists(projectId)))
+        throw new RejectedCallError("unknown project");
+      await handlers.secrets.remove(projectId, name);
+    },
+  );
+
+  const tool = z.tuple([
+    z.enum(["java", "adb", "maestro", "emulator", "mockoon"]),
+  ]);
+  on(CHANNELS.settingsPickToolPath, tool, ([name]) =>
+    handlers.pickToolPath(name),
+  );
+  on(CHANNELS.settingsResetToolPath, tool, ([name]) =>
+    handlers.resetToolPath(name),
+  );
+  on(CHANNELS.settingsPickEditor, z.tuple([]), () => handlers.pickEditor());
+  on(CHANNELS.settingsResetEditor, z.tuple([]), () => handlers.resetEditor());
+  on(CHANNELS.appCopyBugInfo, z.tuple([]), () => handlers.copyBugInfo());
 }

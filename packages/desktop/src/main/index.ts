@@ -1,3 +1,4 @@
+import { release, type as osType } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import {
@@ -23,6 +24,7 @@ import {
   type ApkReader,
   type PortChecker,
   type SecretStore,
+  type ToolPaths,
   type ToolProbe,
   type ToolStatus,
 } from "@jagra/core";
@@ -37,8 +39,11 @@ import {
   session,
   shell,
 } from "electron";
-import { EVENTS } from "../shared/api.js";
+import { EVENTS, REPOSITORY } from "../shared/api.js";
+import { bugInfo } from "./bug-info.js";
 import { Devices } from "./devices.js";
+import { openFile } from "./open-file.js";
+import { secretNames } from "./secret-names.js";
 import { checkTools, knownLinks } from "./environment.js";
 import { registerIpc } from "./ipc.js";
 import { Projects } from "./projects.js";
@@ -85,6 +90,17 @@ const settings = new SettingsFile(appData, () =>
   app.getPreferredSystemLanguages(),
 );
 const links = knownLinks();
+links.add(REPOSITORY);
+
+/** ENV-6: tool paths set by hand, kept here for the programs a run starts. */
+let toolPaths: ToolPaths = {};
+const readToolPaths = async (): Promise<ToolPaths> =>
+  (toolPaths = (await settings.view()).settings.toolPaths ?? {});
+
+async function openWithSystem(path: string): Promise<void> {
+  const problem = await shell.openPath(path);
+  if (problem) await log("warn", "open-path-failed", { path, problem });
+}
 // Test mode swaps every program and the credential store for fakes (D-81).
 const apkReader: ApkReader = testMode
   ? testApkReader(process.env)
@@ -139,7 +155,8 @@ const runs = new Runs({
   clock,
   secrets,
   apkReader,
-  checkTools: (tools) => checkEnvironment(probe, { tools }),
+  checkTools: async (tools) =>
+    checkEnvironment(probe, { tools, paths: await readToolPaths() }),
   bridge: () => devices.currentBridge(),
   flowRunner: (tools) =>
     testMode
@@ -148,6 +165,7 @@ const runs = new Runs({
           runner,
           clock,
           maestro: toolIn(tools, "maestro") ?? "maestro",
+          toolPaths,
         }),
   mockServer: (tools) =>
     testMode
@@ -195,10 +213,16 @@ const projects = new Projects({
         filters: [{ name: "JSON", extensions: ["json"] }],
       }),
   },
-  openPath: async (path) => {
-    const problem = await shell.openPath(path);
-    if (problem) await log("warn", "open-path-failed", { path, problem });
-  },
+  // FLOW-5: flow and config files open with the editor chosen in Settings, else the default app.
+  openPath: async (path) =>
+    openFile(path, {
+      editor: (await settings.view()).settings.editor,
+      platform: process.platform,
+      launch: (spec) => runner.launch(spec),
+      openPath: openWithSystem,
+      onProblem: (error) =>
+        void log("warn", "editor-failed", { code: error.code }),
+    }),
 });
 
 /** A log line that never stops the app: a full disk must not break a check or the start. */
@@ -273,10 +297,52 @@ void app.whenReady().then(async () => {
       devices,
       runs,
       secrets,
+      pickToolPath: async (tool) => {
+        const path = await pick({ properties: ["openFile"] });
+        if (path === undefined) return undefined;
+        const current = await readToolPaths();
+        return settings.update({ toolPaths: { ...current, [tool]: path } });
+      },
+      resetToolPath: async (tool) => {
+        const rest: ToolPaths = { ...(await readToolPaths()) };
+        delete rest[tool];
+        return settings.update({
+          toolPaths: Object.keys(rest).length > 0 ? rest : undefined,
+        });
+      },
+      pickEditor: async () => {
+        const path = await pick({
+          properties: ["openFile"],
+          filters:
+            process.platform === "win32"
+              ? [{ name: "Program", extensions: ["exe"] }]
+              : undefined,
+        });
+        return path === undefined
+          ? undefined
+          : settings.update({ editor: path });
+      },
+      resetEditor: () => settings.update({ editor: undefined }),
+      copyBugInfo: async () =>
+        clipboard.writeText(
+          await bugInfo({
+            version: app.getVersion(),
+            system: `${osType()} ${release()} (${process.arch})`,
+            electron: process.versions.electron,
+            tools: lastStatuses,
+            logFile: join(logsFolder(appData), "jagra.log"),
+          }),
+        ),
+      secretNames: async (projectId) => {
+        const folder = await projects.folderOf(projectId);
+        return folder === undefined
+          ? undefined
+          : secretNames(folder, projectId, secrets);
+      },
       checkEnvironment: async (onProgress) => {
         const view = await checkTools({
           probe,
-          paths: {},
+          paths: await readToolPaths(),
           platform: process.platform,
           now: () => clock.now(),
           onProgress,

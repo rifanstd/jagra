@@ -16,7 +16,7 @@ export function TopBar({
   go: Go;
 }) {
   const { t } = useTranslation();
-  const links = ["settings"] as const;
+  const links = ["settings", "about"] as const;
   return (
     <header className="flex min-h-13 flex-wrap items-center gap-4 border-b bg-card px-4 sm:px-6">
       <button

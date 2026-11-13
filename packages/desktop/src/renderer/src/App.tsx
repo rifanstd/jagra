@@ -11,7 +11,8 @@ import { ProjectScreen } from "./screens/project-screen";
 import { ProjectsScreen } from "./screens/projects-screen";
 import { ResultsScreen } from "./screens/results-screen";
 import { RunningScreen } from "./screens/running-screen";
-import { SettingsScreen } from "./screens/settings-screen";
+import { AboutScreen } from "./screens/about-screen";
+import { SettingsScreen, type LanguageChoice } from "./screens/settings-screen";
 import { useEnvironment } from "./use-environment";
 
 /**
@@ -37,10 +38,13 @@ export function App({
   }, [language]);
 
   // LNG-1: the change shows at once, without a restart, and is kept for next time.
-  const chooseLanguage = async (value: Language) => {
-    setLanguage(value);
-    await i18n.changeLanguage(value);
-    await window.jagra.settings.set({ language: value });
+  // "system" clears the choice, so Jagra follows the operating system again.
+  const chooseLanguage = async (choice: LanguageChoice) => {
+    const view = await window.jagra.settings.set({
+      language: choice === "system" ? undefined : choice,
+    });
+    setLanguage(view.language);
+    await i18n.changeLanguage(view.language);
   };
 
   const leaveCheck = async () => {
@@ -90,10 +94,12 @@ export function App({
           go={setRoute}
         />
       )}
+      {route.screen === "about" && <AboutScreen />}
       {route.screen === "settings" && (
         <SettingsScreen
-          language={language}
-          onLanguage={(value) => void chooseLanguage(value)}
+          onLanguage={chooseLanguage}
+          environment={environment}
+          platform={platform}
         />
       )}
     </div>

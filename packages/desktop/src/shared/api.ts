@@ -28,8 +28,16 @@ export interface Settings {
   environmentSeen?: boolean;
 }
 
+/** Everything Jagra keeps in `settings.json`. Only main sets the paths, from system dialogs. */
+export interface StoredSettings extends Settings {
+  /** ENV-6: paths set by hand, which win over detection. */
+  toolPaths?: Partial<Record<ToolStatus["tool"], string>>;
+  /** FLOW-5: the program that opens flow files instead of the system's default app. */
+  editor?: string;
+}
+
 export interface SettingsView {
-  settings: Settings;
+  settings: StoredSettings;
   /** The language in use: the user's choice, or the one the operating system implies. */
   language: Language;
 }
@@ -153,6 +161,14 @@ export interface ProjectDetails {
 }
 
 /** The device list (DEV-1). Without adb, nothing can be listed. */
+/** A variable of a project's flows (FLOW-7). The value never reaches the page. */
+export interface SecretName {
+  name: string;
+  hasValue: boolean;
+  /** Still used by a flow; a stored value for a variable no flow uses can be removed. */
+  used: boolean;
+}
+
 export interface DevicesView {
   adb: boolean;
   devices: Device[];
@@ -251,6 +267,8 @@ export interface RunResult {
 export interface JagraApi {
   app: {
     info(): Promise<AppInfo>;
+    /** REL-7: copies the version, system, tools and the end of the log. */
+    copyBugInfo(): Promise<void>;
     /** Opens one of Jagra's known links, such as an install page, in the browser. */
     openLink(url: string): Promise<void>;
     copyText(text: string): Promise<void>;
@@ -258,6 +276,12 @@ export interface JagraApi {
   settings: {
     get(): Promise<SettingsView>;
     set(change: Settings): Promise<SettingsView>;
+    /** ENV-6: opens the system's file dialog for a tool's program. */
+    pickToolPath(tool: ToolStatus["tool"]): Promise<SettingsView | undefined>;
+    resetToolPath(tool: ToolStatus["tool"]): Promise<SettingsView>;
+    /** FLOW-5: opens the system's file dialog for the editor program. */
+    pickEditor(): Promise<SettingsView | undefined>;
+    resetEditor(): Promise<SettingsView>;
   };
   projects: {
     list(): Promise<ProjectSummary[]>;
@@ -322,6 +346,9 @@ export interface JagraApi {
   secrets: {
     /** Stores a value through the SecretStore (SEC-3). Values never come back to the page. */
     set(projectId: string, name: string, value: string): Promise<void>;
+    /** FLOW-7: every variable the project's flows use, and whether it has a value. */
+    list(projectId: string): Promise<SecretName[] | undefined>;
+    remove(projectId: string, name: string): Promise<void>;
   };
   environment: {
     check(): Promise<EnvironmentView>;
@@ -330,6 +357,9 @@ export interface JagraApi {
   };
 }
 
+/** The source code (ABT-1, D-27). The only outside link besides the install guides. */
+export const REPOSITORY = "https://github.com/rifanstd/jagra";
+
 /** IPC channel names. main checks every message on them (SEC-6). */
 export const CHANNELS = {
   appInfo: "app:info",
@@ -337,6 +367,13 @@ export const CHANNELS = {
   appCopyText: "app:copy-text",
   settingsGet: "settings:get",
   settingsSet: "settings:set",
+  settingsPickToolPath: "settings:pick-tool-path",
+  settingsResetToolPath: "settings:reset-tool-path",
+  settingsPickEditor: "settings:pick-editor",
+  settingsResetEditor: "settings:reset-editor",
+  appCopyBugInfo: "app:copy-bug-info",
+  secretsList: "secrets:list",
+  secretsRemove: "secrets:remove",
   environmentCheck: "environment:check",
   projectsList: "projects:list",
   projectsGet: "projects:get",

@@ -122,6 +122,10 @@ export class Projects {
     return this.apk(project.folder, config.value, local.apk);
   }
 
+  async folderOf(id: string): Promise<string | undefined> {
+    return (await this.find(id))?.folder;
+  }
+
   async exists(id: string): Promise<boolean> {
     return (await this.find(id)) !== undefined;
   }
