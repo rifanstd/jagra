@@ -53,3 +53,23 @@ export function formatAgo(at: number, now: number, language: string): string {
   if (hours < 24) return format.format(-hours, "hour");
   return format.format(-Math.round(hours / 24), "day");
 }
+
+/** A flow's or a run's duration: "26.5 s", "2 min 40 s" (RES-2, RES-3). */
+export function formatDuration(
+  ms: number,
+  language: string,
+  t: (key: string, values: Record<string, string>) => string,
+): string {
+  if (ms < 60_000) {
+    const seconds = new Intl.NumberFormat(language, {
+      minimumFractionDigits: 1,
+      maximumFractionDigits: 1,
+    }).format(ms / 1000);
+    return t("run.duration.seconds", { seconds });
+  }
+  const total = Math.round(ms / 1000);
+  return t("run.duration.minutes", {
+    minutes: String(Math.floor(total / 60)),
+    seconds: String(total % 60),
+  });
+}

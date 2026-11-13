@@ -122,6 +122,10 @@ export class Projects {
     return this.apk(project.folder, config.value, local.apk);
   }
 
+  async exists(id: string): Promise<boolean> {
+    return (await this.find(id)) !== undefined;
+  }
+
   async chooseFlows(id: string, files: string[]): Promise<void> {
     if (await this.find(id))
       await updateLocal(this.options.appData, id, { flows: files });
@@ -391,6 +395,7 @@ export class Projects {
 
 function lastRun(run: Run): LastRun {
   return {
+    id: run.id,
     status: run.status,
     startedAt: run.startedAt,
     passed: run.flows.filter((f) => f.status === "passed").length,

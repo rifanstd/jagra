@@ -5,6 +5,7 @@ import type {
   Device,
   JagraError,
   Result,
+  Run,
   RunStatus,
   ToolStatus,
 } from "@jagra/core/types";
@@ -53,6 +54,7 @@ export interface EnvironmentView {
 
 /** The last run of a project, for the project list (PRJ-7). */
 export interface LastRun {
+  id: string;
   status: RunStatus;
   /** ISO time. */
   startedAt: string;
@@ -154,6 +156,57 @@ export interface DevicesView {
   devices: Device[];
 }
 
+/** Why Run did not start, when the user can do something about it (spec section 7, step 1). */
+export type StartAnswer =
+  | { started: true }
+  /** ENV-8: required tools that are missing, too old or cannot start. */
+  | { tools: ToolStatus[] }
+  /** RUN-10: variables without a value. */
+  | { secrets: string[] }
+  /** PRJ-6: the APK's package is not `appId`. Start again with `acceptPackage` to go on. */
+  | { packageDiffers: { appId: string; packageName: string } }
+  | { error: JagraError };
+
+export interface StartRun {
+  projectId: string;
+  deviceId: string;
+  acceptPackage?: boolean;
+}
+
+/** The parts of a run before the flows (RUN-8, DEV-4, MCK-2). */
+export type PrepStep = "waiting" | "working" | "done" | "skipped";
+
+/** The run in progress, or the one that just ended, as the Running screen shows it. */
+export interface LiveRun {
+  projectId: string;
+  projectName: string;
+  run: Run;
+  device: PrepStep;
+  /** The emulator is starting (DEV-4). */
+  startingEmulator: boolean;
+  install: PrepStep;
+  mockoon: PrepStep;
+  mockoonPort?: number;
+  /** DEV-7: the device's Android is older than Maestro supports. */
+  oldAndroid?: string;
+  /** The latest step of the running flow, masked (RUN-8). */
+  step?: string;
+  /** RUN-3: the installed app was signed with another key. */
+  askUninstall: boolean;
+  cancelling: boolean;
+  finished: boolean;
+  /** Why the run could not start or be saved, after the checks passed. */
+  error?: JagraError;
+}
+
+/** One saved run, for the Results screen (RES-2, RES-3). */
+export interface RunResult {
+  projectName: string;
+  run: Run;
+  /** The project used Mockoon for this run. */
+  mockoon: boolean;
+}
+
 export interface JagraApi {
   app: {
     info(): Promise<AppInfo>;
@@ -204,6 +257,23 @@ export interface JagraApi {
     refresh(): Promise<DevicesView>;
     onChange(listener: (view: DevicesView) => void): () => void;
   };
+  runs: {
+    start(request: StartRun): Promise<StartAnswer>;
+    /** RUN-9 */
+    cancel(): Promise<void>;
+    /** RUN-3: the user's answer to uninstalling the app signed with another key. */
+    answerUninstall(uninstall: boolean): Promise<void>;
+    /** The run in progress or the one that just ended. */
+    live(): Promise<LiveRun | undefined>;
+    onUpdate(listener: (live: LiveRun) => void): () => void;
+    result(projectId: string, runId: string): Promise<RunResult | undefined>;
+    /** RES-6: opens the report index in the default browser. */
+    openReport(projectId: string, runId: string): Promise<void>;
+  };
+  secrets: {
+    /** Stores a value through the SecretStore (SEC-3). Values never come back to the page. */
+    set(projectId: string, name: string, value: string): Promise<void>;
+  };
   environment: {
     check(): Promise<EnvironmentView>;
     /** Each tool's state as soon as it is known. Returns a function that stops listening. */
@@ -237,10 +307,18 @@ export const CHANNELS = {
   projectsOpenFlow: "projects:open-flow",
   devicesWatch: "devices:watch",
   devicesRefresh: "devices:refresh",
+  runsStart: "runs:start",
+  runsCancel: "runs:cancel",
+  runsAnswerUninstall: "runs:answer-uninstall",
+  runsLive: "runs:live",
+  runsResult: "runs:result",
+  runsOpenReport: "runs:open-report",
+  secretsSet: "secrets:set",
 } as const;
 
 /** Channels main sends on, never answers. */
 export const EVENTS = {
   environmentProgress: "environment:progress",
   devicesChange: "devices:change",
+  runsUpdate: "runs:update",
 } as const;

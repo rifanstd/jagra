@@ -424,3 +424,15 @@ Format of each entry: what was decided, why, and what was considered instead.
 ### D-91. The `minimatch` alert waits for ESLint
 **Decided:** The Dependabot alert for `minimatch` 10.2.6 (denial of service through glob patterns, fixed in 11.0.1) stays open until ESLint moves to minimatch 11. Jagra does not force the version with `pnpm.overrides`.
 **Why:** minimatch is only a development dependency of ESLint and only reads the repository's own lint patterns, so the risk to Jagra and its users is low, while forcing a major version on ESLint could break linting. The owner agreed on 2026-11-13.
+
+### D-92. A run belongs to main, and the screens follow it
+**Decided:** The desktop app's run lives in main, which checks step 1 in the same order and with the same rules as `jagra run`, then calls `executeRun`. Main keeps the run's progress and sends it to every window, so the Running screen can be left and opened again while the run goes on. Before the run, main answers with what the user can act on: tools to fix (`ENV-8`), variables without a value (`RUN-10`) or a different package (`PRJ-6`); the screen asks, and Run is pressed again. A variable value goes from the dialog straight to the `SecretStore` and never comes back to the page. The report index uses the user's language, from the same translation files as the screens.
+**Why:** `DEV-8` allows one run at a time across every project, which only main can see. Asking before the run, rather than in the middle, keeps `executeRun` the same for the app and the CLI. The one question during a run, uninstalling an app signed with another key (`RUN-3`), goes through `confirmUninstall`.
+
+### D-93. Progress bars and destructive buttons use the theme's tokens
+**Decided:** The shadcn/ui Progress fills with `secondary` on a `muted` track, as mockup 05 does, and with `foreground` in dark mode, where navy on the dark track is hard to see. The Button's `destructive` variant uses `destructive-foreground` instead of shadcn's `text-white` and its lighter dark-mode background. The Dialog shows no close cross; every dialog has its own Cancel button, and the cross carried an English label outside the translation files.
+**Why:** `primary` is for the main action only, the theme's destructive pair is the one checked for contrast in both modes, and every interface text comes from the translation files (`LNG-1`).
+
+### D-94. M8 has six pull requests
+**Decided:** M8 is split into six pull requests: the foundation and environment check, the project list and Create project, the project page, running and results, the flow detail and history, and settings and About with the Done-when check.
+**Why:** Running and its results alone touch main, the preload API and three screens. Keeping the flow detail and history apart keeps each pull request reviewable.

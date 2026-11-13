@@ -1,5 +1,6 @@
 import { FakeProcessRunner } from "@jagra/core/fakes";
 import { describe, expect, it } from "vitest";
+import type { ProcessRunner } from "@jagra/core";
 import { TrackingProcessRunner } from "./tracking-runner.js";
 
 describe("TrackingProcessRunner (REL-3)", () => {
@@ -41,5 +42,28 @@ describe("TrackingProcessRunner (REL-3)", () => {
       error: { code: "PROGRAM_NOT_FOUND" },
     });
     expect(runner.count).toBe(0);
+  });
+
+  it("names the programs it starts, and gives up waiting for one that never ends", async () => {
+    const stuck: ProcessRunner = {
+      start: () =>
+        Promise.resolve({
+          ok: true,
+          value: {
+            pid: 42,
+            exited: new Promise<never>(() => undefined),
+            stop: () => new Promise<never>(() => undefined),
+          },
+        }),
+      launch: () => Promise.resolve({ ok: true, value: undefined }),
+    };
+    const runner = new TrackingProcessRunner(stuck);
+    await runner.start({ program: "adb", args: ["track-devices"] });
+    expect(runner.list()).toEqual([
+      { program: "adb", args: ["track-devices"], pid: 42 },
+    ]);
+    expect(await runner.stopAll(20)).toEqual([
+      { program: "adb", args: ["track-devices"], pid: 42 },
+    ]);
   });
 });

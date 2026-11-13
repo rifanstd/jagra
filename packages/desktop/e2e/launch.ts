@@ -23,7 +23,13 @@ export interface Launched {
  */
 export async function launch(
   home: string,
-  options: { language?: string; tools?: string; devices?: string } = {},
+  options: {
+    language?: string;
+    tools?: string;
+    devices?: string;
+    /** More test-mode variables, such as JAGRA_TEST_RUN. */
+    env?: Record<string, string>;
+  } = {},
 ): Promise<Launched> {
   const language = options.language ?? "en-US";
   const app = await electron.launch({
@@ -42,6 +48,7 @@ export async function launch(
       ...(options.devices === undefined
         ? {}
         : { JAGRA_TEST_DEVICES: options.devices }),
+      ...options.env,
     },
   });
   const page = await app.firstWindow();

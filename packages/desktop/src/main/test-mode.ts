@@ -1,4 +1,20 @@
-import type { Device, DeviceState, ToolFinding, ToolName } from "@jagra/core";
+import { stat } from "node:fs/promises";
+import { basename } from "node:path";
+import { setTimeout as sleep } from "node:timers/promises";
+import {
+  fail,
+  ok,
+  type ApkReader,
+  type Device,
+  type DeviceState,
+  type FlowRunner,
+  type FlowRunOutcome,
+  type FlowRunRequest,
+  type FlowRunStatus,
+  type Result,
+  type ToolFinding,
+  type ToolName,
+} from "@jagra/core";
 import { FakeDeviceBridge, FakeToolProbe } from "@jagra/core/fakes";
 
 /**
@@ -78,4 +94,59 @@ export function testDeviceBridge(env: NodeJS.ProcessEnv): FakeDeviceBridge {
   }
   bridge.setDevices(devices);
   return bridge;
+}
+
+/**
+ * Flows in test mode: each takes `JAGRA_TEST_FLOW_MS` (400 by default) and passes, unless
+ * `JAGRA_TEST_RUN` gives its file another outcome, for example `save-item.yaml=failed`.
+ */
+export class TestFlowRunner implements FlowRunner {
+  private readonly outcomes = new Map<string, FlowRunStatus>();
+  private readonly ms: number;
+
+  constructor(env: NodeJS.ProcessEnv) {
+    this.ms = Number(env.JAGRA_TEST_FLOW_MS ?? "400");
+    for (const pair of (env.JAGRA_TEST_RUN ?? "").split(",").filter(Boolean)) {
+      const [file, status] = pair.split("=") as [
+        string,
+        FlowRunStatus | undefined,
+      ];
+      if (status) this.outcomes.set(file, status);
+    }
+  }
+
+  async run(request: FlowRunRequest): Promise<Result<FlowRunOutcome>> {
+    request.onStep?.("Launch app");
+    try {
+      await sleep(this.ms, undefined, { signal: request.signal });
+    } catch {
+      return ok({ status: "cancelled" });
+    }
+    const status = this.outcomes.get(basename(request.flowFile)) ?? "passed";
+    if (status !== "failed") return ok({ status });
+    return ok({
+      status,
+      failedStep: [1],
+      steps: [{ mark: "passed" }, { mark: "failed" }],
+      reason: "Element not found: Text matching regex: Save",
+    });
+  }
+}
+
+/** Any existing file reads as version 1.0 (1) of `JAGRA_TEST_APK_PACKAGE`, or the sample's package. */
+export function testApkReader(env: NodeJS.ProcessEnv): ApkReader {
+  return {
+    async read(path) {
+      try {
+        await stat(path);
+      } catch {
+        return fail({ code: "APK_UNREADABLE", file: path, detail: "missing" });
+      }
+      return ok({
+        packageName: env.JAGRA_TEST_APK_PACKAGE ?? "dev.jagra.sample",
+        versionName: "1.0",
+        versionCode: 1,
+      });
+    },
+  };
 }

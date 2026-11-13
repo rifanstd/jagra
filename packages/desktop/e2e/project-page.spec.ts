@@ -91,9 +91,8 @@ test("shows a new build without any action (PRJ-4)", async () => {
   await expect(page.getByTestId("apk")).toContainText("app-debug.apk", {
     timeout: 15_000,
   });
-  await expect(page.getByTestId("apk")).toContainText(
-    "could not be read as an APK",
-  );
+  // Test mode reads any APK file as version 1.0 (1) (D-81).
+  await expect(page.getByTestId("apk")).toContainText("Version 1.0 (1)");
 });
 
 test("leaves a broken flow out, with its file and problem (FLOW-6)", async () => {
