@@ -1,11 +1,23 @@
-import { join } from "node:path";
+import { readFile, stat } from "node:fs/promises";
+import {
+  basename,
+  dirname,
+  isAbsolute,
+  join,
+  relative,
+  resolve,
+  sep,
+} from "node:path";
 import {
   applyRetention,
   checkAppId,
+  discoverFlows,
   executeRun,
   fillAppId,
   findApk,
+  flowsFolder,
   knownProjects,
+  listRuns,
   loadConfig,
   loadLocal,
   loadRun,
@@ -17,6 +29,8 @@ import {
   type ApkReader,
   type Clock,
   type DeviceBridge,
+  type Flow,
+  type FlowList,
   type FlowRunner,
   type MockServer,
   type PortChecker,
@@ -24,15 +38,23 @@ import {
   type RunEvent,
   type RunStateStore,
   type SecretStore,
+  type Step,
   type ToolName,
   type ToolStatus,
 } from "@jagra/core";
 import type {
+  FlowDetail,
   LiveRun,
   RunResult,
+  RunSummary,
   StartAnswer,
   StartRun,
+  StepView,
 } from "../shared/api.js";
+
+/** Larger files are not sent to the page whole. */
+const SCREENSHOT_LIMIT = 10 * 1024 * 1024;
+const CRASH_REPORT_LIMIT = 200 * 1024;
 
 /** The tools every run needs; Mockoon CLI only for a project that uses it (ENV-7). */
 const RUN_TOOLS: readonly ToolName[] = ["java", "adb", "maestro", "emulator"];
@@ -263,6 +285,86 @@ export class Runs {
     };
   }
 
+  /** RES-4, RES-5: one flow of a run, with its steps, screenshot and crash report. */
+  async flowDetail(
+    projectId: string,
+    runId: string,
+    index: number,
+  ): Promise<FlowDetail | undefined> {
+    if (!RUN_ID.test(runId)) return undefined;
+    const project = (await knownProjects(this.options.appData)).find(
+      (p) => p.id === projectId,
+    );
+    if (!project) return undefined;
+    const runFolder = join(runsFolder(this.options.appData, projectId), runId);
+    const run = await loadRun(runFolder);
+    const flow = run?.flows[index];
+    if (!run || !flow) return undefined;
+    const config = await loadConfig(project.folder);
+
+    const list = await discoverFlows(project.folder);
+    const current = [...list.flows, ...list.helpers, ...list.others].find(
+      (f) => resolve(f.file) === resolve(flow.file),
+    );
+    const changed = await stat(flow.file).then(
+      (info) => info.mtimeMs > Date.parse(run.startedAt),
+      () => true,
+    );
+    return {
+      projectName: config.ok ? config.value.name : basename(project.folder),
+      run: { id: run.id, status: run.status, startedAt: run.startedAt },
+      flow,
+      file: basename(flow.file),
+      steps:
+        current &&
+        stepViews(current.steps, current, list, flowsFolder(project.folder), 0),
+      changed,
+      screenshot: await readInside(
+        runFolder,
+        flow.screenshot,
+        SCREENSHOT_LIMIT,
+        (data) => `data:image/png;base64,${data.toString("base64")}`,
+      ),
+      crashReport: await readInside(
+        runFolder,
+        flow.crashReport,
+        CRASH_REPORT_LIMIT,
+        (data) => data.toString("utf8"),
+      ),
+    };
+  }
+
+  /** RES-9: newest first. A run left by a Jagra that crashed shows as Interrupted (REL-2). */
+  async history(projectId: string): Promise<RunSummary[] | undefined> {
+    const known = (await knownProjects(this.options.appData)).some(
+      (p) => p.id === projectId,
+    );
+    if (!known) return undefined;
+    const folder = runsFolder(this.options.appData, projectId);
+    await markInterruptedRuns(
+      folder,
+      this.options.isAlive,
+      this.options.clock.now(),
+    );
+    return (await listRuns(folder)).map((run) => {
+      const count = (status: string) =>
+        run.flows.filter((f) => f.status === status).length;
+      return {
+        id: run.id,
+        status: run.status,
+        startedAt: run.startedAt,
+        passed: count("passed"),
+        failed: count("failed"),
+        cancelled: count("cancelled"),
+        notRun: count("not-run"),
+        total: run.flows.length,
+        apkVersion: run.apk.versionName,
+        apkCode: run.apk.versionCode,
+        device: run.device.name,
+      };
+    });
+  }
+
   async openReport(projectId: string, runId: string): Promise<void> {
     if (!RUN_ID.test(runId)) return;
     const known = (await knownProjects(this.options.appData)).some(
@@ -333,5 +435,69 @@ export class Runs {
 
   private send(): void {
     if (this.live) this.options.broadcast(this.live);
+  }
+}
+
+/**
+ * The steps of a flow, with the steps of each helper flow a `runFlow` runs, as Maestro reports
+ * them (D-95). Helpers deeper than a few levels, or that call themselves, are not opened.
+ */
+function stepViews(
+  steps: Step[],
+  flow: Flow,
+  list: FlowList,
+  flows: string,
+  depth: number,
+): StepView[] {
+  return steps.map((step) => {
+    const view: StepView = {
+      kind: step.kind,
+      command: step.command,
+      args: step.args,
+      line: step.line,
+    };
+    const target =
+      step.command === "runFlow" ? runFlowFile(step.args) : undefined;
+    if (target) {
+      const path = resolve(dirname(flow.file), target);
+      const helper = [...list.flows, ...list.helpers, ...list.others].find(
+        (f) => resolve(f.file) === path,
+      );
+      view.helper = {
+        file: relative(flows, path).split(sep).join("/"),
+        name: helper?.name ?? target,
+      };
+      if (helper && depth < 5 && resolve(helper.file) !== resolve(flow.file)) {
+        view.steps = stepViews(helper.steps, helper, list, flows, depth + 1);
+      }
+    } else if (step.steps) {
+      view.steps = stepViews(step.steps, flow, list, flows, depth + 1);
+    }
+    return view;
+  });
+}
+
+function runFlowFile(args: unknown): string | undefined {
+  if (typeof args === "string") return args;
+  const file = (args as { file?: unknown } | null)?.file;
+  return typeof file === "string" ? file : undefined;
+}
+
+/** A file of the run, read only when it sits inside the run's folder. */
+async function readInside<T>(
+  folder: string,
+  file: string | undefined,
+  limit: number,
+  use: (data: Buffer) => T,
+): Promise<T | undefined> {
+  if (!file) return undefined;
+  const path = resolve(folder, file);
+  const inside = relative(folder, path);
+  if (inside.startsWith("..") || isAbsolute(inside)) return undefined;
+  try {
+    if ((await stat(path)).size > limit) return undefined;
+    return use(await readFile(path));
+  } catch {
+    return undefined;
   }
 }

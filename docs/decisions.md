@@ -436,3 +436,7 @@ Format of each entry: what was decided, why, and what was considered instead.
 ### D-94. M8 has six pull requests
 **Decided:** M8 is split into six pull requests: the foundation and environment check, the project list and Create project, the project page, running and results, the flow detail and history, and settings and About with the Done-when check.
 **Why:** Running and its results alone touch main, the preload API and three screens. Keeping the flow detail and history apart keeps each pull request reviewable.
+
+### D-95. The Flow detail screen reads the flow file as it is now
+**Decided:** The steps on the Flow detail screen come from the flow file as it reads now, with the steps of each helper flow a `runFlow` calls, so they line up with the marks Maestro gives in `commands.json`. When the file changed after the run, or is gone, the screen says so. A run keeps no copy of its flow files. The failure screenshot is sent to the page as a data URL, up to 10 MB, and the crash report as text, up to 200 KB; both are read only from inside the run's folder. A step with its own `label` shows the label, as Maestro does.
+**Why:** The run folder already holds what Maestro produced (`RES-1`), and flows rarely change between a run and its review. Saying so when they did is honest and costs nothing. The page has no file access (`SEC-6`), so main sends the image itself, and the page's CSP already allows `data:` images.

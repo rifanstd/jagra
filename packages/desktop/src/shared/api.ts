@@ -5,8 +5,10 @@ import type {
   Device,
   JagraError,
   Result,
+  FlowResult,
   Run,
   RunStatus,
+  Step,
   ToolStatus,
 } from "@jagra/core/types";
 
@@ -199,6 +201,45 @@ export interface LiveRun {
   error?: JagraError;
 }
 
+/** A step of a flow as written, with the steps of a helper flow it runs (RES-4). */
+export interface StepView extends Omit<Step, "steps"> {
+  /** For a `runFlow` of a file: its path inside `.jagra/flows`, and its name. */
+  helper?: { file: string; name: string };
+  steps?: StepView[];
+}
+
+/** One flow of a saved run, for the Flow detail screen (RES-4, RES-5). */
+export interface FlowDetail {
+  projectName: string;
+  run: Pick<Run, "id" | "status" | "startedAt">;
+  flow: FlowResult;
+  /** File name, to open it in the editor. */
+  file: string;
+  /** The flow's steps as the file reads now, or undefined when it is gone. */
+  steps?: StepView[];
+  /** The file changed after the run, so its steps may not match the marks. */
+  changed: boolean;
+  /** The failure screenshot as a data URL. */
+  screenshot?: string;
+  /** The crash or ANR report, masked. */
+  crashReport?: string;
+}
+
+/** One run in History (RES-9). */
+export interface RunSummary {
+  id: string;
+  status: RunStatus;
+  startedAt: string;
+  passed: number;
+  failed: number;
+  cancelled: number;
+  notRun: number;
+  total: number;
+  apkVersion: string;
+  apkCode: number;
+  device: string;
+}
+
 /** One saved run, for the Results screen (RES-2, RES-3). */
 export interface RunResult {
   projectName: string;
@@ -269,6 +310,14 @@ export interface JagraApi {
     result(projectId: string, runId: string): Promise<RunResult | undefined>;
     /** RES-6: opens the report index in the default browser. */
     openReport(projectId: string, runId: string): Promise<void>;
+    /** One flow of a run, by its place in the run. */
+    flowDetail(
+      projectId: string,
+      runId: string,
+      index: number,
+    ): Promise<FlowDetail | undefined>;
+    /** The project's runs, newest first (RES-9). */
+    history(projectId: string): Promise<RunSummary[] | undefined>;
   };
   secrets: {
     /** Stores a value through the SecretStore (SEC-3). Values never come back to the page. */
@@ -313,6 +362,8 @@ export const CHANNELS = {
   runsLive: "runs:live",
   runsResult: "runs:result",
   runsOpenReport: "runs:open-report",
+  runsFlowDetail: "runs:flow-detail",
+  runsHistory: "runs:history",
   secretsSet: "secrets:set",
 } as const;
 

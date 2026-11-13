@@ -171,6 +171,20 @@ export function registerIpc(
   on(CHANNELS.runsOpenReport, runRef, ([projectId, runId]) =>
     runs.openReport(projectId, runId),
   );
+  on(
+    CHANNELS.runsFlowDetail,
+    z.tuple([
+      z.string().min(1).max(100),
+      z.string().regex(RUN_ID),
+      z.int().min(0).max(10_000),
+    ]),
+    ([projectId, runId, index]) => runs.flowDetail(projectId, runId, index),
+  );
+  on(
+    CHANNELS.runsHistory,
+    z.tuple([z.string().min(1).max(100)]),
+    ([projectId]) => runs.history(projectId),
+  );
   // RUN-10: the value goes straight to the SecretStore and is never sent back (SEC-3).
   on(
     CHANNELS.secretsSet,
