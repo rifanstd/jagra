@@ -1,5 +1,5 @@
-import { createHash } from "node:crypto";
-import { readFile } from "node:fs/promises";
+import { createHash, randomUUID } from "node:crypto";
+import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 
 export interface KnownProject {
@@ -27,6 +27,64 @@ export async function knownProjects(appData: string): Promise<KnownProject[]> {
   } catch {
     return [];
   }
+}
+
+/** Writes `projects.json` next to itself first, so a crash never leaves half a list. */
+async function saveProjects(
+  appData: string,
+  projects: KnownProject[],
+): Promise<void> {
+  await mkdir(appData, { recursive: true });
+  const temporary = join(appData, ".projects.json.tmp");
+  await writeFile(
+    temporary,
+    JSON.stringify({ projects }, null, 2) + "\n",
+    "utf8",
+  );
+  await rename(temporary, projectsFile(appData));
+}
+
+/**
+ * Adds a folder to the desktop app's list with a new random id (architecture.md section 4). A
+ * folder already in the list keeps its entry, so a project never appears twice.
+ */
+export async function addProject(
+  appData: string,
+  folder: string,
+  newId: () => string = randomUUID,
+): Promise<KnownProject> {
+  const projects = await knownProjects(appData);
+  const known = projects.find((p) => normalise(p.folder) === normalise(folder));
+  if (known) return known;
+  const project = { id: newId(), folder: resolve(folder) };
+  await saveProjects(appData, [...projects, project]);
+  return project;
+}
+
+/** PRJ-7: takes a project off the list. No file is deleted, and its run history stays. */
+export async function removeProject(
+  appData: string,
+  id: string,
+): Promise<void> {
+  const projects = await knownProjects(appData);
+  await saveProjects(
+    appData,
+    projects.filter((p) => p.id !== id),
+  );
+}
+
+/** PRJ-8: points a project at its new folder. It keeps its id, so it keeps its run history. */
+export async function moveProject(
+  appData: string,
+  id: string,
+  folder: string,
+): Promise<KnownProject | undefined> {
+  const projects = await knownProjects(appData);
+  const project = projects.find((p) => p.id === id);
+  if (!project) return undefined;
+  project.folder = resolve(folder);
+  await saveProjects(appData, projects);
+  return project;
 }
 
 /**

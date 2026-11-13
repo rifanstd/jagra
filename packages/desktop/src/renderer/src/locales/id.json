@@ -8,7 +8,27 @@
     "settings": "Pengaturan"
   },
   "projects": {
-    "title": "Proyek"
+    "title": "Proyek",
+    "subtitleBefore": "Satu proyek untuk satu aplikasi. Flow dan pengaturannya ada di folder",
+    "subtitleAfter": "di repositori aplikasi.",
+    "create": "Buat proyek",
+    "listLabel": "Daftar proyek",
+    "removeNote": "Hapus dari daftar ada di halaman setiap proyek, dan tidak pernah menghapus file apa pun.",
+    "runsBlocked": "Run belum bisa dimulai sampai ini beres.",
+    "seeHowToInstall": "Lihat cara memasang",
+    "noRunYet": "Belum pernah dijalankan",
+    "folderMissing": "Folder tidak ditemukan",
+    "locate": "Cari lokasi",
+    "remove": "Hapus dari daftar",
+    "configProblem": "config.yaml bermasalah",
+    "openFile": "Buka file",
+    "empty": {
+      "title": "Belum ada proyek",
+      "text": "Coba dulu dengan aplikasi contoh. Aplikasi itu punya satu bug yang sengaja ditanam, jadi run pertama akan menunjukkan seperti apa flow yang gagal. Butuh emulator atau HP yang siap.",
+      "copying": "Menyalin aplikasi contoh ke {{folder}}",
+      "trySample": "Coba aplikasi contoh",
+      "create": "Buat proyek dari folder aplikasi"
+    }
   },
   "settings": {
     "title": "Pengaturan",
@@ -130,6 +150,56 @@
     "en": "English",
     "id": "Bahasa Indonesia"
   },
+  "run": {
+    "status": {
+      "running": "Berjalan",
+      "cancelled": "Dibatalkan",
+      "stopped": "Berhenti",
+      "interrupted": "Terputus"
+    },
+    "summary": {
+      "allPassed": "{{passed}} lolos",
+      "someFailed": "{{passed}} lolos, {{failed}} gagal"
+    }
+  },
+  "create": {
+    "title": "Buat proyek",
+    "subtitle": "Pilih folder kode aplikasi Android. Folder kosong juga bisa, untuk tes dengan APK saja.",
+    "folder": "Folder proyek",
+    "noFolder": "Belum dipilih",
+    "chooseFolder": "Pilih folder",
+    "newJagra": "Belum ada folder .jagra. Jagra akan membuat:",
+    "nothingElse": "File lain di folder ini tidak diubah.",
+    "existing": "Folder .jagra sudah ada, isinya dibaca apa adanya. Flow: {{flows}}. Flow pembantu: {{helpers}}.",
+    "existingWithMockoon": "Folder .jagra sudah ada, isinya dibaca apa adanya. Flow: {{flows}}. Flow pembantu: {{helpers}}. Proyek ini memakai file Mockoon.",
+    "teamHint": "Proyek tim yang sama tinggal pilih perangkat, lalu jalankan.",
+    "brokenConfig": "Proyek ditambahkan apa adanya, dan Jagra tidak mengubah apa pun. Setelah config.yaml diperbaiki, proyek bisa dibuka seperti biasa.",
+    "name": "Nama proyek",
+    "nameHintBefore": "Disimpan di",
+    "nameHintAfter": ", jadi satu tim melihat nama yang sama.",
+    "apk": "APK yang dites",
+    "apkNewest": "APK terbaru di",
+    "apkChoose": "Pilih file APK",
+    "apkChooseOther": "Pilih yang lain",
+    "found": "Ditemukan",
+    "newBuildsUsed": "Build baru dari Android Studio langsung terpakai.",
+    "noApk": "Belum ada APK di folder itu. Build aplikasinya dulu di Android Studio, atau pilih file APK di bawah.",
+    "apkVersion": "versi {{version}} ({{code}}), dibuat {{ago}}.",
+    "apkBuilt": "dibuat {{ago}}. Versinya tidak bisa dibaca.",
+    "mockoon": "File Mockoon",
+    "optional": "(opsional)",
+    "noMockoon": "Belum dipilih",
+    "chooseFile": "Pilih file",
+    "mockoonTips": "Dua hal yang tidak bisa dicek Jagra:",
+    "mockoonTipUrl": "Build debug harus memanggil API di http://localhost dengan port Mockoon.",
+    "mockoonTipHttp": "Build debug harus mengizinkan HTTP biasa ke localhost lewat network security config Android.",
+    "cancel": "Batal",
+    "submit": "Buat proyek",
+    "addAsIs": "Tambahkan apa adanya"
+  },
+  "project": {
+    "remove": "Hapus dari daftar"
+  },
   "errors": {
     "PROGRAM_NOT_FOUND": "{{program}} tidak ditemukan. Instal dulu, atau atur lokasinya di Pengaturan > Lokasi tool.",
     "PROGRAM_IS_SCRIPT": "{{program}} di {{path}} adalah script, dan Jagra tidak menjalankan script. Instal programnya langsung.",
@@ -172,6 +242,10 @@
     "FLOW_STEPS_MISSING": "{{file}}, baris {{line}}, tidak punya langkah.",
     "FLOW_STEP_INVALID": "{{file}}, baris {{line}}, bukan langkah Maestro.",
     "FLOW_AI_COMMAND": "{{file}}, baris {{line}}, memakai {{command}}, yang membiarkan AI menentukan hasil. Jagra tidak menjalankannya.",
-    "FLOW_HELPER_NOT_FOUND": "{{file}}, baris {{line}}, memanggil {{helper}}, yang tidak ada."
+    "FLOW_HELPER_NOT_FOUND": "{{file}}, baris {{line}}, memanggil {{helper}}, yang tidak ada.",
+    "PROJECT_SETUP_FAILED": "Folder .jagra di {{folder}} tidak bisa dibuat.",
+    "MOCKOON_FILE_OUTSIDE_PROJECT": "{{file}} ada di luar folder proyek. Pilih file Mockoon yang ada di dalamnya.",
+    "SAMPLE_NOT_BUNDLED": "Build Jagra ini tidak berisi aplikasi contoh.",
+    "SAMPLE_COPY_FAILED": "Aplikasi contoh tidak bisa disalin ke {{folder}}."
   }
 }

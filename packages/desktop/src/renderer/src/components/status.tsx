@@ -9,7 +9,10 @@ export type Tone =
   | "waiting"
   | "warning"
   | "optional"
-  | "not-run";
+  | "not-run"
+  | "cancelled"
+  | "stopped"
+  | "interrupted";
 
 const MARK: Record<Exclude<Tone, "running">, string> = {
   passed: "✓",
@@ -18,6 +21,9 @@ const MARK: Record<Exclude<Tone, "running">, string> = {
   warning: "!",
   optional: "○",
   "not-run": "–",
+  cancelled: "–",
+  stopped: "!",
+  interrupted: "!",
 };
 
 const COLOR: Record<Tone, string> = {
@@ -28,6 +34,9 @@ const COLOR: Record<Tone, string> = {
   warning: "text-warning",
   optional: "text-muted-foreground",
   "not-run": "text-muted-foreground",
+  cancelled: "text-warning",
+  stopped: "text-warning",
+  interrupted: "text-warning",
 };
 
 /** A turning mark, so a long check never looks frozen. It stands still under reduced motion. */

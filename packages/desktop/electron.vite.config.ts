@@ -3,6 +3,7 @@ import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "electron-vite";
 import type { Plugin } from "vite";
+import { bundleSample, SAMPLE_APK_FOLDER } from "./src/build/sample.js";
 
 const root = import.meta.dirname;
 const coreSource = resolve(root, "../core/src/index.ts");
@@ -20,6 +21,27 @@ function devServerCsp(): Plugin {
   };
 }
 
+/**
+ * Copies the sample project next to the built main process, for Try the sample app (SMP-5).
+ * Without its APK the app still builds, with a warning; a release build needs it (D-85).
+ */
+function sampleApp(): Plugin {
+  return {
+    name: "jagra-sample-app",
+    closeBundle() {
+      const { apk } = bundleSample(
+        resolve(root, "../../sample-app"),
+        resolve(root, "out/sample"),
+      );
+      if (!apk) {
+        this.warn(
+          `The sample app has no APK in ${SAMPLE_APK_FOLDER}. Run "./gradlew assembleDebug" in sample-app to include it.`,
+        );
+      }
+    },
+  };
+}
+
 export default defineConfig({
   main: {
     // core is bundled from its source, so the app needs no separate core build (D-58).
@@ -32,6 +54,7 @@ export default defineConfig({
         },
       ],
     },
+    plugins: [sampleApp()],
     build: {
       externalizeDeps: { exclude: ["@jagra/core"] },
       rollupOptions: { input: { index: resolve(root, "src/main/index.ts") } },

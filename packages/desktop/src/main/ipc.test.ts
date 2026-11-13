@@ -2,9 +2,11 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import type { ToolStatus } from "@jagra/core";
+import { FakeApkReader } from "@jagra/core/fakes";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { CHANNELS, EVENTS } from "../shared/api.js";
 import { registerIpc, type IpcMainLike } from "./ipc.js";
+import { Projects } from "./projects.js";
 import { SettingsFile } from "./settings.js";
 
 let dir: string;
@@ -48,6 +50,18 @@ function setup() {
         return Promise.resolve();
       },
       settings: new SettingsFile(dir, () => ["en-US"]),
+      projects: new Projects({
+        appData: dir,
+        documents: dir,
+        sample: dir,
+        apkReader: new FakeApkReader(),
+        dialogs: {
+          pickFolder: () => Promise.resolve(undefined),
+          pickApk: () => Promise.resolve(undefined),
+          pickJson: () => Promise.resolve(undefined),
+        },
+        openPath: () => Promise.resolve(),
+      }),
       checkEnvironment: (onProgress) => {
         onProgress(STATUS);
         return Promise.resolve({
@@ -148,5 +162,27 @@ describe("registerIpc (SEC-6)", () => {
     const view = await call(CHANNELS.environmentCheck, []);
     expect(view).toMatchObject({ ready: true });
     expect(sent).toEqual([[EVENTS.environmentProgress, [STATUS]]]);
+  });
+
+  it("checks project calls before they reach main's project list", async () => {
+    const { call } = setup();
+    expect(await call(CHANNELS.projectsList, [])).toEqual([]);
+    expect(await call(CHANNELS.projectsGet, ["nope"])).toBeUndefined();
+    expect(await call(CHANNELS.projectsPickFolder, [])).toBeUndefined();
+    for (const args of [
+      [{ name: " ", apk: "search" }],
+      [{ name: "a", apk: "other" }],
+      [{ name: "a", apk: "search", folder: "C:/" }],
+    ]) {
+      await expect(call(CHANNELS.projectsCreate, args)).rejects.toThrow(
+        "invalid arguments",
+      );
+    }
+    await expect(call(CHANNELS.projectsRemove, [""])).rejects.toThrow(
+      "invalid arguments",
+    );
+    await expect(call(CHANNELS.projectsLocate, [1])).rejects.toThrow(
+      "invalid arguments",
+    );
   });
 });

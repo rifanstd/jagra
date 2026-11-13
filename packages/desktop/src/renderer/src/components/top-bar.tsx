@@ -1,10 +1,9 @@
 import { useTranslation } from "react-i18next";
 import { cn } from "@renderer/lib/utils";
 import { blockingTool } from "../environment";
+import type { Go, Route } from "../navigation";
 import type { EnvironmentCheck } from "../use-environment";
 import { Status } from "./status";
-
-export type Screen = "environment" | "projects" | "settings";
 
 /** The bar at the top of every screen: the name, the environment status and the main links. */
 export function TopBar({
@@ -12,25 +11,25 @@ export function TopBar({
   environment,
   go,
 }: {
-  screen: Screen;
+  screen: Route["screen"];
   environment: EnvironmentCheck;
-  go: (screen: Screen) => void;
+  go: Go;
 }) {
   const { t } = useTranslation();
-  const links: Screen[] = ["settings"];
+  const links = ["settings"] as const;
   return (
     <header className="flex min-h-13 flex-wrap items-center gap-4 border-b bg-card px-4 sm:px-6">
       <button
         type="button"
         className="rounded-md text-lg font-bold focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
-        onClick={() => go("projects")}
+        onClick={() => go({ screen: "projects" })}
       >
         {t("app.name")}
       </button>
       {screen !== "environment" && (
         <EnvironmentIndicator
           environment={environment}
-          open={() => go("environment")}
+          open={() => go({ screen: "environment" })}
         />
       )}
       <nav
@@ -47,7 +46,7 @@ export function TopBar({
               screen === link &&
                 "bg-secondary text-secondary-foreground hover:bg-secondary",
             )}
-            onClick={() => go(link)}
+            onClick={() => go({ screen: link })}
           >
             {t(`nav.${link}`)}
           </button>

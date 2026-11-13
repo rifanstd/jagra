@@ -4,6 +4,7 @@ import {
   CHANNELS,
   EVENTS,
   type JagraApi,
+  type NewProject,
   type Settings,
 } from "../shared/api.js";
 
@@ -24,6 +25,21 @@ const api: JagraApi = {
   settings: {
     get: () => ipcRenderer.invoke(CHANNELS.settingsGet),
     set: (change: Settings) => ipcRenderer.invoke(CHANNELS.settingsSet, change),
+  },
+  projects: {
+    list: () => ipcRenderer.invoke(CHANNELS.projectsList),
+    get: (id: string) => ipcRenderer.invoke(CHANNELS.projectsGet, id),
+    pickFolder: () => ipcRenderer.invoke(CHANNELS.projectsPickFolder),
+    pickApk: () => ipcRenderer.invoke(CHANNELS.projectsPickApk),
+    pickMockoon: () => ipcRenderer.invoke(CHANNELS.projectsPickMockoon),
+    create: (project: NewProject) =>
+      ipcRenderer.invoke(CHANNELS.projectsCreate, project),
+    remove: (id: string) => ipcRenderer.invoke(CHANNELS.projectsRemove, id),
+    locate: (id: string) => ipcRenderer.invoke(CHANNELS.projectsLocate, id),
+    openConfig: (id: string) =>
+      ipcRenderer.invoke(CHANNELS.projectsOpenConfig, id),
+    sampleFolder: () => ipcRenderer.invoke(CHANNELS.projectsSampleFolder),
+    trySample: () => ipcRenderer.invoke(CHANNELS.projectsTrySample),
   },
   environment: {
     check: () => ipcRenderer.invoke(CHANNELS.environmentCheck),

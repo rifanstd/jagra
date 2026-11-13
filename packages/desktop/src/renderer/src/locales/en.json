@@ -8,7 +8,27 @@
     "settings": "Settings"
   },
   "projects": {
-    "title": "Projects"
+    "title": "Projects",
+    "subtitleBefore": "One project per app. Its flows and settings live in the",
+    "subtitleAfter": "folder of the app's repository.",
+    "create": "Create project",
+    "listLabel": "Project list",
+    "removeNote": "Remove from list is on each project's page, and never deletes any file.",
+    "runsBlocked": "Runs cannot start until this is fixed.",
+    "seeHowToInstall": "See how to install",
+    "noRunYet": "Not run yet",
+    "folderMissing": "Folder not found",
+    "locate": "Locate",
+    "remove": "Remove from list",
+    "configProblem": "config.yaml has a problem",
+    "openFile": "Open file",
+    "empty": {
+      "title": "No projects yet",
+      "text": "Start with the sample app. It has one bug planted on purpose, so the first run shows what a failing flow looks like. You need an emulator or a phone that is ready.",
+      "copying": "Copying the sample app to {{folder}}",
+      "trySample": "Try the sample app",
+      "create": "Create a project from an app folder"
+    }
   },
   "settings": {
     "title": "Settings",
@@ -130,6 +150,56 @@
     "en": "English",
     "id": "Bahasa Indonesia"
   },
+  "run": {
+    "status": {
+      "running": "Running",
+      "cancelled": "Cancelled",
+      "stopped": "Stopped",
+      "interrupted": "Interrupted"
+    },
+    "summary": {
+      "allPassed": "{{passed}} passed",
+      "someFailed": "{{passed}} passed, {{failed}} failed"
+    }
+  },
+  "create": {
+    "title": "Create project",
+    "subtitle": "Choose the Android app's code folder. An empty folder works too, for testing with an APK only.",
+    "folder": "Project folder",
+    "noFolder": "No folder chosen",
+    "chooseFolder": "Choose folder",
+    "newJagra": "There is no .jagra folder yet. Jagra will create:",
+    "nothingElse": "No other file in this folder changes.",
+    "existing": "The .jagra folder already exists and is read as it is. Flows: {{flows}}. Helper flows: {{helpers}}.",
+    "existingWithMockoon": "The .jagra folder already exists and is read as it is. Flows: {{flows}}. Helper flows: {{helpers}}. It uses a Mockoon file.",
+    "teamHint": "A teammate's project only needs a device, then Run.",
+    "brokenConfig": "The project is added as it is, and Jagra changes nothing in it. Once config.yaml is fixed, the project opens as usual.",
+    "name": "Project name",
+    "nameHintBefore": "Kept in",
+    "nameHintAfter": ", so the whole team sees the same name.",
+    "apk": "APK to test",
+    "apkNewest": "Newest APK in",
+    "apkChoose": "Choose an APK file",
+    "apkChooseOther": "Choose another",
+    "found": "Found",
+    "newBuildsUsed": "New builds from Android Studio are used right away.",
+    "noApk": "There is no APK in that folder yet. Build the app in Android Studio first, or choose an APK file below.",
+    "apkVersion": "version {{version}} ({{code}}), built {{ago}}.",
+    "apkBuilt": "built {{ago}}. Its version could not be read.",
+    "mockoon": "Mockoon file",
+    "optional": "(optional)",
+    "noMockoon": "Not chosen",
+    "chooseFile": "Choose file",
+    "mockoonTips": "Two things Jagra cannot check:",
+    "mockoonTipUrl": "The debug build must call the API at http://localhost on the Mockoon port.",
+    "mockoonTipHttp": "The debug build must allow plain HTTP to localhost through Android's network security config.",
+    "cancel": "Cancel",
+    "submit": "Create project",
+    "addAsIs": "Add project as it is"
+  },
+  "project": {
+    "remove": "Remove from list"
+  },
   "errors": {
     "PROGRAM_NOT_FOUND": "{{program}} was not found. Install it, or set its location in Settings > Tool locations.",
     "PROGRAM_IS_SCRIPT": "{{program}} at {{path}} is a script, which Jagra does not start. Install the program itself.",
@@ -172,6 +242,10 @@
     "FLOW_STEPS_MISSING": "{{file}}, line {{line}}, has no steps.",
     "FLOW_STEP_INVALID": "{{file}}, line {{line}}, is not a Maestro step.",
     "FLOW_AI_COMMAND": "{{file}}, line {{line}}, uses {{command}}, which lets an AI decide the result. Jagra does not run it.",
-    "FLOW_HELPER_NOT_FOUND": "{{file}}, line {{line}}, calls {{helper}}, which does not exist."
+    "FLOW_HELPER_NOT_FOUND": "{{file}}, line {{line}}, calls {{helper}}, which does not exist.",
+    "PROJECT_SETUP_FAILED": "The .jagra folder in {{folder}} could not be created.",
+    "MOCKOON_FILE_OUTSIDE_PROJECT": "{{file}} is outside the project folder. Choose a Mockoon file inside it.",
+    "SAMPLE_NOT_BUNDLED": "This build of Jagra has no sample app.",
+    "SAMPLE_COPY_FAILED": "The sample app could not be copied to {{folder}}."
   }
 }

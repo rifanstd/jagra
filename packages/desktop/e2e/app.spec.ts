@@ -50,7 +50,7 @@ test("opens with the renderer isolated (SEC-6)", async () => {
   expect(exposed).toEqual({
     require: "undefined",
     process: "undefined",
-    api: ["app", "environment", "settings"],
+    api: ["app", "environment", "projects", "settings"],
   });
 });
 

@@ -39,6 +39,13 @@ export type JagraError =
   | { code: "CONFIG_WRITE_FAILED"; file: string; detail: string }
   /** Maestro's output could not be masked, so it must not be kept (RES-7). */
   | { code: "OUTPUT_MASK_FAILED"; folder: string; detail: string }
+  /** The `.jagra` folder could not be created or updated (PRJ-1). */
+  | { code: "PROJECT_SETUP_FAILED"; folder: string; detail: string }
+  /** The Mockoon file must sit inside the project folder, which config.yaml points into (spec section 4). */
+  | { code: "MOCKOON_FILE_OUTSIDE_PROJECT"; file: string }
+  /** The app was built without the sample project (SMP-5). */
+  | { code: "SAMPLE_NOT_BUNDLED" }
+  | { code: "SAMPLE_COPY_FAILED"; folder: string; detail: string }
   | DeviceError
   | MockoonError
   | FlowProblem;

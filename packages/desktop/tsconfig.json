@@ -7,5 +7,11 @@
       "@renderer/*": ["./src/renderer/src/*"]
     }
   },
-  "include": ["src/main", "src/preload", "src/shared", "*.config.ts"]
+  "include": [
+    "src/main",
+    "src/preload",
+    "src/shared",
+    "src/build",
+    "*.config.ts"
+  ]
 }

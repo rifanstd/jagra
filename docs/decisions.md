@@ -392,3 +392,19 @@ Format of each entry: what was decided, why, and what was considered instead.
 ### D-83. Main stops every program it started when Jagra quits
 **Decided:** Main wraps its process runner in one that remembers every program it starts until that program exits. Before Jagra quits it stops all of them, with their children. Emulators are launched, not started, so they keep running (`DEV-5`).
 **Why:** `REL-3`. Tracking them in one place covers every way out of the app: closing the window, Cmd+Q and a quit from the operating system.
+
+### D-84. A cold first environment check may take longer than 5 seconds
+**Decided:** `PERF-2` stays at 5 seconds for the check as users normally see it. The first check after the computer has been idle for a long time may take longer, because Maestro's Java starts cold (9.8 s measured on Windows, then 2.3 to 2.5 s; `to-verify.md`). Jagra does not work around it.
+**Why:** The extra time is Maestro starting, not Jagra. Each tool already runs in parallel with its own time limit (`ENV-1`), and the screen shows each tool as soon as it is known, so the wait is visible. The owner agreed on 2026-11-11.
+
+### D-85. Correction to D-79: the sample copy goes to Documents
+**Decided:** Try the sample app copies the bundled sample to `Documents/Jagra/sample-app`, as `SMP-6` and mockup 09 say, not to Jagra's local data folder as D-79 wrote. The build copies `sample-app/` next to the built main process without `.gradle`, `.kotlin`, `.idea`, `build`, `local.properties` and `*.iml`, and then adds the debug APK from `app/build/outputs/apk/debug/`. Without that APK the app still builds, with a warning, so CI and development work without Gradle. The release build in M11 must include it.
+**Why:** D-79 described the location wrongly; the spec was always clear. The rest of D-79 stands. The owner agreed to the APK rule on 2026-11-11.
+
+### D-86. Main picks every path for the Create project screen
+**Decided:** The renderer never sends a path. Main opens the system dialogs for the project folder, the APK and the Mockoon file, keeps what was picked until the project is created, and takes a Mockoon file only from inside the picked folder. A new project gets a starter `config.yaml` with short comments. A folder whose `config.yaml` cannot be read is added to the list untouched, so the list can show the file and line (`PRJ-10`); Jagra writes nothing to it.
+**Why:** Architecture section 7: paths from the renderer must point inside a known project folder, except a folder the user picks through a dialog main opened. Adding a broken project instead of refusing it keeps the problem visible where the team will fix it.
+
+### D-87. Test mode puts the sample copy in Jagra's data folder
+**Decided:** In test mode (D-81), the Documents folder for Try the sample app is `documents/` inside Jagra's local data folder, which the tests point at a temporary folder.
+**Why:** The tests must never write to the real Documents folder of the person or the CI runner. A packaged app ignores test mode.

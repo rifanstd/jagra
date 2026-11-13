@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { Language, Platform, SettingsView } from "../../shared/api";
-import { TopBar, type Screen } from "./components/top-bar";
+import { TopBar } from "./components/top-bar";
+import type { Route } from "./navigation";
+import { CreateProjectScreen } from "./screens/create-project-screen";
 import { EnvironmentScreen } from "./screens/environment-screen";
+import { ProjectScreen } from "./screens/project-screen";
 import { ProjectsScreen } from "./screens/projects-screen";
 import { SettingsScreen } from "./screens/settings-screen";
 import { useEnvironment } from "./use-environment";
@@ -20,9 +23,9 @@ export function App({
 }) {
   const { i18n } = useTranslation();
   const environment = useEnvironment();
-  const [screen, setScreen] = useState<Screen>(
-    initial.settings.environmentSeen ? "projects" : "environment",
-  );
+  const [route, setRoute] = useState<Route>({
+    screen: initial.settings.environmentSeen ? "projects" : "environment",
+  });
   const [language, setLanguage] = useState<Language>(initial.language);
 
   useEffect(() => {
@@ -37,22 +40,28 @@ export function App({
   };
 
   const leaveCheck = async () => {
-    setScreen("projects");
+    setRoute({ screen: "projects" });
     await window.jagra.settings.set({ environmentSeen: true });
   };
 
   return (
     <div className="flex min-h-screen flex-col">
-      <TopBar screen={screen} environment={environment} go={setScreen} />
-      {screen === "environment" && (
+      <TopBar screen={route.screen} environment={environment} go={setRoute} />
+      {route.screen === "environment" && (
         <EnvironmentScreen
           environment={environment}
           platform={platform}
           onContinue={() => void leaveCheck()}
         />
       )}
-      {screen === "projects" && <ProjectsScreen />}
-      {screen === "settings" && (
+      {route.screen === "projects" && (
+        <ProjectsScreen go={setRoute} environment={environment} />
+      )}
+      {route.screen === "create" && <CreateProjectScreen go={setRoute} />}
+      {route.screen === "project" && (
+        <ProjectScreen key={route.id} id={route.id} go={setRoute} />
+      )}
+      {route.screen === "settings" && (
         <SettingsScreen
           language={language}
           onLanguage={(value) => void chooseLanguage(value)}
