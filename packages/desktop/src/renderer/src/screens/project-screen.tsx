@@ -88,9 +88,17 @@ export function ProjectScreen({ id, go }: { id: string; go: Go }) {
             {project.folder}
           </p>
         </div>
-        <Button variant="ghost" onClick={() => void remove()}>
-          {t("project.remove")}
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant="outline"
+            onClick={() => go({ screen: "history", projectId: project.id })}
+          >
+            {t("history.button")}
+          </Button>
+          <Button variant="ghost" onClick={() => void remove()}>
+            {t("project.remove")}
+          </Button>
+        </div>
       </div>
       {project.configError && (
         <Note tone="failed">

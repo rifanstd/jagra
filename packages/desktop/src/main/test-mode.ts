@@ -1,5 +1,6 @@
-import { stat } from "node:fs/promises";
-import { basename } from "node:path";
+import { mkdir, stat, writeFile } from "node:fs/promises";
+import { basename, join } from "node:path";
+import { deflateSync } from "node:zlib";
 import { setTimeout as sleep } from "node:timers/promises";
 import {
   fail,
@@ -101,7 +102,7 @@ export function testDeviceBridge(env: NodeJS.ProcessEnv): FakeDeviceBridge {
  * `JAGRA_TEST_RUN` gives its file another outcome, for example `save-item.yaml=failed`.
  */
 export class TestFlowRunner implements FlowRunner {
-  private readonly outcomes = new Map<string, FlowRunStatus>();
+  private readonly outcomes = new Map<string, FlowRunStatus | "black">();
   private readonly ms: number;
 
   constructor(env: NodeJS.ProcessEnv) {
@@ -109,7 +110,7 @@ export class TestFlowRunner implements FlowRunner {
     for (const pair of (env.JAGRA_TEST_RUN ?? "").split(",").filter(Boolean)) {
       const [file, status] = pair.split("=") as [
         string,
-        FlowRunStatus | undefined,
+        FlowRunStatus | "black" | undefined,
       ];
       if (status) this.outcomes.set(file, status);
     }
@@ -123,12 +124,36 @@ export class TestFlowRunner implements FlowRunner {
       return ok({ status: "cancelled" });
     }
     const status = this.outcomes.get(basename(request.flowFile)) ?? "passed";
+    const marks = {
+      failedStep: [1],
+      steps: [{ mark: "passed" as const }, { mark: "failed" as const }],
+    };
+    if (status === "app-crashed") {
+      const crashReport = join(request.outputDir, "crash.txt");
+      await mkdir(request.outputDir, { recursive: true });
+      await writeFile(
+        crashReport,
+        "FATAL EXCEPTION: main\nProcess: dev.jagra.sample, PID: 6218\n",
+      );
+      return ok({ status, crashReport, ...marks });
+    }
+    if (status === "black") {
+      // What an app with FLAG_SECURE gives Maestro (RES-5).
+      const screenshot = join(request.outputDir, "screenshot.png");
+      await mkdir(request.outputDir, { recursive: true });
+      await writeFile(screenshot, blackPng(8, 8));
+      return ok({
+        status: "failed",
+        screenshot,
+        reason: "Element not found: Save",
+        ...marks,
+      });
+    }
     if (status !== "failed") return ok({ status });
     return ok({
       status,
-      failedStep: [1],
-      steps: [{ mark: "passed" }, { mark: "failed" }],
       reason: "Element not found: Text matching regex: Save",
+      ...marks,
     });
   }
 }
@@ -149,4 +174,38 @@ export function testApkReader(env: NodeJS.ProcessEnv): ApkReader {
       });
     },
   };
+}
+
+/** A small all-black RGB PNG. */
+function blackPng(width: number, height: number): Buffer {
+  const chunk = (type: string, data: Buffer) => {
+    const body = Buffer.concat([Buffer.from(type, "latin1"), data]);
+    const length = Buffer.alloc(4);
+    length.writeUInt32BE(data.length);
+    const crc = Buffer.alloc(4);
+    crc.writeUInt32BE(crc32(body));
+    return Buffer.concat([length, body, crc]);
+  };
+  const header = Buffer.alloc(13);
+  header.writeUInt32BE(width, 0);
+  header.writeUInt32BE(height, 4);
+  header[8] = 8; // bits per channel
+  header[9] = 2; // RGB
+  const rows = Buffer.alloc(height * (1 + width * 3));
+  return Buffer.concat([
+    Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+    chunk("IHDR", header),
+    chunk("IDAT", deflateSync(rows)),
+    chunk("IEND", Buffer.alloc(0)),
+  ]);
+}
+
+function crc32(data: Buffer): number {
+  let crc = 0xffffffff;
+  for (const byte of data) {
+    crc ^= byte;
+    for (let bit = 0; bit < 8; bit++)
+      crc = crc & 1 ? (crc >>> 1) ^ 0xedb88320 : crc >>> 1;
+  }
+  return (crc ^ 0xffffffff) >>> 0;
 }

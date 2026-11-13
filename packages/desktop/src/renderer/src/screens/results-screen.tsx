@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import type { RunResult } from "../../../shared/api";
 import { RunControls } from "../components/run-controls";
 import { Status, type Tone } from "../components/status";
+import { TextLink } from "../components/text-link";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
 import { describeError } from "../errors";
@@ -122,8 +123,12 @@ export function ResultsScreen({
         <Card className="min-w-0 gap-0 py-0">
           <h2 className="px-5 pt-4 pb-3 font-semibold">{t("results.flows")}</h2>
           <ul>
-            {run.flows.map((flow) => (
-              <ResultRow key={flow.file} flow={flow} />
+            {run.flows.map((flow, index) => (
+              <ResultRow
+                key={flow.file}
+                flow={flow}
+                open={() => go({ screen: "flow", projectId, runId, index })}
+              />
             ))}
           </ul>
         </Card>
@@ -161,6 +166,11 @@ export function ResultsScreen({
                 : t("results.mockoonNone")}
             </Fact>
           </dl>
+          <div className="border-t px-5 py-3.5 text-sm">
+            <TextLink onClick={() => go({ screen: "history", projectId })}>
+              {t("history.allRuns")}
+            </TextLink>
+          </div>
         </Card>
       </div>
     </main>
@@ -176,28 +186,32 @@ function Fact({ label, children }: { label: string; children: string }) {
   );
 }
 
-function ResultRow({ flow }: { flow: FlowResult }) {
+function ResultRow({ flow, open }: { flow: FlowResult; open: () => void }) {
   const { t, i18n } = useTranslation();
   const why = flow.status === "failed" ? failureLine(flow, t) : undefined;
   return (
-    <li
-      className="flex flex-wrap items-center gap-x-3 gap-y-1 border-t px-5 py-2.5"
-      data-testid={`result-${fileName(flow.file)}`}
-    >
-      <span className="min-w-0 flex-1">
-        <span className="block font-medium">{flow.name}</span>
-        {why && (
-          <span className="block text-sm text-muted-foreground">{why}</span>
-        )}
-      </span>
-      {flow.durationMs !== undefined && (
-        <span className="text-sm text-muted-foreground">
-          {formatDuration(flow.durationMs, i18n.language, t)}
+    <li className="border-t">
+      <button
+        type="button"
+        className="flex w-full flex-wrap items-center gap-x-3 gap-y-1 px-5 py-2.5 text-left hover:bg-muted focus-visible:bg-muted focus-visible:outline-none"
+        data-testid={`result-${fileName(flow.file)}`}
+        onClick={open}
+      >
+        <span className="min-w-0 flex-1">
+          <span className="block font-medium">{flow.name}</span>
+          {why && (
+            <span className="block text-sm text-muted-foreground">{why}</span>
+          )}
         </span>
-      )}
-      <Status tone={FLOW_TONE[flow.status]}>
-        {t(`run.flowStatus.${flow.status}`)}
-      </Status>
+        {flow.durationMs !== undefined && (
+          <span className="text-sm text-muted-foreground">
+            {formatDuration(flow.durationMs, i18n.language, t)}
+          </span>
+        )}
+        <Status tone={FLOW_TONE[flow.status]}>
+          {t(`run.flowStatus.${flow.status}`)}
+        </Status>
+      </button>
     </li>
   );
 }

@@ -154,3 +154,38 @@ test("run screens", async () => {
   await app.close();
   await rm(home, { recursive: true, force: true });
 });
+
+test("flow detail and history screens", async () => {
+  const home = await mkdtemp(join(tmpdir(), "jagra-shots-"));
+  const { app, page } = await launch(home, {
+    env: { JAGRA_TEST_FLOW_MS: "100", JAGRA_TEST_RUN: "save-item.yaml=black" },
+  });
+  await page.setViewportSize({ width: 1200, height: 900 });
+  await page.emulateMedia({ colorScheme: null });
+  await page.getByRole("button", { name: "Continue to projects" }).click();
+  await page.getByRole("button", { name: "Try the sample app" }).click();
+  await page.getByRole("button", { name: "Run 5 flows" }).click();
+  await page.getByTestId("results-headline").waitFor({ timeout: 30_000 });
+  const shoot = async (name: string) => {
+    for (const theme of ["light", "dark"] as const) {
+      await app.evaluate(
+        ({ nativeTheme }, value) => (nativeTheme.themeSource = value),
+        theme,
+      );
+      await page.waitForTimeout(300);
+      await page.screenshot({
+        path: join(folder, `${name}-${theme}.png`),
+        fullPage: true,
+      });
+    }
+  };
+  await page.getByTestId("result-save-item.yaml").click();
+  await page.getByTestId("steps").waitFor();
+  await shoot("flow-detail");
+  await page.getByRole("button", { name: "Run results" }).click();
+  await page.getByRole("button", { name: "See all runs" }).click();
+  await page.locator("[data-testid^=history-]").first().waitFor();
+  await shoot("history");
+  await app.close();
+  await rm(home, { recursive: true, force: true });
+});

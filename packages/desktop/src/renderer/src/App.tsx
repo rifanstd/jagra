@@ -5,6 +5,8 @@ import { TopBar } from "./components/top-bar";
 import type { Route } from "./navigation";
 import { CreateProjectScreen } from "./screens/create-project-screen";
 import { EnvironmentScreen } from "./screens/environment-screen";
+import { FlowDetailScreen } from "./screens/flow-detail-screen";
+import { HistoryScreen } from "./screens/history-screen";
 import { ProjectScreen } from "./screens/project-screen";
 import { ProjectsScreen } from "./screens/projects-screen";
 import { ResultsScreen } from "./screens/results-screen";
@@ -69,6 +71,22 @@ export function App({
           key={route.runId}
           projectId={route.projectId}
           runId={route.runId}
+          go={setRoute}
+        />
+      )}
+      {route.screen === "flow" && (
+        <FlowDetailScreen
+          key={`${route.runId}-${route.index}`}
+          projectId={route.projectId}
+          runId={route.runId}
+          index={route.index}
+          go={setRoute}
+        />
+      )}
+      {route.screen === "history" && (
+        <HistoryScreen
+          key={route.projectId}
+          projectId={route.projectId}
           go={setRoute}
         />
       )}

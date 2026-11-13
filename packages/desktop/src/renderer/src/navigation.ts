@@ -6,6 +6,8 @@ export type Route =
   | { screen: "project"; id: string }
   | { screen: "running" }
   | { screen: "results"; projectId: string; runId: string }
+  | { screen: "flow"; projectId: string; runId: string; index: number }
+  | { screen: "history"; projectId: string }
   | { screen: "settings" };
 
 export type Go = (route: Route) => void;

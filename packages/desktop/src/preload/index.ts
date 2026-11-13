@@ -70,6 +70,10 @@ const api: JagraApi = {
       ipcRenderer.invoke(CHANNELS.runsResult, projectId, runId),
     openReport: (projectId: string, runId: string) =>
       ipcRenderer.invoke(CHANNELS.runsOpenReport, projectId, runId),
+    flowDetail: (projectId: string, runId: string, index: number) =>
+      ipcRenderer.invoke(CHANNELS.runsFlowDetail, projectId, runId, index),
+    history: (projectId: string) =>
+      ipcRenderer.invoke(CHANNELS.runsHistory, projectId),
   },
   secrets: {
     set: (projectId: string, name: string, value: string) =>
