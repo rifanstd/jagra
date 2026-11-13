@@ -22,12 +22,19 @@ function listen<T>(channel: string, listener: (value: T) => void): () => void {
 const api: JagraApi = {
   app: {
     info: () => ipcRenderer.invoke(CHANNELS.appInfo),
+    copyBugInfo: () => ipcRenderer.invoke(CHANNELS.appCopyBugInfo),
     openLink: (url: string) => ipcRenderer.invoke(CHANNELS.appOpenLink, url),
     copyText: (text: string) => ipcRenderer.invoke(CHANNELS.appCopyText, text),
   },
   settings: {
     get: () => ipcRenderer.invoke(CHANNELS.settingsGet),
     set: (change: Settings) => ipcRenderer.invoke(CHANNELS.settingsSet, change),
+    pickToolPath: (tool) =>
+      ipcRenderer.invoke(CHANNELS.settingsPickToolPath, tool),
+    resetToolPath: (tool) =>
+      ipcRenderer.invoke(CHANNELS.settingsResetToolPath, tool),
+    pickEditor: () => ipcRenderer.invoke(CHANNELS.settingsPickEditor),
+    resetEditor: () => ipcRenderer.invoke(CHANNELS.settingsResetEditor),
   },
   projects: {
     list: () => ipcRenderer.invoke(CHANNELS.projectsList),
@@ -78,6 +85,10 @@ const api: JagraApi = {
   secrets: {
     set: (projectId: string, name: string, value: string) =>
       ipcRenderer.invoke(CHANNELS.secretsSet, projectId, name, value),
+    list: (projectId: string) =>
+      ipcRenderer.invoke(CHANNELS.secretsList, projectId),
+    remove: (projectId: string, name: string) =>
+      ipcRenderer.invoke(CHANNELS.secretsRemove, projectId, name),
   },
   environment: {
     check: () => ipcRenderer.invoke(CHANNELS.environmentCheck),

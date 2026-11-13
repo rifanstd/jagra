@@ -1,11 +1,22 @@
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { z } from "zod";
-import type { Language, Settings, SettingsView } from "../shared/api.js";
+import type { Language, SettingsView, StoredSettings } from "../shared/api.js";
 
+/** What the page may change (SEC-6). Paths are only ever set by main, from a system dialog. */
 export const settingsSchema = z.strictObject({
   language: z.enum(["en", "id"]).optional(),
   environmentSeen: z.boolean().optional(),
+});
+
+const TOOLS = ["java", "adb", "maestro", "emulator", "mockoon"] as const;
+
+/** Everything `settings.json` holds. */
+const storedSchema = settingsSchema.extend({
+  /** ENV-6: paths set by hand, which win over detection. */
+  toolPaths: z.partialRecord(z.enum(TOOLS), z.string().min(1)).optional(),
+  /** FLOW-5: the program that opens flow files instead of the system's default app. */
+  editor: z.string().min(1).optional(),
 });
 
 /**
@@ -38,10 +49,10 @@ export class SettingsFile {
   }
 
   /** Applies a change and returns the result. `undefined` in a field clears it. */
-  update(change: Settings): Promise<SettingsView> {
+  update(change: StoredSettings): Promise<SettingsView> {
     const next = this.queue.then(async () => {
-      const merged: Settings = { ...(await this.read()), ...change };
-      for (const key of Object.keys(merged) as (keyof Settings)[]) {
+      const merged: StoredSettings = { ...(await this.read()), ...change };
+      for (const key of Object.keys(merged) as (keyof StoredSettings)[]) {
         if (merged[key] === undefined) delete merged[key];
       }
       await this.write(merged);
@@ -51,9 +62,9 @@ export class SettingsFile {
     return next;
   }
 
-  private async read(): Promise<Settings> {
+  private async read(): Promise<StoredSettings> {
     try {
-      const parsed = settingsSchema.safeParse(
+      const parsed = storedSchema.safeParse(
         JSON.parse(await readFile(this.file, "utf8")),
       );
       // A broken file gives the defaults rather than stopping the app (REL-6).
@@ -63,7 +74,7 @@ export class SettingsFile {
     }
   }
 
-  private async write(settings: Settings): Promise<void> {
+  private async write(settings: StoredSettings): Promise<void> {
     await mkdir(dirname(this.file), { recursive: true });
     const temp = `${this.file}.tmp`;
     await writeFile(temp, `${JSON.stringify(settings, null, 2)}\n`, "utf8");

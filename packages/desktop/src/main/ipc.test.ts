@@ -48,6 +48,8 @@ function setup() {
   const opened: string[] = [];
   const copied: string[] = [];
   const sent: [string, unknown[]][] = [];
+  const picked: string[] = [];
+  const settingsFile = new SettingsFile(dir, () => ["en-US"]);
   registerIpc(
     ipc,
     {
@@ -61,7 +63,7 @@ function setup() {
         copied.push(text);
         return Promise.resolve();
       },
-      settings: new SettingsFile(dir, () => ["en-US"]),
+      settings: settingsFile,
       projects: new Projects({
         appData: dir,
         documents: dir,
@@ -95,6 +97,19 @@ function setup() {
         broadcast: () => undefined,
       }),
       secrets,
+      pickToolPath: (tool) => {
+        picked.push(tool);
+        return Promise.resolve(undefined);
+      },
+      resetToolPath: () => settingsFile.view(),
+      pickEditor: () => Promise.resolve(undefined),
+      resetEditor: () => settingsFile.view(),
+      copyBugInfo: () => {
+        copied.push("bug info");
+        return Promise.resolve();
+      },
+      secretNames: () =>
+        Promise.resolve([{ name: "PASSWORD", hasValue: false, used: true }]),
       checkEnvironment: (onProgress) => {
         onProgress(STATUS);
         return Promise.resolve({
@@ -116,7 +131,7 @@ function setup() {
         ...args,
       ),
     );
-  return { handlers, call, opened, copied, sent };
+  return { handlers, call, opened, copied, sent, picked };
 }
 
 describe("registerIpc (SEC-6)", () => {
@@ -217,6 +232,32 @@ describe("registerIpc (SEC-6)", () => {
     await expect(call(CHANNELS.projectsLocate, [1])).rejects.toThrow(
       "invalid arguments",
     );
+  });
+
+  it("takes tool names and secret names only in their known shapes (ENV-6, FLOW-7)", async () => {
+    const { call, picked, copied } = setup();
+    await call(CHANNELS.settingsPickToolPath, ["maestro"]);
+    expect(picked).toEqual(["maestro"]);
+    await expect(call(CHANNELS.settingsPickToolPath, ["cmd"])).rejects.toThrow(
+      "invalid arguments",
+    );
+    await expect(
+      call(CHANNELS.settingsPickEditor, ["C:/Windows/System32/cmd.exe"]),
+    ).rejects.toThrow("invalid arguments");
+    await expect(
+      call(CHANNELS.settingsSet, [{ editor: "cmd.exe" }]),
+    ).rejects.toThrow("invalid arguments");
+    expect(await call(CHANNELS.secretsList, ["p"])).toEqual([
+      { name: "PASSWORD", hasValue: false, used: true },
+    ]);
+    await expect(
+      call(CHANNELS.secretsRemove, ["unknown", "PASSWORD"]),
+    ).rejects.toThrow("unknown project");
+    await expect(call(CHANNELS.secretsRemove, ["p", "../x"])).rejects.toThrow(
+      "invalid arguments",
+    );
+    await call(CHANNELS.appCopyBugInfo, []);
+    expect(copied).toContain("bug info");
   });
 
   it("checks the project page and device calls", async () => {
