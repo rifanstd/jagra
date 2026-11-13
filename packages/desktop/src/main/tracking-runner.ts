@@ -7,12 +7,19 @@ import type {
   RunningProcess,
 } from "@jagra/core";
 
+/** A program Jagra started and has not seen end, for the log. */
+export interface TrackedProgram {
+  program: string;
+  args: readonly string[];
+  pid: number;
+}
+
 /**
  * Remembers every program it starts until it exits, so all of them can be stopped when Jagra
  * quits, however it quits (REL-3). Emulators are launched, not started, and stay running (DEV-5).
  */
 export class TrackingProcessRunner implements ProcessRunner {
-  private readonly running = new Set<RunningProcess>();
+  private readonly running = new Map<RunningProcess, TrackedProgram>();
 
   constructor(private readonly inner: ProcessRunner) {}
 
@@ -23,7 +30,11 @@ export class TrackingProcessRunner implements ProcessRunner {
     const started = await this.inner.start(spec, onLine);
     if (started.ok) {
       const process = started.value;
-      this.running.add(process);
+      this.running.set(process, {
+        program: spec.program,
+        args: spec.args,
+        pid: process.pid,
+      });
       void process.exited.then(() => this.running.delete(process));
     }
     return started;
@@ -40,8 +51,22 @@ export class TrackingProcessRunner implements ProcessRunner {
     return this.running.size;
   }
 
-  /** Stops every program still running, and their children. */
-  async stopAll(): Promise<void> {
-    await Promise.all([...this.running].map((process) => process.stop()));
+  /** The programs still running. */
+  list(): TrackedProgram[] {
+    return [...this.running.values()];
+  }
+
+  /**
+   * Stops every program still running, and their children. Waits at most `limitMs`, so Jagra
+   * always closes; returns the programs that had not ended by then.
+   */
+  async stopAll(limitMs = 10_000): Promise<TrackedProgram[]> {
+    let timer: NodeJS.Timeout | undefined;
+    await Promise.race([
+      Promise.all([...this.running.keys()].map((process) => process.stop())),
+      new Promise((resolve) => (timer = setTimeout(resolve, limitMs))),
+    ]);
+    clearTimeout(timer);
+    return this.list();
   }
 }

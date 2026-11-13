@@ -7,7 +7,9 @@ import {
   type EnvironmentView,
   type SettingsView,
 } from "../shared/api.js";
+import type { SecretStore } from "@jagra/core";
 import type { Devices } from "./devices.js";
+import { RUN_ID, type Runs } from "./runs.js";
 import type { Projects } from "./projects.js";
 import { settingsSchema, type SettingsFile } from "./settings.js";
 
@@ -21,6 +23,8 @@ export interface Handlers {
   settings: SettingsFile;
   projects: Projects;
   devices: Devices;
+  runs: Runs;
+  secrets: SecretStore;
   checkEnvironment(
     onProgress: (status: ToolStatus) => void,
   ): Promise<EnvironmentView>;
@@ -139,4 +143,46 @@ export function registerIpc(
   );
   on(CHANNELS.devicesWatch, z.tuple([]), () => handlers.devices.watch());
   on(CHANNELS.devicesRefresh, z.tuple([]), () => handlers.devices.refresh());
+
+  const { runs } = handlers;
+  on(
+    CHANNELS.runsStart,
+    z.tuple([
+      z.strictObject({
+        projectId: z.string().min(1).max(100),
+        deviceId: z.string().min(1).max(255),
+        acceptPackage: z.boolean().optional(),
+      }),
+    ]),
+    ([request]) => runs.start(request),
+  );
+  on(CHANNELS.runsCancel, z.tuple([]), () => runs.cancel());
+  on(CHANNELS.runsAnswerUninstall, z.tuple([z.boolean()]), ([uninstall]) =>
+    runs.answerUninstall(uninstall),
+  );
+  on(CHANNELS.runsLive, z.tuple([]), () => runs.current());
+  const runRef = z.tuple([
+    z.string().min(1).max(100),
+    z.string().regex(RUN_ID),
+  ]);
+  on(CHANNELS.runsResult, runRef, ([projectId, runId]) =>
+    runs.result(projectId, runId),
+  );
+  on(CHANNELS.runsOpenReport, runRef, ([projectId, runId]) =>
+    runs.openReport(projectId, runId),
+  );
+  // RUN-10: the value goes straight to the SecretStore and is never sent back (SEC-3).
+  on(
+    CHANNELS.secretsSet,
+    z.tuple([
+      z.string().min(1).max(100),
+      z.string().regex(/^[A-Za-z_][A-Za-z0-9_]{0,99}$/),
+      z.string().max(10_000),
+    ]),
+    async ([projectId, name, value]) => {
+      if (!(await projects.exists(projectId)))
+        throw new RejectedCallError("unknown project");
+      await handlers.secrets.set(projectId, name, value);
+    },
+  );
 }

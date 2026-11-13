@@ -153,9 +153,30 @@
   "run": {
     "status": {
       "running": "Berjalan",
+      "completed": "Selesai",
       "cancelled": "Dibatalkan",
       "stopped": "Berhenti",
       "interrupted": "Terputus"
+    },
+    "flowStatus": {
+      "waiting": "Antre",
+      "running": "Berjalan",
+      "passed": "Lolos",
+      "failed": "Gagal",
+      "cancelled": "Dibatalkan",
+      "not-run": "Tidak dijalankan"
+    },
+    "failure": {
+      "step": "Langkah gagal",
+      "timed-out": "Melewati batas waktu",
+      "app-crashed": "Aplikasi crash",
+      "app-not-responding": "Aplikasi tidak merespons",
+      "device-disconnected": "Perangkat terputus",
+      "error": "Terjadi error"
+    },
+    "duration": {
+      "seconds": "{{seconds}} dtk",
+      "minutes": "{{minutes}} mnt {{seconds}} dtk"
     },
     "summary": {
       "allPassed": "{{passed}} lolos",
@@ -230,7 +251,14 @@
       "refresh": "Muat ulang",
       "mockoon": "Mockoon",
       "noMockoon": "Tidak dipakai",
-      "mockoonPort": ", port {{port}}"
+      "mockoonPort": ", port {{port}}",
+      "start_one": "Jalankan {{count}} flow",
+      "start_other": "Jalankan {{count}} flow",
+      "active": "Ada run yang sedang berjalan.",
+      "showRun": "Lihat run",
+      "toolsBlocked": "Perbaiki tool ini sebelum run:",
+      "noFlows": "Pilih minimal satu flow.",
+      "openResults": "Buka hasil"
     },
     "device": {
       "noAdb": "adb tidak ditemukan, jadi perangkat belum bisa ditampilkan.",
@@ -262,6 +290,104 @@
         "simulated-input": "Di HP Xiaomi, nyalakan juga \"USB debugging (Security settings)\" di Opsi pengembang."
       }
     }
+  },
+  "running": {
+    "flowOf": "Flow {{current}} dari {{total}}",
+    "startingEmulator": "Menyalakan emulator",
+    "preparing": "Menyiapkan perangkat",
+    "installing": "Memasang APK",
+    "startingMockoon": "Menyalakan Mockoon",
+    "finishing": "Menyelesaikan",
+    "sub": "{{device}} · {{apk}} {{version}} ({{code}})",
+    "cancel": "Batalkan run",
+    "cancelling": "Membatalkan",
+    "deviceLabel": "Perangkat",
+    "deviceReady": "{{name}} siap",
+    "deviceChecking": "Memeriksa perangkat",
+    "deviceBooting": "Menunggu Android selesai menyala",
+    "apkLabel": "APK",
+    "installed": "Terpasang",
+    "installingShort": "Memasang",
+    "waitingAnswer": "Menunggu jawaban",
+    "mockoonLabel": "Mockoon",
+    "mockoonRunning": "Menyala di port {{port}}",
+    "mockoonStarting": "Menyalakan di port {{port}}",
+    "emulatorNote": "Emulator yang baru menyala butuh waktu, biasanya kurang dari 1 menit dan paling lama 3 menit.",
+    "oldAndroid": "Android {{version}} di perangkat ini lebih lama dari yang didukung Maestro, jadi flow bisa gagal.",
+    "latestStep": "Langkah terakhir: {{step}}",
+    "footer": "Setiap flow mulai dari data aplikasi yang bersih. Hasil disimpan begitu satu flow selesai.",
+    "uninstall": {
+      "title": "Aplikasi di perangkat ditandatangani dengan key lain",
+      "text": "{{packageName}} di {{device}} berasal dari build lain, jadi APK ini tidak bisa dipasang di atasnya. Jagra bisa menghapus aplikasi itu lalu memasang APK ini.",
+      "warning": "Data aplikasi di perangkat ini ikut terhapus.",
+      "cancel": "Batalkan run",
+      "confirm": "Hapus dan pasang ulang"
+    }
+  },
+  "results": {
+    "headline": {
+      "failed_one": "{{count}} flow gagal",
+      "failed_other": "{{count}} flow gagal",
+      "passed": "Semua flow lolos",
+      "cancelled": "Run dibatalkan",
+      "stopped": "Run berhenti: {{reason}}",
+      "interrupted": "Run terputus",
+      "running": "Run sedang berjalan"
+    },
+    "count": {
+      "passed": "{{count}} lolos",
+      "failed": "{{count}} gagal",
+      "cancelled": "{{count}} dibatalkan",
+      "notRun": "{{count}} tidak dijalankan"
+    },
+    "ofTotal": "{{parts}} dari {{total}} flow",
+    "keptNote": "Hasil yang sudah selesai tetap disimpan.",
+    "interruptedNote": "Jagra tertutup saat run berjalan.",
+    "openReport": "Buka laporan",
+    "runAgain": "Jalankan lagi",
+    "flows": "Flow",
+    "stepFailed": "Langkah {{step}}: {{reason}}",
+    "thisRun": "Run ini",
+    "time": "Waktu",
+    "duration": "Durasi",
+    "unknown": "Tidak diketahui",
+    "apk": "APK",
+    "apkValue": "{{file}} versi {{version}} ({{code}})",
+    "device": "Perangkat",
+    "deviceValue": "{{name}}, Android {{version}}",
+    "mockoon": "Mockoon",
+    "mockoonStopped": "Dimatikan setelah run",
+    "mockoonNone": "Tidak dipakai",
+    "notFound": "Run ini sudah tidak tersimpan.",
+    "backToProject": "Kembali ke proyek"
+  },
+  "dialogs": {
+    "secrets": {
+      "title": "Isi nilai variabel",
+      "text": "Flow yang dipilih memakai variabel ini, dan nilainya belum ada.",
+      "placeholder": "Nilai untuk {{name}}",
+      "hint": "Disimpan terenkripsi di brankas sistem untuk proyek ini, dan tidak pernah tampil di layar, log, atau laporan.",
+      "failed": "Nilai tidak bisa disimpan, karena brankas sistem tidak tersedia.",
+      "cancel": "Batal",
+      "save": "Simpan dan jalankan"
+    },
+    "package": {
+      "title": "Paket APK berbeda",
+      "text": "APK ini {{packageName}}, sedangkan appId di .jagra/config.yaml adalah {{appId}}. Flow mungkin membuka aplikasi yang lain.",
+      "cancel": "Batal",
+      "confirm": "Tetap jalankan"
+    }
+  },
+  "report": {
+    "title": "Laporan run Jagra",
+    "flow": "Flow",
+    "status": "Status",
+    "duration": "Durasi",
+    "reason": "Alasan",
+    "apk": "APK",
+    "device": "Perangkat",
+    "started": "Dimulai",
+    "openReport": "Laporan Maestro"
   },
   "errors": {
     "PROGRAM_NOT_FOUND": "{{program}} tidak ditemukan. Instal dulu, atau atur lokasinya di Pengaturan > Lokasi tool.",

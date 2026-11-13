@@ -5,8 +5,10 @@ import {
   EVENTS,
   type DevicesView,
   type JagraApi,
+  type LiveRun,
   type NewProject,
   type Settings,
+  type StartRun,
 } from "../shared/api.js";
 
 /** Listens to one of main's events. Only the data is passed on, never the event object. */
@@ -55,6 +57,23 @@ const api: JagraApi = {
     watch: () => ipcRenderer.invoke(CHANNELS.devicesWatch),
     refresh: () => ipcRenderer.invoke(CHANNELS.devicesRefresh),
     onChange: (listener) => listen<DevicesView>(EVENTS.devicesChange, listener),
+  },
+  runs: {
+    start: (request: StartRun) =>
+      ipcRenderer.invoke(CHANNELS.runsStart, request),
+    cancel: () => ipcRenderer.invoke(CHANNELS.runsCancel),
+    answerUninstall: (uninstall: boolean) =>
+      ipcRenderer.invoke(CHANNELS.runsAnswerUninstall, uninstall),
+    live: () => ipcRenderer.invoke(CHANNELS.runsLive),
+    onUpdate: (listener) => listen<LiveRun>(EVENTS.runsUpdate, listener),
+    result: (projectId: string, runId: string) =>
+      ipcRenderer.invoke(CHANNELS.runsResult, projectId, runId),
+    openReport: (projectId: string, runId: string) =>
+      ipcRenderer.invoke(CHANNELS.runsOpenReport, projectId, runId),
+  },
+  secrets: {
+    set: (projectId: string, name: string, value: string) =>
+      ipcRenderer.invoke(CHANNELS.secretsSet, projectId, name, value),
   },
   environment: {
     check: () => ipcRenderer.invoke(CHANNELS.environmentCheck),

@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type {
   ApkView,
+  DevicesView,
   FlowView,
   HelperView,
   ProjectDetails,
@@ -33,6 +34,7 @@ import { formatAgo, formatWhen } from "../format";
 import type { Go } from "../navigation";
 import { runLook } from "../run-look";
 import { useDevices } from "../use-devices";
+import { RunControls } from "../components/run-controls";
 
 /** How often the APK is read again, so a new build shows without any action (PRJ-4, D-89). */
 const APK_REFRESH_MS = 5000;
@@ -121,10 +123,33 @@ function ProjectBody({
   go: Go;
 }) {
   const { t } = useTranslation();
+  const [chosen, setChosen] = useState(details.chosen);
+  useEffect(() => setChosen(details.chosen), [details.chosen]);
+  const { view, refresh } = useDevices();
+  const [deviceId, setDeviceId] = useState(details.device);
+  const devices = view?.devices ?? [];
+  // DEV-3: the device used last, when it is there; otherwise the first one.
+  const device = devices.find((d) => d.id === deviceId) ?? devices[0];
+
+  const toggle = (file: string, on: boolean) => {
+    const next = on ? [...chosen, file] : chosen.filter((f) => f !== file);
+    setChosen(next);
+    void window.jagra.projects.chooseFlows(id, next);
+  };
+  const chooseDevice = (next: string) => {
+    setDeviceId(next);
+    void window.jagra.projects.chooseDevice(id, next);
+  };
+
   return (
     <div className="grid items-start gap-5 md:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
       <div className="grid min-w-0 gap-5">
-        <Flows id={id} flows={details.flows} initial={details.chosen} />
+        <Flows
+          id={id}
+          flows={details.flows}
+          chosen={chosen}
+          onToggle={toggle}
+        />
         {details.helpers.length > 0 && (
           <Helpers id={id} helpers={details.helpers} />
         )}
@@ -139,16 +164,29 @@ function ProjectBody({
             initial={details.apk}
             searchPath={details.searchPath}
           />
-          <DeviceField id={id} saved={details.device} go={go} />
+          <DeviceField
+            view={view}
+            refresh={refresh}
+            device={device}
+            choose={chooseDevice}
+            go={go}
+          />
           <div className="grid gap-1.5">
             <span className="text-sm font-medium">
               {t("project.run.mockoon")}
             </span>
             <MockoonLine mockoon={details.mockoon} />
           </div>
+          <RunControls
+            projectId={id}
+            chosen={chosen.length}
+            device={device}
+            ready={details.apk.ok}
+            go={go}
+          />
         </div>
         <div className="border-t px-5 py-3.5 text-sm" data-testid="last-run">
-          <LastRunLine details={details} />
+          <LastRunLine projectId={id} details={details} go={go} />
         </div>
       </Card>
     </div>
@@ -159,21 +197,15 @@ function ProjectBody({
 function Flows({
   id,
   flows,
-  initial,
+  chosen,
+  onToggle: toggle,
 }: {
   id: string;
   flows: FlowView[];
-  initial: string[];
+  chosen: string[];
+  onToggle: (file: string, on: boolean) => void;
 }) {
   const { t } = useTranslation();
-  const [chosen, setChosen] = useState(initial);
-  useEffect(() => setChosen(initial), [initial]);
-
-  const toggle = (file: string, on: boolean) => {
-    const next = on ? [...chosen, file] : chosen.filter((f) => f !== file);
-    setChosen(next);
-    void window.jagra.projects.chooseFlows(id, next);
-  };
   const broken = flows.filter((f) => f.problem).length;
 
   return (
@@ -392,25 +424,20 @@ function ApkField({
 
 /** DEV-1 to DEV-3, DEV-6: the device for the run, with what to do when it is not ready. */
 function DeviceField({
-  id,
-  saved,
+  view,
+  refresh,
+  device,
+  choose,
   go,
 }: {
-  id: string;
-  saved?: string;
+  view?: DevicesView;
+  refresh: () => Promise<void>;
+  device?: Device;
+  choose: (deviceId: string) => void;
   go: Go;
 }) {
   const { t } = useTranslation();
-  const { view, refresh } = useDevices();
-  const [chosenId, setChosenId] = useState(saved);
   const devices = view?.devices ?? [];
-  // DEV-3: the device used last, when it is there; otherwise the first one.
-  const device = devices.find((d) => d.id === chosenId) ?? devices[0];
-
-  const choose = (deviceId: string) => {
-    setChosenId(deviceId);
-    void window.jagra.projects.chooseDevice(id, deviceId);
-  };
 
   return (
     <div className="grid gap-1.5" data-testid="device">
@@ -538,7 +565,15 @@ function MockoonLine({ mockoon }: { mockoon: ProjectDetails["mockoon"] }) {
   );
 }
 
-function LastRunLine({ details }: { details: ProjectDetails }) {
+function LastRunLine({
+  projectId,
+  details,
+  go,
+}: {
+  projectId: string;
+  details: ProjectDetails;
+  go: Go;
+}) {
   const { t, i18n } = useTranslation();
   const run = details.lastRun;
   if (!run)
@@ -557,7 +592,13 @@ function LastRunLine({ details }: { details: ProjectDetails }) {
           ),
         })}
       </span>
-      <Status tone={look.tone}>{t(look.label, look.values)}</Status>
+      <button
+        type="button"
+        className="justify-self-start rounded-sm hover:underline focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
+        onClick={() => go({ screen: "results", projectId, runId: run.id })}
+      >
+        <Status tone={look.tone}>{t(look.label, look.values)}</Status>
+      </button>
     </span>
   );
 }

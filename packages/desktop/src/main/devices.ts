@@ -33,6 +33,12 @@ export class Devices {
     return this.view();
   }
 
+  /** The bridge a run uses, once adb is known. */
+  currentBridge(): DeviceBridge | undefined {
+    this.watch();
+    return this.bridge;
+  }
+
   /** DEV-2: lists the devices again right away. */
   async refresh(): Promise<DevicesView> {
     this.watch();

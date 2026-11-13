@@ -7,6 +7,8 @@ import { CreateProjectScreen } from "./screens/create-project-screen";
 import { EnvironmentScreen } from "./screens/environment-screen";
 import { ProjectScreen } from "./screens/project-screen";
 import { ProjectsScreen } from "./screens/projects-screen";
+import { ResultsScreen } from "./screens/results-screen";
+import { RunningScreen } from "./screens/running-screen";
 import { SettingsScreen } from "./screens/settings-screen";
 import { useEnvironment } from "./use-environment";
 
@@ -60,6 +62,15 @@ export function App({
       {route.screen === "create" && <CreateProjectScreen go={setRoute} />}
       {route.screen === "project" && (
         <ProjectScreen key={route.id} id={route.id} go={setRoute} />
+      )}
+      {route.screen === "running" && <RunningScreen go={setRoute} />}
+      {route.screen === "results" && (
+        <ResultsScreen
+          key={route.runId}
+          projectId={route.projectId}
+          runId={route.runId}
+          go={setRoute}
+        />
       )}
       {route.screen === "settings" && (
         <SettingsScreen

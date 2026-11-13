@@ -1,13 +1,22 @@
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import type { ToolStatus } from "@jagra/core";
-import { FakeApkReader } from "@jagra/core/fakes";
+import { ActiveProcessFile, type ToolStatus } from "@jagra/core";
+import {
+  FakeApkReader,
+  FakeClock,
+  FakeFlowRunner,
+  FakeMockServer,
+  FakePortChecker,
+  FakeSecretStore,
+} from "@jagra/core/fakes";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { CHANNELS, EVENTS } from "../shared/api.js";
 import { registerIpc, type IpcMainLike } from "./ipc.js";
 import { Devices } from "./devices.js";
 import { Projects } from "./projects.js";
+import { reportText } from "./report-text.js";
+import { Runs } from "./runs.js";
 import { SettingsFile } from "./settings.js";
 
 let dir: string;
@@ -28,6 +37,8 @@ const STATUS: ToolStatus = {
   path: "/sdk/adb",
   version: "37.0.0",
 };
+
+const secrets = new FakeSecretStore();
 
 function setup() {
   const handlers = new Map<string, Parameters<IpcMainLike["handle"]>[1]>();
@@ -67,6 +78,23 @@ function setup() {
         () => undefined,
         () => undefined,
       ),
+      runs: new Runs({
+        appData: dir,
+        clock: new FakeClock(),
+        secrets,
+        apkReader: new FakeApkReader(),
+        checkTools: () => Promise.resolve([]),
+        bridge: () => undefined,
+        flowRunner: () => new FakeFlowRunner(),
+        mockServer: () => new FakeMockServer(),
+        ports: new FakePortChecker(),
+        state: new ActiveProcessFile(join(dir, "active.json")),
+        isAlive: () => true,
+        reportText: () => Promise.resolve(reportText("en")),
+        openPath: () => Promise.resolve(),
+        broadcast: () => undefined,
+      }),
+      secrets,
       checkEnvironment: (onProgress) => {
         onProgress(STATUS);
         return Promise.resolve({

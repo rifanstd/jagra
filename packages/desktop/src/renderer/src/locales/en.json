@@ -153,9 +153,30 @@
   "run": {
     "status": {
       "running": "Running",
+      "completed": "Completed",
       "cancelled": "Cancelled",
       "stopped": "Stopped",
       "interrupted": "Interrupted"
+    },
+    "flowStatus": {
+      "waiting": "Waiting",
+      "running": "Running",
+      "passed": "Passed",
+      "failed": "Failed",
+      "cancelled": "Cancelled",
+      "not-run": "Not run"
+    },
+    "failure": {
+      "step": "A step failed",
+      "timed-out": "Timed out",
+      "app-crashed": "App crashed",
+      "app-not-responding": "App not responding",
+      "device-disconnected": "Device disconnected",
+      "error": "Error"
+    },
+    "duration": {
+      "seconds": "{{seconds}} s",
+      "minutes": "{{minutes}} min {{seconds}} s"
     },
     "summary": {
       "allPassed": "{{passed}} passed",
@@ -230,7 +251,14 @@
       "refresh": "Refresh",
       "mockoon": "Mockoon",
       "noMockoon": "Not used",
-      "mockoonPort": ", port {{port}}"
+      "mockoonPort": ", port {{port}}",
+      "start_one": "Run {{count}} flow",
+      "start_other": "Run {{count}} flows",
+      "active": "A run is in progress.",
+      "showRun": "Show the run",
+      "toolsBlocked": "Fix these tools before a run:",
+      "noFlows": "Choose at least one flow.",
+      "openResults": "Open results"
     },
     "device": {
       "noAdb": "adb was not found, so devices cannot be listed.",
@@ -262,6 +290,104 @@
         "simulated-input": "On Xiaomi phones, also turn on \"USB debugging (Security settings)\" in Developer options."
       }
     }
+  },
+  "running": {
+    "flowOf": "Flow {{current}} of {{total}}",
+    "startingEmulator": "Starting emulator",
+    "preparing": "Preparing the device",
+    "installing": "Installing the APK",
+    "startingMockoon": "Starting Mockoon",
+    "finishing": "Finishing",
+    "sub": "{{device}} · {{apk}} {{version}} ({{code}})",
+    "cancel": "Cancel run",
+    "cancelling": "Cancelling",
+    "deviceLabel": "Device",
+    "deviceReady": "{{name}} ready",
+    "deviceChecking": "Checking the device",
+    "deviceBooting": "Waiting for Android to finish starting",
+    "apkLabel": "APK",
+    "installed": "Installed",
+    "installingShort": "Installing",
+    "waitingAnswer": "Waiting for your answer",
+    "mockoonLabel": "Mockoon",
+    "mockoonRunning": "Running on port {{port}}",
+    "mockoonStarting": "Starting on port {{port}}",
+    "emulatorNote": "A newly started emulator takes time, usually under a minute and at most 3 minutes.",
+    "oldAndroid": "Android {{version}} on this device is older than Maestro supports, so flows may fail.",
+    "latestStep": "Latest step: {{step}}",
+    "footer": "Every flow starts from clean app data. Results are saved as soon as each flow ends.",
+    "uninstall": {
+      "title": "The app on the device was signed with another key",
+      "text": "{{packageName}} on {{device}} comes from another build, so this APK cannot be installed over it. Jagra can uninstall that app, then install this APK.",
+      "warning": "The app's data on this device is deleted too.",
+      "cancel": "Cancel run",
+      "confirm": "Uninstall and install again"
+    }
+  },
+  "results": {
+    "headline": {
+      "failed_one": "{{count}} flow failed",
+      "failed_other": "{{count}} flows failed",
+      "passed": "All flows passed",
+      "cancelled": "Run cancelled",
+      "stopped": "Run stopped: {{reason}}",
+      "interrupted": "Run interrupted",
+      "running": "Run in progress"
+    },
+    "count": {
+      "passed": "{{count}} passed",
+      "failed": "{{count}} failed",
+      "cancelled": "{{count}} cancelled",
+      "notRun": "{{count}} not run"
+    },
+    "ofTotal": "{{parts}} of {{total}} flows",
+    "keptNote": "Results that finished are kept.",
+    "interruptedNote": "Jagra closed while the run was going.",
+    "openReport": "Open report",
+    "runAgain": "Run again",
+    "flows": "Flows",
+    "stepFailed": "Step {{step}}: {{reason}}",
+    "thisRun": "This run",
+    "time": "Time",
+    "duration": "Duration",
+    "unknown": "Unknown",
+    "apk": "APK",
+    "apkValue": "{{file}} version {{version}} ({{code}})",
+    "device": "Device",
+    "deviceValue": "{{name}}, Android {{version}}",
+    "mockoon": "Mockoon",
+    "mockoonStopped": "Stopped after the run",
+    "mockoonNone": "Not used",
+    "notFound": "This run is no longer saved.",
+    "backToProject": "Back to the project"
+  },
+  "dialogs": {
+    "secrets": {
+      "title": "Fill in the variable values",
+      "text": "The chosen flows use these variables, and they have no value yet.",
+      "placeholder": "Value for {{name}}",
+      "hint": "Stored encrypted in the system's credential store for this project, and never shown on screen, in logs or in reports.",
+      "failed": "The value could not be stored, because the system's credential store is not available.",
+      "cancel": "Cancel",
+      "save": "Save and run"
+    },
+    "package": {
+      "title": "Different APK package",
+      "text": "This APK is {{packageName}}, while appId in .jagra/config.yaml is {{appId}}. The flows may open another app.",
+      "cancel": "Cancel",
+      "confirm": "Run anyway"
+    }
+  },
+  "report": {
+    "title": "Jagra run report",
+    "flow": "Flow",
+    "status": "Status",
+    "duration": "Duration",
+    "reason": "Reason",
+    "apk": "APK",
+    "device": "Device",
+    "started": "Started",
+    "openReport": "Maestro report"
   },
   "errors": {
     "PROGRAM_NOT_FOUND": "{{program}} was not found. Install it, or set its location in Settings > Tool locations.",
