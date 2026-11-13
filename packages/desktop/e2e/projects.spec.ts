@@ -1,11 +1,4 @@
-import {
-  mkdir,
-  mkdtemp,
-  readdir,
-  readFile,
-  rm,
-  writeFile,
-} from "node:fs/promises";
+import { mkdtemp, readdir, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
@@ -14,7 +7,7 @@ import {
   type ElectronApplication,
   type Page,
 } from "@playwright/test";
-import { launch } from "./launch.js";
+import { answer, launch, makeFolder } from "./launch.js";
 
 let home: string;
 let app: ElectronApplication;
@@ -31,32 +24,9 @@ test.afterEach(async () => {
   await rm(home, { recursive: true, force: true });
 });
 
-/** The next system dialogs answer with these paths, as if the user picked them. */
-async function answerDialogs(paths: string[]): Promise<void> {
-  await app.evaluate(({ dialog }, answers) => {
-    const queue = [...answers];
-    dialog.showOpenDialog = () => {
-      const next = queue.shift();
-      return Promise.resolve({
-        canceled: next === undefined,
-        filePaths: next === undefined ? [] : [next],
-      });
-    };
-  }, paths);
-}
-
-async function appFolder(
-  name: string,
-  files: Record<string, string> = {},
-): Promise<string> {
-  const folder = join(home, name);
-  await mkdir(folder, { recursive: true });
-  for (const [file, text] of Object.entries(files)) {
-    await mkdir(join(folder, file, ".."), { recursive: true });
-    await writeFile(join(folder, file), text);
-  }
-  return folder;
-}
+const answerDialogs = (paths: string[]) => answer(app, paths);
+const appFolder = (name: string, files: Record<string, string> = {}) =>
+  makeFolder(home, name, files);
 
 test("an empty list offers the sample app, which opens its project page (SMP-6)", async () => {
   await expect(

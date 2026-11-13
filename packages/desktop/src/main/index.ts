@@ -28,12 +28,14 @@ import {
   session,
   shell,
 } from "electron";
+import { EVENTS } from "../shared/api.js";
+import { Devices } from "./devices.js";
 import { checkTools, knownLinks } from "./environment.js";
 import { registerIpc } from "./ipc.js";
 import { Projects } from "./projects.js";
 import { lockDownContents, lockDownSession } from "./security.js";
 import { SettingsFile } from "./settings.js";
-import { isTestMode, testToolProbe } from "./test-mode.js";
+import { isTestMode, testDeviceBridge, testToolProbe } from "./test-mode.js";
 import { TrackingProcessRunner } from "./tracking-runner.js";
 import { windowOptions } from "./window.js";
 
@@ -71,6 +73,31 @@ const pick = async (
     : await dialog.showOpenDialog(options);
   return answer.canceled ? undefined : answer.filePaths[0];
 };
+
+/** What the last environment check found, for the device bridge's adb and emulator paths. */
+let lastStatuses: ToolStatus[] = [];
+const toolPath = (tool: ToolStatus["tool"]) =>
+  lastStatuses.find((s) => s.tool === tool)?.path;
+
+const devices = new Devices(
+  () => {
+    if (testMode) return testDeviceBridge(process.env);
+    const adb = toolPath("adb");
+    return adb
+      ? new AdbDeviceBridge({
+          runner,
+          clock,
+          adb,
+          emulator: toolPath("emulator"),
+        })
+      : undefined;
+  },
+  (view) => {
+    for (const window of BrowserWindow.getAllWindows()) {
+      window.webContents.send(EVENTS.devicesChange, view);
+    }
+  },
+);
 
 const projects = new Projects({
   appData,
@@ -169,6 +196,7 @@ void app.whenReady().then(async () => {
       copyText: (text) => clipboard.writeText(text),
       settings,
       projects,
+      devices,
       checkEnvironment: async (onProgress) => {
         const view = await checkTools({
           probe,
@@ -178,6 +206,8 @@ void app.whenReady().then(async () => {
           onProgress,
         });
         const statuses = view.tools.map((t) => t.status);
+        lastStatuses = statuses;
+        devices.toolsChanged();
         await log("info", "environment-checked", {
           tools: statuses,
           tookMs: view.tookMs,
@@ -204,6 +234,8 @@ app.on("window-all-closed", () => {
 // REL-3: every program Jagra started stops when it quits. Emulators keep running (DEV-5).
 let quitting = false;
 app.on("before-quit", (event) => {
+  // Stopped first, so the device watch does not start adb again while Jagra closes.
+  devices.close();
   if (quitting || runner.count === 0) return;
   event.preventDefault();
   quitting = true;

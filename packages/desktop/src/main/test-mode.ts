@@ -1,5 +1,5 @@
-import type { ToolFinding, ToolName } from "@jagra/core";
-import { FakeToolProbe } from "@jagra/core/fakes";
+import type { Device, DeviceState, ToolFinding, ToolName } from "@jagra/core";
+import { FakeDeviceBridge, FakeToolProbe } from "@jagra/core/fakes";
 
 /**
  * The test mode that Playwright starts the built app in, so the screens can be tested on every CI
@@ -42,4 +42,40 @@ export function testToolProbe(env: NodeJS.ProcessEnv): FakeToolProbe {
     probe.set(tool, finding);
   }
   return probe;
+}
+
+const DEVICE_STATES: readonly DeviceState[] = [
+  "emulator-running",
+  "emulator-starting",
+  "emulator-off",
+  "phone-ready",
+  "phone-not-authorised",
+  "phone-not-responding",
+];
+
+/**
+ * One running emulator by default. `JAGRA_TEST_DEVICES` replaces the list with `id|state|name`
+ * entries separated by commas, for example `R58M|phone-not-authorised|SM-A525F`, or `none`.
+ */
+export function testDeviceBridge(env: NodeJS.ProcessEnv): FakeDeviceBridge {
+  const bridge = new FakeDeviceBridge();
+  const text =
+    env.JAGRA_TEST_DEVICES ?? "emulator-5554|emulator-running|Pixel_8";
+  const devices: Device[] = [];
+  for (const entry of text.split(",").filter((e) => e && e !== "none")) {
+    const [id, state, name] = entry.split("|") as [
+      string,
+      DeviceState,
+      string | undefined,
+    ];
+    if (!DEVICE_STATES.includes(state) || !name) continue;
+    devices.push({
+      id,
+      state,
+      name,
+      kind: state.startsWith("phone") ? "phone" : "emulator",
+    });
+  }
+  bridge.setDevices(devices);
+  return bridge;
 }

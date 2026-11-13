@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { FakePortChecker } from "../fakes/mockoon.js";
 import { parseConfig } from "../project/config.js";
-import { projectMockoon } from "./project.js";
+import { mockoonSettings, projectMockoon } from "./project.js";
 
 let project: string;
 beforeEach(async () => {
@@ -71,6 +71,16 @@ describe("projectMockoon (MCK-1, MCK-3)", () => {
         ports,
       ),
     ).toEqual({ ok: false, error: { code: "MOCKOON_PORT_BUSY", port: 3000 } });
+  });
+
+  it("gives the file and port for the project page without checking the port", async () => {
+    await writeFile(MOCKOON_FILE(), JSON.stringify({ port: 3000 }));
+    expect(
+      await mockoonSettings(
+        project,
+        config("mockoon:\n  file: .jagra/mockoon.json\n"),
+      ),
+    ).toEqual({ ok: true, value: { file: MOCKOON_FILE(), port: 3000 } });
   });
 
   it("reports a missing file, a broken file and a file without a port", async () => {

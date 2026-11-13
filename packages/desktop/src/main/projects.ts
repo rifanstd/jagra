@@ -1,14 +1,26 @@
 import { cp, mkdir, rm, stat } from "node:fs/promises";
-import { basename, dirname, join } from "node:path";
+import {
+  basename,
+  dirname,
+  isAbsolute,
+  join,
+  relative,
+  resolve,
+  sep,
+} from "node:path";
 import {
   addProject,
   configFile,
+  discoverFlows,
   fail,
   findApk,
+  flowsFolder,
   inspectFolder,
   knownProjects,
   listRuns,
   loadConfig,
+  loadLocal,
+  mockoonSettings,
   moveProject,
   ok,
   projectRelative,
@@ -16,6 +28,7 @@ import {
   runsFolder,
   setUpProject,
   updateLocal,
+  type ApkInfo,
   type ApkReader,
   type KnownProject,
   type ProjectConfig,
@@ -25,8 +38,10 @@ import {
 import type {
   ApkView,
   FolderPreview,
+  HelperView,
   LastRun,
   NewProject,
+  ProjectDetails,
   ProjectSummary,
   ProjectView,
 } from "../shared/api.js";
@@ -61,6 +76,12 @@ interface Pending {
 /** The project list and the Create project screen (PRJ-1 to PRJ-11, SMP-6). */
 export class Projects {
   private pending: Pending | undefined;
+  // The APK is read again every few seconds while a project page is open; its contents only
+  // change when the file does.
+  private readonly apkInfo = new Map<
+    string,
+    { modifiedAt: number; info: Result<ApkInfo> }
+  >();
   // projects.json is read, changed and written whole, so changes to it go one at a time.
   private writing: Promise<unknown> = Promise.resolve();
 
@@ -75,12 +96,75 @@ export class Projects {
     const project = await this.find(id);
     if (!project) return undefined;
     const config = await loadConfig(project.folder);
+    if (!config.ok) {
+      return {
+        id,
+        folder: project.folder,
+        name: basename(project.folder),
+        configError: config.error,
+      };
+    }
     return {
       id,
       folder: project.folder,
-      name: config.ok ? config.value.name : basename(project.folder),
-      configError: config.ok ? undefined : config.error,
+      name: config.value.name,
+      details: await this.details(id, project.folder, config.value),
     };
+  }
+
+  /** PRJ-4: the APK on its own, read again while the project page is open. */
+  async apkOf(id: string): Promise<Result<ApkView> | undefined> {
+    const project = await this.find(id);
+    if (!project) return undefined;
+    const config = await loadConfig(project.folder);
+    if (!config.ok) return config;
+    const local = await loadLocal(this.options.appData, id);
+    return this.apk(project.folder, config.value, local.apk);
+  }
+
+  async chooseFlows(id: string, files: string[]): Promise<void> {
+    if (await this.find(id))
+      await updateLocal(this.options.appData, id, { flows: files });
+  }
+
+  async chooseDevice(id: string, deviceId: string): Promise<void> {
+    if (await this.find(id))
+      await updateLocal(this.options.appData, id, { device: deviceId });
+  }
+
+  /** PRJ-4: a picked APK wins over the search path until the user goes back to the newest. */
+  async changeApk(
+    id: string,
+    to: "file" | "newest",
+  ): Promise<Result<ApkView> | undefined> {
+    const project = await this.find(id);
+    if (!project) return undefined;
+    if (to === "file") {
+      const path = await this.options.dialogs.pickApk(project.folder);
+      if (path === undefined) return undefined;
+      await updateLocal(this.options.appData, id, { apk: path });
+    } else {
+      await updateLocal(this.options.appData, id, { apk: undefined });
+    }
+    return this.apkOf(id);
+  }
+
+  /** Opens a flow or helper flow of this project, and nothing else (FLOW-5). */
+  async openFlow(id: string, file: string): Promise<void> {
+    const project = await this.find(id);
+    if (!project) return;
+    const folder = flowsFolder(project.folder);
+    const path = resolve(folder, file);
+    const inside = relative(folder, path);
+    if (inside === "" || inside.startsWith("..") || isAbsolute(inside)) return;
+    const list = await discoverFlows(project.folder);
+    if (
+      [...list.flows, ...list.helpers].some(
+        (flow) => resolve(flow.file) === path,
+      )
+    ) {
+      await this.options.openPath(path);
+    }
   }
 
   async pickFolder(): Promise<FolderPreview | undefined> {
@@ -227,17 +311,70 @@ export class Projects {
     };
   }
 
+  private async details(
+    id: string,
+    folder: string,
+    config: ProjectConfig,
+  ): Promise<ProjectDetails> {
+    const [list, local, runs, mockoon] = await Promise.all([
+      discoverFlows(folder),
+      loadLocal(this.options.appData, id),
+      listRuns(runsFolder(this.options.appData, id)),
+      mockoonSettings(folder, config),
+    ]);
+    const flows = list.flows.map((flow) => ({
+      file: basename(flow.file),
+      name: flow.name,
+      problem: flow.problems[0],
+    }));
+    const runnable = flows
+      .filter((flow) => !flow.problem)
+      .map((flow) => flow.file);
+    const parts = flowsFolder(folder);
+    const helpers: HelperView[] = list.helpers.map((helper) => ({
+      file: relative(parts, helper.file).split(sep).join("/"),
+      usedBy: list.flows.filter((flow) =>
+        flow.calls.some((call) => resolve(call.file) === resolve(helper.file)),
+      ).length,
+      problem: helper.problems[0],
+    }));
+    return {
+      flows,
+      helpers,
+      // RUN-2: every flow until the user chooses, then the choice, without flows that went away.
+      chosen: local.flows
+        ? local.flows.filter((file) => runnable.includes(file))
+        : runnable,
+      searchPath: config.apk.searchPath,
+      apk: await this.apk(folder, config, local.apk),
+      mockoon: !mockoon.ok
+        ? mockoon
+        : mockoon.value && config.mockoon
+          ? ok({ file: config.mockoon.file, port: mockoon.value.port })
+          : undefined,
+      device: local.device,
+      lastRun: runs[0] && lastRun(runs[0]),
+    };
+  }
+
   private async apk(
     folder: string,
     config: ProjectConfig,
+    handPicked?: string,
   ): Promise<Result<ApkView>> {
-    const found = await findApk(folder, config);
+    const found = await findApk(folder, config, handPicked);
     if (!found.ok) return found;
+    const { path, modifiedAt } = found.value;
+    let known = this.apkInfo.get(path);
+    if (known?.modifiedAt !== modifiedAt) {
+      known = { modifiedAt, info: await this.options.apkReader.read(path) };
+      this.apkInfo.set(path, known);
+    }
     return ok({
-      fileName: basename(found.value.path),
-      modifiedAt: found.value.modifiedAt,
-      handPicked: false,
-      info: await this.options.apkReader.read(found.value.path),
+      fileName: basename(path),
+      modifiedAt,
+      handPicked: found.value.handPicked,
+      info: known.info,
     });
   }
 

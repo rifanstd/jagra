@@ -329,3 +329,102 @@ describe("Try the sample app (SMP-6)", () => {
     });
   });
 });
+
+describe("the project page (PRJ-4, PRJ-5, RUN-2, DEV-3, FLOW-6)", () => {
+  const flow = (steps: string) => `appId: com.shop\n---\n${steps}`;
+
+  async function shop(): Promise<{ id: string; path: string; list: Projects }> {
+    const path = await folder("shop", {
+      ".jagra/config.yaml":
+        "format: 1\nname: shop\nmockoon:\n  file: .jagra/mockoon.json\n",
+      ".jagra/mockoon.json": JSON.stringify({ port: 3001 }),
+      ".jagra/flows/login.yaml": flow("- runFlow: parts/sign-in.yaml\n"),
+      ".jagra/flows/list.yaml": flow(
+        "- runFlow: parts/sign-in.yaml\n- launchApp\n",
+      ),
+      ".jagra/flows/broken.yaml": flow("- tapOn: [Save\n"),
+      ".jagra/flows/parts/sign-in.yaml": flow("- launchApp\n"),
+      "app/build/outputs/apk/debug/app-debug.apk": "apk",
+    });
+    reader.set(join(path, "app/build/outputs/apk/debug/app-debug.apk"), {
+      packageName: "com.shop",
+      versionName: "1.0",
+      versionCode: 1,
+    });
+    const list = projects();
+    answers.push(path);
+    await list.pickFolder();
+    const created = await list.create({ name: "shop", apk: "search" });
+    if (!created.ok) throw new Error("not created");
+    return { id: created.value.id, path, list };
+  }
+
+  it("lists flows, broken flows and helper flows with how often they are used", async () => {
+    const { id, list } = await shop();
+    const view = await list.get(id);
+    expect(view?.details).toMatchObject({
+      flows: [
+        { file: "broken.yaml", problem: { code: "FLOW_YAML_INVALID" } },
+        { file: "list.yaml", name: "list" },
+        { file: "login.yaml", name: "login" },
+      ],
+      helpers: [{ file: "parts/sign-in.yaml", usedBy: 2 }],
+      // Every flow that can run, until the user chooses.
+      chosen: ["list.yaml", "login.yaml"],
+      searchPath: "app/build/outputs/apk/debug",
+      apk: {
+        ok: true,
+        value: { fileName: "app-debug.apk", handPicked: false },
+      },
+      mockoon: { ok: true, value: { file: ".jagra/mockoon.json", port: 3001 } },
+    });
+    expect(view?.details?.flows[1]?.problem).toBeUndefined();
+  });
+
+  it("keeps the chosen flows and device, without flows that went away", async () => {
+    const { id, path, list } = await shop();
+    await list.chooseFlows(id, ["login.yaml", "gone.yaml", "broken.yaml"]);
+    await list.chooseDevice(id, "emulator-5554");
+    await rm(join(path, ".jagra", "flows", "login.yaml"));
+    expect((await list.get(id))?.details).toMatchObject({
+      chosen: [],
+      device: "emulator-5554",
+    });
+  });
+
+  it("switches between a picked APK and the newest build (PRJ-4)", async () => {
+    const { id, list } = await shop();
+    const picked = join(
+      await folder("elsewhere", { "other.apk": "apk" }),
+      "other.apk",
+    );
+    answers.push(picked);
+    expect(await list.changeApk(id, "file")).toMatchObject({
+      ok: true,
+      value: { fileName: "other.apk", handPicked: true, info: { ok: false } },
+    });
+    expect(await list.apkOf(id)).toMatchObject({
+      value: { fileName: "other.apk" },
+    });
+    expect(await list.changeApk(id, "newest")).toMatchObject({
+      value: {
+        fileName: "app-debug.apk",
+        handPicked: false,
+        info: { ok: true },
+      },
+    });
+  });
+
+  it("opens only this project's flow files", async () => {
+    const { id, path, list } = await shop();
+    await list.openFlow(id, "parts/sign-in.yaml");
+    await list.openFlow(id, "broken.yaml");
+    await list.openFlow(id, "../config.yaml");
+    await list.openFlow(id, join(path, ".jagra", "mockoon.json"));
+    await list.openFlow(id, "missing.yaml");
+    expect(opened).toEqual([
+      join(path, ".jagra", "flows", "parts", "sign-in.yaml"),
+      join(path, ".jagra", "flows", "broken.yaml"),
+    ]);
+  });
+});
