@@ -448,3 +448,15 @@ Format of each entry: what was decided, why, and what was considered instead.
 ### D-97. Tool locations are set only through the system's dialog
 **Decided:** The page can change only the language and whether the environment check was seen. Tool locations (`ENV-6`) and the editor (D-96) are stored in `settings.json` too, but only main writes them, from a system dialog it opened. A location set by hand is passed to every environment check and to Maestro. Copy info for bug report lists each tool's version and state without its path; the log part that follows may still show paths, and the user sees the whole text when pasting it.
 **Why:** Architecture section 7: paths come from the page only through a dialog main opened. A tool location decides which program Jagra runs.
+
+### D-98. Maestro's syntax check runs in the background, once per file version
+**Decided:** Jagra uses `maestro check-syntax` as well as its own check (`FLOW-6`). It checks each flow and helper flow in the background when a project opens and when a file changes, at most two at a time, and keeps the result until the file changes. Before a run it checks only the chosen flows not checked yet. A flow Maestro refuses is shown with its line and Maestro's message and left out of runs, like any broken flow.
+**Why:** Maestro 2.12.1 checks one file per call and takes 5 to 7 seconds each, since Java starts every time (`to-verify.md`). Checking on every run would make each run slower by that much per flow; checking in the background keeps runs fast and still catches what Jagra's own check misses, such as a misspelt command. The owner chose this on 2026-11-16.
+
+### D-99. Flows are watched with Node's own `fs.watch`
+**Decided:** The `FileWatcher` adapter uses Node's recursive `fs.watch`, which Node 24 supports on Windows, macOS and Linux, and reports once for a burst of changes 250 ms apart. Only the project on screen is watched. A folder that cannot be watched is not, and the page still refreshes when the window gets focus.
+**Why:** `FLOW-8` needs only "something changed in this folder". Node's watcher does that without a new dependency, which `CLAUDE.md` asks to avoid.
+
+### D-100. The Maestro Studio guide is a short dialog in Jagra
+**Decided:** The project page's link (`FLOW-9`) opens a dialog with five steps: install Maestro Studio from Maestro's site, start the emulator with the app, choose it in Studio, right-click an element to see its steps, and copy the step into the flow. It links to Maestro's own page and suggests `.jagra/flows` as Studio's workspace. Jagra never installs Studio (`ENV-9`).
+**Why:** The guide must work without the internet and in both languages. Maestro Studio is now Maestro's desktop app; the `maestro studio` command is no longer in Maestro's CLI documentation (`to-verify.md`). The owner chose the dialog on 2026-11-16.

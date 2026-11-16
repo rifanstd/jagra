@@ -76,6 +76,11 @@ export {
   type FolderLook,
   type ProjectSetup,
 } from "./project/create.js";
+export { createFlow, flowFileName, flowTemplate } from "./project/new-flow.js";
+export {
+  NodeFileWatcher,
+  WATCH_SETTLE_MS,
+} from "./adapters/files/node-file-watcher.js";
 export {
   loadLocal,
   localFile,

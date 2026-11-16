@@ -15,6 +15,7 @@ import {
   MaestroFlowRunner,
   Masker,
   MockoonServer,
+  NodeFileWatcher,
   NodePortChecker,
   NodeProcessControl,
   NodeProcessRunner,
@@ -39,7 +40,7 @@ import {
   session,
   shell,
 } from "electron";
-import { EVENTS, REPOSITORY } from "../shared/api.js";
+import { EVENTS, MAESTRO_STUDIO_DOCS, REPOSITORY } from "../shared/api.js";
 import { bugInfo } from "./bug-info.js";
 import { Devices } from "./devices.js";
 import { openFile } from "./open-file.js";
@@ -91,6 +92,7 @@ const settings = new SettingsFile(appData, () =>
 );
 const links = knownLinks();
 links.add(REPOSITORY);
+links.add(MAESTRO_STUDIO_DOCS);
 
 /** ENV-6: tool paths set by hand, kept here for the programs a run starts. */
 let toolPaths: ToolPaths = {};
@@ -213,6 +215,7 @@ const projects = new Projects({
         filters: [{ name: "JSON", extensions: ["json"] }],
       }),
   },
+  watcher: new NodeFileWatcher(),
   // FLOW-5: flow and config files open with the editor chosen in Settings, else the default app.
   openPath: async (path) =>
     openFile(path, {
@@ -323,6 +326,11 @@ void app.whenReady().then(async () => {
           : settings.update({ editor: path });
       },
       resetEditor: () => settings.update({ editor: undefined }),
+      flowsChanged: (projectId) => {
+        for (const window of BrowserWindow.getAllWindows()) {
+          window.webContents.send(EVENTS.flowsChanged, projectId);
+        }
+      },
       copyBugInfo: async () =>
         clipboard.writeText(
           await bugInfo({

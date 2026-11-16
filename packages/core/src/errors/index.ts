@@ -46,6 +46,10 @@ export type JagraError =
   /** The app was built without the sample project (SMP-5). */
   | { code: "SAMPLE_NOT_BUNDLED" }
   | { code: "SAMPLE_COPY_FAILED"; folder: string; detail: string }
+  /** FLOW-4: a flow name that leaves no file name, such as only punctuation. */
+  | { code: "FLOW_NAME_INVALID"; name: string }
+  /** FLOW-4: a flow file with that name exists already. */
+  | { code: "FLOW_EXISTS"; file: string }
   | DeviceError
   | MockoonError
   | FlowProblem;

@@ -11,6 +11,7 @@ import {
 import {
   addProject,
   configFile,
+  createFlow,
   discoverFlows,
   fail,
   findApk,
@@ -30,6 +31,7 @@ import {
   updateLocal,
   type ApkInfo,
   type ApkReader,
+  type FileWatcher,
   type KnownProject,
   type ProjectConfig,
   type Result,
@@ -63,6 +65,8 @@ export interface ProjectsOptions {
   dialogs: Dialogs;
   /** Opens a file with the system's default app (FLOW-5). */
   openPath(path: string): Promise<void>;
+  /** FLOW-8 */
+  watcher: FileWatcher;
   newId?: () => string;
 }
 
@@ -76,6 +80,7 @@ interface Pending {
 /** The project list and the Create project screen (PRJ-1 to PRJ-11, SMP-6). */
 export class Projects {
   private pending: Pending | undefined;
+  private stopWatching: (() => void) | undefined;
   // The APK is read again every few seconds while a project page is open; its contents only
   // change when the file does.
   private readonly apkInfo = new Map<
@@ -124,6 +129,34 @@ export class Projects {
 
   async folderOf(id: string): Promise<string | undefined> {
     return (await this.find(id))?.folder;
+  }
+
+  /** FLOW-4: the new flow's file name, after it opens in the editor. */
+  async newFlow(id: string, name: string): Promise<Result<{ file: string }>> {
+    const project = await this.find(id);
+    if (!project) throw new Error("unknown project");
+    const config = await loadConfig(project.folder);
+    if (!config.ok) return config;
+    const created = await createFlow(project.folder, name, config.value.appId);
+    if (!created.ok) return created;
+    await this.options.openPath(created.value.file);
+    return ok({ file: basename(created.value.file) });
+  }
+
+  /** FLOW-8: one project's flows are watched at a time, the one on screen. */
+  async watchFlows(id: string, onChange: () => void): Promise<void> {
+    this.unwatchFlows();
+    const project = await this.find(id);
+    if (project)
+      this.stopWatching = this.options.watcher.watch(
+        flowsFolder(project.folder),
+        onChange,
+      );
+  }
+
+  unwatchFlows(): void {
+    this.stopWatching?.();
+    this.stopWatching = undefined;
   }
 
   async exists(id: string): Promise<boolean> {

@@ -34,7 +34,9 @@ import { formatAgo, formatWhen } from "../format";
 import type { Go } from "../navigation";
 import { runLook } from "../run-look";
 import { useDevices } from "../use-devices";
+import { NewFlowDialog } from "../components/new-flow-dialog";
 import { RunControls } from "../components/run-controls";
+import { StudioGuide } from "../components/studio-guide";
 
 /** How often the APK is read again, so a new build shows without any action (PRJ-4, D-89). */
 const APK_REFRESH_MS = 5000;
@@ -58,11 +60,20 @@ export function ProjectScreen({ id, go }: { id: string; go: Go }) {
 
   useEffect(() => {
     void load();
-    // Flows edited outside Jagra show when the user comes back (FLOW-6).
+    // FLOW-8: flows added, changed or removed outside Jagra show at once, and also when the
+    // user comes back to the window.
     const refresh = () => void load();
     window.addEventListener("focus", refresh);
-    return () => window.removeEventListener("focus", refresh);
-  }, [load]);
+    void window.jagra.projects.watchFlows(id);
+    const stop = window.jagra.projects.onFlowsChanged((projectId) => {
+      if (projectId === id) refresh();
+    });
+    return () => {
+      window.removeEventListener("focus", refresh);
+      stop();
+      void window.jagra.projects.unwatchFlows();
+    };
+  }, [load, id]);
 
   // The project was removed from the list in the meantime.
   useEffect(() => {
@@ -131,6 +142,7 @@ function ProjectBody({
   go: Go;
 }) {
   const { t } = useTranslation();
+  const [guide, setGuide] = useState(false);
   const [chosen, setChosen] = useState(details.chosen);
   useEffect(() => setChosen(details.chosen), [details.chosen]);
   const { view, refresh } = useDevices();
@@ -161,6 +173,11 @@ function ProjectBody({
         {details.helpers.length > 0 && (
           <Helpers id={id} helpers={details.helpers} />
         )}
+        <p className="text-sm text-muted-foreground">
+          {t("studio.lead")}{" "}
+          <TextLink onClick={() => setGuide(true)}>{t("studio.link")}</TextLink>
+        </p>
+        <StudioGuide open={guide} onClose={() => setGuide(false)} />
       </div>
       <Card className="min-w-0 gap-0 py-0">
         <h2 className="px-5 pt-4 pb-3 font-semibold">
@@ -215,23 +232,34 @@ function Flows({
 }) {
   const { t } = useTranslation();
   const broken = flows.filter((f) => f.problem).length;
+  const [creating, setCreating] = useState(false);
 
   return (
     <Card className="gap-0 py-0">
-      <div className="px-5 pt-4 pb-3">
-        <h2 className="font-semibold">{t("project.flows.title")}</h2>
-        {flows.length > 0 && (
-          <p
-            className="text-sm text-muted-foreground"
-            data-testid="flows-chosen"
-          >
-            {t("project.flows.chosen", {
-              chosen: chosen.length,
-              total: flows.length,
-            })}
-            {broken > 0 && t("project.flows.cannotRun", { count: broken })}
-          </p>
-        )}
+      <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2 px-5 pt-4 pb-3">
+        <div>
+          <h2 className="font-semibold">{t("project.flows.title")}</h2>
+          {flows.length > 0 && (
+            <p
+              className="text-sm text-muted-foreground"
+              data-testid="flows-chosen"
+            >
+              {t("project.flows.chosen", {
+                chosen: chosen.length,
+                total: flows.length,
+              })}
+              {broken > 0 && t("project.flows.cannotRun", { count: broken })}
+            </p>
+          )}
+        </div>
+        <Button variant="outline" size="sm" onClick={() => setCreating(true)}>
+          {t("newFlow.button")}
+        </Button>
+        <NewFlowDialog
+          projectId={id}
+          open={creating}
+          onClose={() => setCreating(false)}
+        />
       </div>
       {flows.length === 0 ? (
         <p className="px-5 pb-4 text-sm text-muted-foreground">

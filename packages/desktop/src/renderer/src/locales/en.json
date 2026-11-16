@@ -528,6 +528,31 @@
     "copied": "Copied",
     "bugInfoNote": "It copies Jagra's version, the operating system, each tool's version and the latest part of the log, with secrets masked."
   },
+  "newFlow": {
+    "button": "New flow",
+    "title": "New flow",
+    "description": "Jagra creates the file in .jagra/flows from a template, then opens it in your editor.",
+    "name": "Flow name",
+    "placeholder": "For example: Login with a wrong password",
+    "cancel": "Cancel",
+    "create": "Create and open"
+  },
+  "studio": {
+    "lead": "Flows often fail because of a guessed button name.",
+    "link": "How to find element names with Maestro Studio",
+    "title": "Finding element names with Maestro Studio",
+    "intro": "Maestro Studio, Maestro's own desktop app, shows the elements on the device's screen and the Maestro steps that reach them, so no button text has to be guessed.",
+    "steps": {
+      "install": "Install Maestro Studio from Maestro's site. Jagra does not install it.",
+      "device": "Start the emulator and open your app on it.",
+      "open": "Open Maestro Studio and choose the emulator with Select device, at the top left.",
+      "rightClick": "Right-click an element on the screen. Maestro Studio lists the steps that reach it, such as tapping it.",
+      "copy": "Copy that step into your flow file, then run the flow in Jagra."
+    },
+    "tip": "Maestro Studio can use the project's .jagra/flows folder as its workspace, so the flows it saves show up in Jagra at once.",
+    "docs": "Maestro Studio on Maestro's site",
+    "close": "Close"
+  },
   "errors": {
     "PROGRAM_NOT_FOUND": "{{program}} was not found. Install it, or set its location in Settings > Tool locations.",
     "PROGRAM_IS_SCRIPT": "{{program}} at {{path}} is a script, which Jagra does not start. Install the program itself.",
@@ -574,6 +599,8 @@
     "PROJECT_SETUP_FAILED": "The .jagra folder in {{folder}} could not be created.",
     "MOCKOON_FILE_OUTSIDE_PROJECT": "{{file}} is outside the project folder. Choose a Mockoon file inside it.",
     "SAMPLE_NOT_BUNDLED": "This build of Jagra has no sample app.",
-    "SAMPLE_COPY_FAILED": "The sample app could not be copied to {{folder}}."
+    "SAMPLE_COPY_FAILED": "The sample app could not be copied to {{folder}}.",
+    "FLOW_NAME_INVALID": "\"{{name}}\" gives no file name. Use letters or digits.",
+    "FLOW_EXISTS": "{{file}} exists already. Choose another name."
   }
 }

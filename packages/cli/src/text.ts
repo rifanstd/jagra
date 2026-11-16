@@ -50,6 +50,9 @@ const ERRORS: Describe = {
   MOCKOON_FILE_OUTSIDE_PROJECT: (e) =>
     `${e.file} is outside the project folder. Choose a Mockoon file inside it.`,
   SAMPLE_NOT_BUNDLED: () => "This build of Jagra has no sample app.",
+  FLOW_NAME_INVALID: (e) =>
+    `"${e.name}" gives no file name. Use letters or digits.`,
+  FLOW_EXISTS: (e) => `${e.file} exists already. Choose another name.`,
   SAMPLE_COPY_FAILED: (e) =>
     `The sample app could not be copied to ${e.folder}: ${e.detail}`,
   DEVICE_NOT_FOUND: (e) => `Device ${e.deviceId} is not connected.`,

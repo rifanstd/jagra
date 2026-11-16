@@ -5,6 +5,7 @@ import { ActiveProcessFile, type ToolStatus } from "@jagra/core";
 import {
   FakeApkReader,
   FakeClock,
+  FakeFileWatcher,
   FakeFlowRunner,
   FakeMockServer,
   FakePortChecker,
@@ -75,6 +76,7 @@ function setup() {
           pickJson: () => Promise.resolve(undefined),
         },
         openPath: () => Promise.resolve(),
+        watcher: new FakeFileWatcher(),
       }),
       devices: new Devices(
         () => undefined,
@@ -108,6 +110,7 @@ function setup() {
         copied.push("bug info");
         return Promise.resolve();
       },
+      flowsChanged: () => undefined,
       secretNames: () =>
         Promise.resolve([{ name: "PASSWORD", hasValue: false, used: true }]),
       checkEnvironment: (onProgress) => {

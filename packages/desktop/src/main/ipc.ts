@@ -36,6 +36,8 @@ export interface Handlers {
   resetEditor(): Promise<SettingsView>;
   /** REL-7 */
   copyBugInfo(): Promise<void>;
+  /** FLOW-8: tells every window that a project's flows changed. */
+  flowsChanged(projectId: string): void;
   /** FLOW-7 */
   secretNames(projectId: string): Promise<SecretName[] | undefined>;
 }
@@ -151,6 +153,15 @@ export function registerIpc(
     z.tuple([z.string().min(1).max(100), z.string().min(1).max(1024)]),
     ([projectId, file]) => projects.openFlow(projectId, file),
   );
+  on(
+    CHANNELS.projectsNewFlow,
+    z.tuple([z.string().min(1).max(100), z.string().trim().min(1).max(100)]),
+    ([projectId, name]) => projects.newFlow(projectId, name),
+  );
+  on(CHANNELS.projectsWatchFlows, id, ([projectId]) =>
+    projects.watchFlows(projectId, () => handlers.flowsChanged(projectId)),
+  );
+  on(CHANNELS.projectsUnwatchFlows, z.tuple([]), () => projects.unwatchFlows());
   on(CHANNELS.devicesWatch, z.tuple([]), () => handlers.devices.watch());
   on(CHANNELS.devicesRefresh, z.tuple([]), () => handlers.devices.refresh());
 
