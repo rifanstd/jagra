@@ -1,13 +1,17 @@
 import type { ToolName } from "@jagra/core/types";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import type {
-  Language,
-  Platform,
-  ProjectSummary,
-  SecretName,
-  SettingsView,
+import {
+  AGENTS_README,
+  type AgentsView,
+  type Language,
+  type Platform,
+  type ProjectSummary,
+  type SecretName,
+  type SettingsView,
 } from "../../../shared/api";
+import { AddAgentDialog } from "../components/add-agent-dialog";
+import { TextLink } from "../components/text-link";
 import { Note } from "../components/note";
 import { Status } from "../components/status";
 import { Button } from "../components/ui/button";
@@ -34,8 +38,8 @@ import { cn } from "../lib/utils";
 import { TOOL_ORDER } from "../environment";
 import type { EnvironmentCheck } from "../use-environment";
 
-/** SET-1. The AI agent page arrives with the agents in M10 (D-78). */
-const PAGES = ["secrets", "language", "tools", "editor"] as const;
+/** SET-1, in the order of the mockup. */
+const PAGES = ["agent", "secrets", "language", "tools", "editor"] as const;
 type Page = (typeof PAGES)[number];
 
 export type LanguageChoice = Language | "system";
@@ -51,7 +55,7 @@ export function SettingsScreen({
   platform: Platform;
 }) {
   const { t } = useTranslation();
-  const [page, setPage] = useState<Page>("secrets");
+  const [page, setPage] = useState<Page>("agent");
   const [view, setView] = useState<SettingsView>();
 
   useEffect(() => {
@@ -82,6 +86,7 @@ export function SettingsScreen({
             </button>
           ))}
         </nav>
+        {page === "agent" && <AgentPage />}
         {page === "secrets" && <SecretsPage />}
         {page === "language" && view && (
           <LanguagePage
@@ -120,6 +125,111 @@ function PageCard({
       </div>
       {children}
     </Card>
+  );
+}
+
+/**
+ * AGT-1 to AGT-3, AGT-6: the agents found on this computer, the one in use, and agents added by
+ * hand. Logins stay in each agent (AGT-4).
+ */
+function AgentPage() {
+  const { t, i18n } = useTranslation();
+  const [view, setView] = useState<AgentsView>();
+  const [adding, setAdding] = useState<"acp" | "cli">();
+
+  useEffect(() => {
+    void window.jagra.agents.view().then(setView);
+  }, []);
+
+  const anyFound = view?.agents.some((agent) => agent.found) ?? false;
+
+  return (
+    <PageCard title={t("agents.title")} description={t("agents.description")}>
+      {view && (
+        <RadioGroup
+          value={view.inUse ?? ""}
+          aria-label={t("agents.legend")}
+          className="gap-0 rounded-md border"
+          data-testid="agents"
+          onValueChange={(id) =>
+            void window.jagra.agents.choose(id).then(setView)
+          }
+        >
+          {view.agents.map((agent) => (
+            <div
+              key={agent.id}
+              data-testid={`agent-${agent.id}`}
+              className="flex flex-wrap items-center gap-x-3 gap-y-1 border-t px-4 py-2.5 first:border-t-0"
+            >
+              {agent.found ? (
+                <RadioGroupItem value={agent.id} id={`agent-${agent.id}`} />
+              ) : (
+                <span className="size-4 shrink-0" aria-hidden="true" />
+              )}
+              <Label
+                htmlFor={agent.found ? `agent-${agent.id}` : undefined}
+                className="min-w-0 flex-1 flex-wrap gap-x-2 font-normal"
+              >
+                <span className="font-medium">{agent.name}</span>
+                <code className="min-w-0 truncate font-mono text-xs text-muted-foreground">
+                  {agent.command}
+                </code>
+              </Label>
+              {agent.found ? (
+                <Status tone="passed">{t("agents.found")}</Status>
+              ) : (
+                <Status tone="optional">{t("agents.notFound")}</Status>
+              )}
+              {agent.custom && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() =>
+                    void window.jagra.agents
+                      .removeCustom(agent.id)
+                      .then(setView)
+                  }
+                >
+                  {t("agents.remove")}
+                </Button>
+              )}
+            </div>
+          ))}
+        </RadioGroup>
+      )}
+      {view && !anyFound && (
+        <p className="text-sm text-muted-foreground">{t("agents.none")}</p>
+      )}
+      <div className="flex flex-wrap gap-2">
+        <Button variant="outline" size="sm" onClick={() => setAdding("acp")}>
+          {t("agents.addAcp")}
+        </Button>
+        <Button variant="outline" size="sm" onClick={() => setAdding("cli")}>
+          {t("agents.addCommand")}
+        </Button>
+      </div>
+      <Note tone="info">
+        <p className="text-sm">
+          {t("agents.terms")}{" "}
+          <TextLink
+            onClick={() =>
+              void window.jagra.app.openLink(
+                i18n.language === "id" ? AGENTS_README.id : AGENTS_README.en,
+              )
+            }
+          >
+            {t("agents.termsLink")}
+          </TextLink>
+        </p>
+      </Note>
+      <AddAgentDialog
+        protocol={adding}
+        onClose={(next) => {
+          setAdding(undefined);
+          if (next) setView(next);
+        }}
+      />
+    </PageCard>
   );
 }
 

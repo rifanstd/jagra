@@ -395,7 +395,7 @@ ACP is the Agent Client Protocol, an open standard for apps to talk to coding ag
 - **AGT-3** The user can add an agent that does not support ACP by entering a name, a start command containing `{instructions}`, and optionally a continue command containing `{session}` and `{instructions}`. Jagra replaces `{instructions}` with the path of a file holding the instructions, and `{session}` with the session id. The command is split into a program and arguments when it is saved, and placeholders are filled in as separate arguments. Jagra must never build a command by joining strings and passing them to a shell.
 - **AGT-4** Jagra never handles an agent's login, token or API key, never reads an agent's credential files, and never offers a login of its own. Whatever login the user set up in the agent is what the agent uses.
 - **AGT-5** Every call to an agent starts from a user action (Create flow or Ask agent to fix). Jagra never calls an agent in the background or repeats a call on its own.
-- **AGT-6** The AI agent settings page carries a short note that each provider has its own terms for using its agent from other tools, with a link to the README section on this. For Codex on Windows, it notes that Codex recommends WSL.
+- **AGT-6** The AI agent settings page carries a short note that each provider has its own terms for using its agent from other tools, with a link to the README section on this (`decisions.md` D-105, D-106).
 - **AGT-7** If no agent is set up, the Create flow with AI button is disabled with the explanation: "Needs an AI agent installed on this computer, such as Claude Code. Set one up in Settings." Every other feature keeps working.
 
 ### Requirements: what the agent may do

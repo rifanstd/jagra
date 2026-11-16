@@ -15,6 +15,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { CHANNELS, EVENTS } from "../shared/api.js";
 import { registerIpc, type IpcMainLike } from "./ipc.js";
 import { Devices } from "./devices.js";
+import { Agents } from "./agents.js";
 import { Projects } from "./projects.js";
 import { reportText } from "./report-text.js";
 import { Runs } from "./runs.js";
@@ -50,6 +51,7 @@ function setup() {
   const copied: string[] = [];
   const sent: [string, unknown[]][] = [];
   const picked: string[] = [];
+  const confirmed: string[] = [];
   const settingsFile = new SettingsFile(dir, () => ["en-US"]);
   registerIpc(
     ipc,
@@ -99,6 +101,16 @@ function setup() {
         broadcast: () => undefined,
       }),
       secrets,
+      agents: new Agents({
+        settings: settingsFile,
+        find: () =>
+          Promise.resolve([{ id: "claude-code", path: "/bin/claude" }]),
+        locate: () => Promise.resolve(true),
+        confirm: (agent) => {
+          confirmed.push(agent.name);
+          return Promise.resolve(true);
+        },
+      }),
       pickToolPath: (tool) => {
         picked.push(tool);
         return Promise.resolve(undefined);
@@ -134,7 +146,7 @@ function setup() {
         ...args,
       ),
     );
-  return { handlers, call, opened, copied, sent, picked };
+  return { handlers, call, opened, copied, sent, picked, confirmed };
 }
 
 describe("registerIpc (SEC-6)", () => {
@@ -233,6 +245,32 @@ describe("registerIpc (SEC-6)", () => {
       "invalid arguments",
     );
     await expect(call(CHANNELS.projectsLocate, [1])).rejects.toThrow(
+      "invalid arguments",
+    );
+  });
+
+  it("takes an agent command only as text, which main splits and the user confirms (D-109)", async () => {
+    const { call, confirmed } = setup();
+    await expect(
+      call(CHANNELS.settingsSet, [{ customAgents: [] }]),
+    ).rejects.toThrow("invalid arguments");
+    await expect(
+      call(CHANNELS.agentsAddCustom, [
+        { name: "X", protocol: "acp", command: ["x", "acp"] },
+      ]),
+    ).rejects.toThrow("invalid arguments");
+    await expect(
+      call(CHANNELS.agentsAddCustom, [
+        { name: "X", protocol: "cli", start: "x {instructions}", id: "mine" },
+      ]),
+    ).rejects.toThrow("invalid arguments");
+    const added = (await call(CHANNELS.agentsAddCustom, [
+      { name: "Mine", protocol: "acp", command: "mine acp" },
+    ])) as { ok: boolean; value?: { inUse?: string } };
+    expect(added.ok).toBe(true);
+    expect(added.value?.inUse).toMatch(/^custom-/);
+    expect(confirmed).toEqual(["Mine"]);
+    await expect(call(CHANNELS.agentsChoose, [""])).rejects.toThrow(
       "invalid arguments",
     );
   });

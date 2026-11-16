@@ -9,6 +9,7 @@ import {
   type SecretName,
 } from "../shared/api.js";
 import type { SecretStore } from "@jagra/core";
+import type { Agents } from "./agents.js";
 import type { Devices } from "./devices.js";
 import { RUN_ID, type Runs } from "./runs.js";
 import type { Projects } from "./projects.js";
@@ -26,6 +27,7 @@ export interface Handlers {
   devices: Devices;
   runs: Runs;
   secrets: SecretStore;
+  agents: Agents;
   checkEnvironment(
     onProgress: (status: ToolStatus) => void,
   ): Promise<EnvironmentView>;
@@ -237,6 +239,29 @@ export function registerIpc(
       await handlers.secrets.remove(projectId, name);
     },
   );
+
+  // AGT-1 to AGT-3. A command is only text here; main splits it and the user confirms it (D-109).
+  const { agents } = handlers;
+  const name = z.string().trim().min(1).max(60);
+  const command = z.string().trim().min(1).max(2000);
+  on(CHANNELS.agentsView, z.tuple([]), () => agents.view());
+  on(CHANNELS.agentsChoose, id, ([agent]) => agents.choose(agent));
+  on(
+    CHANNELS.agentsAddCustom,
+    z.tuple([
+      z.discriminatedUnion("protocol", [
+        z.strictObject({ name, protocol: z.literal("acp"), command }),
+        z.strictObject({
+          name,
+          protocol: z.literal("cli"),
+          start: command,
+          continue: z.string().trim().max(2000).optional(),
+        }),
+      ]),
+    ]),
+    ([input]) => agents.addCustom(input),
+  );
+  on(CHANNELS.agentsRemoveCustom, id, ([agent]) => agents.removeCustom(agent));
 
   const tool = z.tuple([
     z.enum(["java", "adb", "maestro", "emulator", "mockoon"]),

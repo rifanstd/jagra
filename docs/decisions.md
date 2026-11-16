@@ -464,3 +464,39 @@ Format of each entry: what was decided, why, and what was considered instead.
 ### D-101. Maestro's syntax check runs in the app only, and never blocks on its own failure
 **Decided:** Only the desktop app runs `maestro check-syntax` (D-98); `jagra run` does not, so a flow Maestro would refuse runs and fails with Maestro's message. In the app, results are kept in memory by the file's contents and dropped when the Maestro in use changes. A check that gives no verdict (Java fails to start, a time limit of 60 seconds, output Jagra does not recognise) does not mark the flow broken; it is logged, and the flow runs as usual. Helper flows are checked on their own, since Maestro does not follow `runFlow`.
 **Why:** The CLI has no background in which to check, and each check costs 5 to 7 seconds, which would slow every CI run. A failed check says nothing about the flow, so holding a flow back for it would make Jagra refuse good flows when Java misbehaves. Maestro prints its own name for the file instead of the path, so results depend only on the contents. The owner chose CLI without the check on 2026-11-16.
+
+### D-102. How Jagra calls Claude Code
+**Decided:** Jagra starts `claude` in the project folder with `-p --output-format json --restricted --tools Read,Glob,Grep,Write,Edit --allowedTools Read Glob Grep "Write(.jagra/flows/**)" "Edit(.jagra/flows/**)" --permission-mode dontAsk --append-system-prompt-file <instructions file>` and a fixed one-line prompt. A new request adds `--session-id <id>`, with an id Jagra makes; Ask agent to fix adds `--resume <id>` instead. From the JSON result Jagra keeps only `session_id`, `result`, `is_error` and the paths in `permission_denials`.
+**Why:** Checked on 2026-11-16 with Claude Code 2.1.325 in a dummy folder (`to-verify.md`). `--restricted` removes the tools that run commands, ignores the user's and the project's settings files (which could allow more) and keeps file tools inside the working folder. `dontAsk` refuses anything the allow list does not name. Writes in `.jagra/flows` and `parts` worked; an edit to `app/strings.xml`, a new file in `app/` and a file outside the folder were refused; no shell tool existed. `--resume` kept the session's context. The result also carries account fields that Jagra has no use for, so it reads only the fields above (D-06).
+
+### D-103. How Jagra calls Codex
+**Decided:** Jagra starts `codex exec --json --sandbox workspace-write --skip-git-repo-check -C <project folder> -o <last message file> <prompt>`, and `codex exec resume <id>` with the same options to continue. The prompt is one line pointing to the instructions file. The session id is the `thread_id` of the `thread.started` event; the final message is read from the `-o` file. The safety net (`AGT-19`) catches writes outside `.jagra/flows`, since Codex has no rule that limits writes to one folder.
+**Why:** Codex is not installed on the development machine, so these come from Codex's documentation read on 2026-11-16 (`to-verify.md`), and are checked again when Codex is available. `codex exec` is read-only by default, which would stop it writing the flow. `-o` gives the final message without parsing every event.
+
+### D-104. Agents installed with npm on Windows are started through what the shim points to
+**Decided:** On Windows, when an agent's program on `PATH` is an npm `.cmd` shim, Jagra reads the shim and finds the file it starts under `%dp0%\node_modules\...`. A `.exe` is started directly; a `.js` file is started with Node as in D-34. Anything else is refused with `PROGRAM_IS_SCRIPT` (D-31).
+**Why:** D-31 refuses `.cmd` files. OpenCode 1.16.2 ships a native `bin\opencode.exe` inside its npm package and the shim only calls it; Codex's `bin/codex.js` starts a native binary from its platform package. Reading the shim works for both without a rule per agent.
+
+### D-105. No WSL note for Codex
+**Decided:** The AI agent settings page shows Codex like the other agents, without a note about WSL. `AGT-6` is updated.
+**Why:** Codex's documentation, read on 2026-11-16, recommends its native Windows sandbox by default and WSL only for Linux tooling or work that already lives in WSL. The note would tell users something Codex no longer says. The owner chose this on 2026-11-16.
+
+### D-106. A short README section on agents comes before M12
+**Decided:** `README.md` and `README.id.md` get a short section on AI agents and provider terms in M10, so the link on the AI agent settings page (`AGT-6`) works. The full README in M12 rewrites it.
+**Why:** A link to a section that does not exist is a dead link. The owner chose this on 2026-11-16.
+
+### D-107. The Create flow with AI button appears with its screen
+**Decided:** Until the Create flow with AI screen exists (M10 part 5), the project page shows the button only when no agent is set up: disabled, with the explanation from `AGT-7` and a link to Settings. Once an agent is set up, the button is not shown until part 5 adds the screen.
+**Why:** A button that does nothing is worse than no button. The owner chose this on 2026-11-16.
+
+### D-108. Jagra makes the session id for custom agents
+**Decided:** For every flow request, Jagra makes a new session id (a UUID). A custom agent's start command may use `{session}`; its continue command must use both `{session}` and `{instructions}`. Claude Code gets the same id through `--session-id`.
+**Why:** `AGT-3` fills `{session}` but does not say where the id comes from, and a custom command has no agreed way to report one. Making it in Jagra works for every agent. The owner chose this on 2026-11-16.
+
+### D-109. A custom agent command is confirmed in a system dialog before it is saved
+**Decided:** When the user saves a custom agent, main splits the command into a program and arguments and shows them in a system dialog, with Save and Cancel. Only Save stores it. The page cannot save an agent command any other way.
+**Why:** A custom command decides which program Jagra runs, which is why tool locations come only from a dialog (D-97). The command must be typed (`AGT-2`, `AGT-3`), so the system dialog, which the page cannot fake or press, is where the user confirms it. It also shows exactly how the command was split. The owner chose this on 2026-11-16.
+
+### D-110. Until the user chooses, the first agent found is used
+**Decided:** Settings > AI agent marks one agent as the one in use: the agent the user chose, if its program is still found, otherwise the first agent found in the order of spec section 10, then the custom agents. A newly added custom agent becomes the choice. When no agent is found, none is in use and the Create flow with AI button is disabled (`AGT-7`).
+**Why:** `AGT-1` lets the user choose but does not say what happens before they do. Someone with only Claude Code installed should not have to visit Settings first, and a choice whose program was removed should not leave the button enabled for an agent that cannot start.

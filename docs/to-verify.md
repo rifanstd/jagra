@@ -37,7 +37,7 @@ This file lists everything the design depends on but nobody has confirmed yet: e
 | Whether Node can start `.bat` and `.cmd` files without a shell | `SEC-8`, D-21 | 2026-11-07. No. Since the fix for CVE-2024-27980 (nodejs.org April 2024 security releases), `spawn` throws `EINVAL` for them without `shell: true`; tried on Node 24.22.1 on Windows. Led to D-31. |
 | How Maestro, Mockoon CLI and each agent are installed on Windows: a real `.exe`, a `.bat`, or an npm `.cmd` shim, and how to start each without a shell | `ENV-1`, D-31 | Maestro and Mockoon CLI, 2026-11-07: Maestro 2.12.1 ships `bin\maestro.bat` (a Gradle launcher that runs Java with `lib\*`) and a Unix `bin/maestro`. Mockoon CLI is an npm `.cmd` shim that runs `node <shim folder>
 ode_modules\@mockoon\cliin
-un.js`. Both started without a shell as in D-34. Agents still open, M10. |
+un.js`. Both started without a shell as in D-34. Agents, 2026-11-16: Claude Code is `claude.exe`; Oh My Pi is `omp.exe`; OpenCode 1.16.2 is an npm `.cmd` shim whose target is `node_modules\opencode-ai\bin\opencode.exe`; Codex and Gemini CLI are npm packages (not installed here). Led to D-104. |
 
 ## Maestro
 
@@ -62,10 +62,10 @@ un.js`. Both started without a shell as in D-34. Agents still open, M10. |
 
 | Item | Why it matters | Found |
 |---|---|---|
-| Claude Code: non-interactive flags, how to get a session id, how to continue a session | `AGT-10`, `AGT-17` | |
-| Claude Code: permission flags to allow reading and to allow writing only inside `.jagra/flows` | `AGT-10` | |
-| Codex: non-interactive flags and how to continue a session | `AGT-17` | |
-| Codex on Windows: current support status and the WSL recommendation | `AGT-6` | |
+| Claude Code: non-interactive flags, how to get a session id, how to continue a session | `AGT-10`, `AGT-17` | 2026-11-16, Claude Code 2.1.325 on Windows (`claude.exe` in `~\.local\bin`). `claude -p --output-format json` prints one JSON object with `session_id`, `result`, `is_error`, `permission_denials` and account fields such as `credential_expires_at`. `--session-id <uuid>` sets the id; `--resume <id>` continues it with its context. `--append-system-prompt-file <path>` works although `--help` mentions it only under `--bare`. Led to D-102. |
+| Claude Code: permission flags to allow reading and to allow writing only inside `.jagra/flows` | `AGT-10` | 2026-11-16, same version, in a dummy folder. With `--restricted --tools Read,Glob,Grep,Write,Edit --allowedTools Read Glob Grep "Write(.jagra/flows/**)" "Edit(.jagra/flows/**)" --permission-mode dontAsk`: writing `.jagra/flows/hello.yaml` and `.jagra/flows/parts/login.yaml` worked; editing `app/strings.xml`, writing `app/new.txt` and writing `../outside.txt` were refused and listed in `permission_denials`; no shell tool existed. Paths in the rules are relative to the working folder. Led to D-102. |
+| Codex: non-interactive flags and how to continue a session | `AGT-17` | 2026-11-16, documentation only (learn.chatgpt.com non-interactive mode and CLI reference; Codex is not installed here). `codex exec "<prompt>"` (stdin with `-`); `--json` prints JSONL events and `thread.started` carries `thread_id`; `codex exec resume <id>` or `--last`; `--sandbox` takes `read-only`, `workspace-write` or `danger-full-access`, with read-only the default; `--skip-git-repo-check`; `-C <folder>`; `-o <file>` for the final message. No option forbids commands. Check again with Codex installed. Led to D-103. |
+| Codex on Windows: current support status and the WSL recommendation | `AGT-6` | 2026-11-16, learn.chatgpt.com Windows pages. Codex runs natively on Windows with its own sandbox; WSL2 is suggested only for Linux tooling or work that already lives in WSL. Windows 11 recommended, Windows 10 best effort. The npm package's `bin/codex.js` starts `vendor\x86_64-pc-windows-msvc\bin\codex.exe` from `@openai/codex-win32-x64`. Led to D-105. |
 | Exact commands that start Gemini CLI, OpenCode and Oh My Pi in ACP mode | Spec section 10 | |
 | ACP TypeScript SDK: current version, how sessions are created and loaded, how permission requests and file writes reach the client | `AGT-9`, `AGT-17` | |
 | Whether each ACP agent supports loading an earlier session | `AGT-18` | |
