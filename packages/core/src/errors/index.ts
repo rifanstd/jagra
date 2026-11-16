@@ -41,6 +41,14 @@ export type JagraError =
   | { code: "OUTPUT_MASK_FAILED"; folder: string; detail: string }
   /** `maestro check-syntax` gave no verdict, so the flow is not held back by it (D-98). */
   | { code: "SYNTAX_CHECK_FAILED"; file: string; detail: string }
+  /** A custom agent command could not be read (AGT-2, AGT-3, D-21). */
+  | { code: "AGENT_COMMAND_EMPTY" }
+  | { code: "AGENT_COMMAND_QUOTE" }
+  | { code: "AGENT_COMMAND_NEEDS"; placeholder: "{instructions}" | "{session}" }
+  | { code: "AGENT_NAME_TAKEN"; name: string }
+  /** The agent stopped with an error, or its answer could not be read. */
+  | { code: "AGENT_FAILED"; agent: string; detail: string }
+  | { code: "AGENT_CANCELLED"; agent: string }
   /** The `.jagra` folder could not be created or updated (PRJ-1). */
   | { code: "PROJECT_SETUP_FAILED"; folder: string; detail: string }
   /** The Mockoon file must sit inside the project folder, which config.yaml points into (spec section 4). */

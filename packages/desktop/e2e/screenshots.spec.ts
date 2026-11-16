@@ -212,6 +212,9 @@ test("settings and about screens", async () => {
     }
   };
   await page.getByRole("button", { name: "Settings" }).click();
+  await page.getByTestId("agent-claude-code").waitFor();
+  await shoot("settings-agent");
+  await page.getByRole("button", { name: "Secrets", exact: true }).click();
   await page.getByText("No flow of this project uses a variable.").waitFor();
   await shoot("settings-secrets");
   await page
@@ -294,6 +297,45 @@ test("maestro syntax check", async () => {
     .getByText("Broken")
     .waitFor({ timeout: 30_000 });
   await shoot("syntax-refused");
+  await app.close();
+  await rm(home, { recursive: true, force: true });
+});
+
+test("ai agent screens", async () => {
+  const home = await mkdtemp(join(tmpdir(), "jagra-shots-"));
+  const { app, page } = await launch(home, {
+    env: { JAGRA_TEST_AGENTS: "none" },
+  });
+  await page.setViewportSize({ width: 1200, height: 900 });
+  await page.emulateMedia({ colorScheme: null });
+  await page.getByRole("button", { name: "Continue to projects" }).click();
+  await page.getByRole("button", { name: "Try the sample app" }).click();
+  await page.getByTestId("needs-agent").waitFor();
+  const shoot = async (name: string) => {
+    for (const theme of ["light", "dark"] as const) {
+      await app.evaluate(
+        ({ nativeTheme }, value) => (nativeTheme.themeSource = value),
+        theme,
+      );
+      await page.waitForTimeout(300);
+      await page.screenshot({
+        path: join(folder, `${name}-${theme}.png`),
+        fullPage: true,
+      });
+    }
+  };
+  await shoot("project-no-agent");
+  await page.getByRole("button", { name: "Set one up in Settings" }).click();
+  await page.getByTestId("agents").waitFor();
+  await shoot("settings-agent-none");
+  await page
+    .getByRole("button", { name: "Add an agent with its own command" })
+    .click();
+  await page.getByLabel("Name").fill("My agent");
+  await page.getByLabel("Start command").fill("my-agent --file");
+  await page.getByRole("button", { name: "Check and save" }).click();
+  await page.getByText("The command must contain {instructions}.").waitFor();
+  await shoot("add-agent-dialog");
   await app.close();
   await rm(home, { recursive: true, force: true });
 });

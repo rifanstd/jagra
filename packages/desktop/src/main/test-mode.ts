@@ -4,7 +4,9 @@ import { deflateSync } from "node:zlib";
 import { setTimeout as sleep } from "node:timers/promises";
 import {
   fail,
+  KNOWN_AGENTS,
   ok,
+  type AgentFinding,
   type ApkReader,
   type Device,
   type DeviceState,
@@ -187,6 +189,17 @@ export class TestSyntaxChecker implements SyntaxChecker {
     await sleep(this.ms);
     return ok(this.refusals.get(basename(file)) ?? { accepted: true });
   }
+}
+
+/**
+ * Agents in test mode: the known agents `JAGRA_TEST_AGENTS` names are found, for example
+ * `claude-code,opencode`. Claude Code alone by default, `none` for none.
+ */
+export function testAgentFindings(env: NodeJS.ProcessEnv): AgentFinding[] {
+  const listed = (env.JAGRA_TEST_AGENTS ?? "claude-code").split(",");
+  return KNOWN_AGENTS.map(({ id }) =>
+    listed.includes(id) ? { id, path: `/test/${id}` } : { id },
+  );
 }
 
 /** Any existing file reads as version 1.0 (1) of `JAGRA_TEST_APK_PACKAGE`, or the sample's package. */

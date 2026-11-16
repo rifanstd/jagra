@@ -34,6 +34,7 @@
   "settings": {
     "title": "Settings",
     "pages": {
+      "agent": "AI agent",
       "secrets": "Secrets",
       "language": "Language",
       "tools": "Tool locations",
@@ -330,6 +331,11 @@
         "screen-on-unlocked": "Keep the screen on and unlocked during the run.",
         "simulated-input": "On Xiaomi phones, also turn on \"USB debugging (Security settings)\" in Developer options."
       }
+    },
+    "ai": {
+      "button": "Create flow with AI",
+      "needsAgent": "Needs an AI agent installed on this computer, such as Claude Code.",
+      "setUp": "Set one up in Settings"
     }
   },
   "running": {
@@ -605,6 +611,53 @@
     "SAMPLE_NOT_BUNDLED": "This build of Jagra has no sample app.",
     "SAMPLE_COPY_FAILED": "The sample app could not be copied to {{folder}}.",
     "FLOW_NAME_INVALID": "\"{{name}}\" gives no file name. Use letters or digits.",
-    "FLOW_EXISTS": "{{file}} exists already. Choose another name."
+    "FLOW_EXISTS": "{{file}} exists already. Choose another name.",
+    "AGENT_COMMAND_EMPTY": "Write the command.",
+    "AGENT_COMMAND_QUOTE": "A quote in the command is not closed.",
+    "AGENT_COMMAND_NEEDS": "The command must contain {{placeholder}}.",
+    "AGENT_NAME_TAKEN": "There is already an agent called {{name}}.",
+    "AGENT_FAILED": "{{agent}} stopped with an error.",
+    "AGENT_CANCELLED": "{{agent}} was stopped."
+  },
+  "agents": {
+    "title": "AI agent",
+    "description": "The agent that Create flow with AI uses. You sign in inside the agent itself, never in Jagra.",
+    "legend": "Agent in use",
+    "found": "Found",
+    "notFound": "Not installed",
+    "remove": "Remove",
+    "addAcp": "Add an ACP agent",
+    "addCommand": "Add an agent with its own command",
+    "terms": "Each provider has its own terms for using its agent from other tools.",
+    "termsLink": "Read about it in the README",
+    "none": "No agent is installed on this computer yet. Install one, such as Claude Code, and it shows here.",
+    "form": {
+      "acpTitle": "Add an ACP agent",
+      "acpDescription": "An agent that speaks the Agent Client Protocol.",
+      "commandTitle": "Add an agent with its own command",
+      "commandDescription": "Jagra puts the path of a file holding the instructions where you write {instructions}. Nothing goes through a shell.",
+      "name": "Name",
+      "acpCommand": "Command that starts it in ACP mode",
+      "acpHint": "For example: my-agent acp",
+      "start": "Start command",
+      "startHint": "Must contain {instructions}. For example: my-agent --prompt-file {instructions}",
+      "continue": "Continue command (optional)",
+      "continueHint": "Continues a session. Must contain {session} and {instructions}.",
+      "save": "Check and save",
+      "cancel": "Cancel",
+      "confirmNote": "Before saving, Jagra shows the program and its arguments in a system window."
+    },
+    "confirm": {
+      "title": "Save this agent?",
+      "message": "Jagra will start this program for {{name}} when you ask for a flow.",
+      "acp": "ACP command",
+      "start": "Start command",
+      "continue": "Continue command",
+      "program": "Program",
+      "argument": "Argument",
+      "note": "Each argument is passed exactly as shown. Nothing goes through a shell.",
+      "save": "Save",
+      "cancel": "Cancel"
+    }
   }
 }

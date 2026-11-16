@@ -1,7 +1,10 @@
 // The preload API: the only things the renderer can call (architecture.md section 7, SEC-6).
 // Shared by main, preload and renderer, so it holds types and names only.
 import type {
+  AgentProtocol,
   ApkInfo,
+  CustomAgent,
+  CustomAgentInput,
   Device,
   JagraError,
   Result,
@@ -34,6 +37,29 @@ export interface StoredSettings extends Settings {
   toolPaths?: Partial<Record<ToolStatus["tool"], string>>;
   /** FLOW-5: the program that opens flow files instead of the system's default app. */
   editor?: string;
+  /** AGT-1: the agent the user chose, by id. Local data. */
+  agent?: string;
+  /** AGT-2, AGT-3: agents added by hand, saved only after the system dialog (D-109). */
+  customAgents?: CustomAgent[];
+}
+
+/** One agent on Settings > AI agent (AGT-1). */
+export interface AgentView {
+  /** A known agent's id, such as `claude-code`, or a custom agent's id. */
+  id: string;
+  name: string;
+  /** How it starts, for showing: `claude`, `opencode acp`, or the custom command. */
+  command: string;
+  protocol: AgentProtocol;
+  custom: boolean;
+  /** Its program is on this computer. */
+  found: boolean;
+}
+
+export interface AgentsView {
+  agents: AgentView[];
+  /** The agent Create flow with AI uses. Undefined when none is set up (AGT-7). */
+  inUse?: string;
 }
 
 export interface SettingsView {
@@ -359,6 +385,13 @@ export interface JagraApi {
     list(projectId: string): Promise<SecretName[] | undefined>;
     remove(projectId: string, name: string): Promise<void>;
   };
+  agents: {
+    view(): Promise<AgentsView>;
+    choose(id: string): Promise<AgentsView>;
+    /** Main splits the command and asks in a system dialog first (D-109). Undefined if cancelled. */
+    addCustom(input: CustomAgentInput): Promise<Result<AgentsView> | undefined>;
+    removeCustom(id: string): Promise<AgentsView>;
+  };
   environment: {
     check(): Promise<EnvironmentView>;
     /** Each tool's state as soon as it is known. Returns a function that stops listening. */
@@ -368,6 +401,12 @@ export interface JagraApi {
 
 /** The source code (ABT-1, D-27). The only outside link besides the install guides. */
 export const REPOSITORY = "https://github.com/rifanstd/jagra";
+
+/** AGT-6: the README section on agents and provider terms, in the user's language (D-106). */
+export const AGENTS_README = {
+  en: `${REPOSITORY}#ai-agents-and-provider-terms`,
+  id: `${REPOSITORY}/blob/main/README.id.md#agen-ai-dan-aturan-penyedia`,
+} as const;
 
 /** FLOW-9: Maestro's own page on Maestro Studio, linked from the short guide (D-100). */
 export const MAESTRO_STUDIO_DOCS =
@@ -418,6 +457,10 @@ export const CHANNELS = {
   runsFlowDetail: "runs:flow-detail",
   runsHistory: "runs:history",
   secretsSet: "secrets:set",
+  agentsView: "agents:view",
+  agentsChoose: "agents:choose",
+  agentsAddCustom: "agents:add-custom",
+  agentsRemoveCustom: "agents:remove-custom",
 } as const;
 
 /** Channels main sends on, never answers. */

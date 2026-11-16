@@ -34,6 +34,7 @@
   "settings": {
     "title": "Pengaturan",
     "pages": {
+      "agent": "Agen AI",
       "secrets": "Secret",
       "language": "Bahasa",
       "tools": "Lokasi tool",
@@ -330,6 +331,11 @@
         "screen-on-unlocked": "Biarkan layar tetap menyala dan tidak terkunci selama run.",
         "simulated-input": "Di HP Xiaomi, nyalakan juga \"USB debugging (Security settings)\" di Opsi pengembang."
       }
+    },
+    "ai": {
+      "button": "Buat flow dengan AI",
+      "needsAgent": "Butuh agen AI yang terpasang di komputer ini, misalnya Claude Code.",
+      "setUp": "Atur di Pengaturan"
     }
   },
   "running": {
@@ -605,6 +611,53 @@
     "SAMPLE_NOT_BUNDLED": "Build Jagra ini tidak berisi aplikasi contoh.",
     "SAMPLE_COPY_FAILED": "Aplikasi contoh tidak bisa disalin ke {{folder}}.",
     "FLOW_NAME_INVALID": "\"{{name}}\" tidak menghasilkan nama file. Pakai huruf atau angka.",
-    "FLOW_EXISTS": "{{file}} sudah ada. Pilih nama lain."
+    "FLOW_EXISTS": "{{file}} sudah ada. Pilih nama lain.",
+    "AGENT_COMMAND_EMPTY": "Tulis perintahnya.",
+    "AGENT_COMMAND_QUOTE": "Ada tanda kutip di perintah yang belum ditutup.",
+    "AGENT_COMMAND_NEEDS": "Perintahnya wajib berisi {{placeholder}}.",
+    "AGENT_NAME_TAKEN": "Sudah ada agen bernama {{name}}.",
+    "AGENT_FAILED": "{{agent}} berhenti dengan error.",
+    "AGENT_CANCELLED": "{{agent}} dihentikan."
+  },
+  "agents": {
+    "title": "Agen AI",
+    "description": "Agen yang dipakai untuk Buat flow dengan AI. Login diatur di agennya sendiri, bukan di Jagra.",
+    "legend": "Agen yang dipakai",
+    "found": "Ditemukan",
+    "notFound": "Belum ada",
+    "remove": "Hapus",
+    "addAcp": "Tambah agen ACP",
+    "addCommand": "Tambah agen dengan perintah sendiri",
+    "terms": "Setiap penyedia punya aturan sendiri soal memakai agennya dari tool lain.",
+    "termsLink": "Baca dulu di README",
+    "none": "Belum ada agen yang terpasang di komputer ini. Pasang salah satu, misalnya Claude Code, nanti agennya muncul di sini.",
+    "form": {
+      "acpTitle": "Tambah agen ACP",
+      "acpDescription": "Agen yang mendukung Agent Client Protocol.",
+      "commandTitle": "Tambah agen dengan perintah sendiri",
+      "commandDescription": "Jagra mengisi {instructions} dengan path file berisi instruksi. Tidak ada yang lewat shell.",
+      "name": "Nama",
+      "acpCommand": "Perintah yang menyalakannya dalam mode ACP",
+      "acpHint": "Contoh: my-agent acp",
+      "start": "Perintah mulai",
+      "startHint": "Wajib berisi {instructions}. Contoh: my-agent --prompt-file {instructions}",
+      "continue": "Perintah lanjut (opsional)",
+      "continueHint": "Melanjutkan sesi. Wajib berisi {session} dan {instructions}.",
+      "save": "Periksa dan simpan",
+      "cancel": "Batal",
+      "confirmNote": "Sebelum disimpan, Jagra menampilkan program dan argumennya di jendela sistem."
+    },
+    "confirm": {
+      "title": "Simpan agen ini?",
+      "message": "Jagra akan menjalankan program ini untuk {{name}} saat Anda meminta flow.",
+      "acp": "Perintah ACP",
+      "start": "Perintah mulai",
+      "continue": "Perintah lanjut",
+      "program": "Program",
+      "argument": "Argumen",
+      "note": "Setiap argumen dikirim persis seperti di atas. Tidak ada yang lewat shell.",
+      "save": "Simpan",
+      "cancel": "Batal"
+    }
   }
 }

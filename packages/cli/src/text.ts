@@ -45,6 +45,12 @@ const ERRORS: Describe = {
   APK_UNREADABLE: (e) => `${e.file} could not be read as an APK: ${e.detail}`,
   OUTPUT_MASK_FAILED: (e) =>
     `Maestro's output in ${e.folder} could not be masked, so it was not kept: ${e.detail}`,
+  AGENT_COMMAND_EMPTY: () => "Write the command.",
+  AGENT_COMMAND_QUOTE: () => "A quote in the command is not closed.",
+  AGENT_COMMAND_NEEDS: (e) => `The command must contain ${e.placeholder}.`,
+  AGENT_NAME_TAKEN: (e) => `There is already an agent called ${e.name}.`,
+  AGENT_FAILED: (e) => `${e.agent} stopped with an error: ${e.detail}`,
+  AGENT_CANCELLED: (e) => `${e.agent} was stopped.`,
   SYNTAX_CHECK_FAILED: (e) =>
     `Maestro could not check the syntax of ${e.file}: ${e.detail}`,
   PROJECT_SETUP_FAILED: (e) =>

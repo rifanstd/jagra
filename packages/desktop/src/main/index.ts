@@ -16,6 +16,8 @@ import {
   Masker,
   MockoonServer,
   MaestroSyntaxChecker,
+  detectAgents,
+  locateAgentProgram,
   NodeFileWatcher,
   SyntaxChecks,
   NodePortChecker,
@@ -43,7 +45,14 @@ import {
   session,
   shell,
 } from "electron";
-import { EVENTS, MAESTRO_STUDIO_DOCS, REPOSITORY } from "../shared/api.js";
+import {
+  AGENTS_README,
+  EVENTS,
+  MAESTRO_STUDIO_DOCS,
+  REPOSITORY,
+} from "../shared/api.js";
+import { confirmBox } from "./agent-confirm.js";
+import { Agents } from "./agents.js";
 import { bugInfo } from "./bug-info.js";
 import { Devices } from "./devices.js";
 import { openFile } from "./open-file.js";
@@ -61,6 +70,7 @@ import {
   testApkReader,
   TestFlowRunner,
   TestSyntaxChecker,
+  testAgentFindings,
   testDeviceBridge,
   testToolProbe,
 } from "./test-mode.js";
@@ -97,6 +107,8 @@ const settings = new SettingsFile(appData, () =>
 const links = knownLinks();
 links.add(REPOSITORY);
 links.add(MAESTRO_STUDIO_DOCS);
+links.add(AGENTS_README.en);
+links.add(AGENTS_README.id);
 
 /** ENV-6: tool paths set by hand, kept here for the programs a run starts. */
 let toolPaths: ToolPaths = {};
@@ -180,6 +192,26 @@ const syntax = new SyntaxChecks({
   onChecked: (file) => projects.flowChecked(file),
   onFailed: (error) =>
     void log("warn", "syntax-check-failed", { code: error.code }),
+});
+
+// Settings > AI agent (AGT-1 to AGT-3).
+const agents = new Agents({
+  settings,
+  find: () =>
+    testMode
+      ? Promise.resolve(testAgentFindings(process.env))
+      : detectAgents({ runner }),
+  locate: async (program) =>
+    testMode || (await locateAgentProgram({ runner }, program)) !== undefined,
+  // D-109: the system dialog the page cannot press. Cancel is the default.
+  confirm: async (agent) => {
+    const box = confirmBox(agent, (await settings.view()).language);
+    const window = BrowserWindow.getFocusedWindow();
+    const answer = window
+      ? await dialog.showMessageBox(window, box)
+      : await dialog.showMessageBox(box);
+    return answer.response === 0;
+  },
 });
 
 const runs = new Runs({
@@ -332,6 +364,7 @@ void app.whenReady().then(async () => {
       devices,
       runs,
       secrets,
+      agents,
       pickToolPath: async (tool) => {
         const path = await pick({ properties: ["openFile"] });
         if (path === undefined) return undefined;

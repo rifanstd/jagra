@@ -3,3 +3,5 @@
 export type * from "./errors/index.js";
 export type * from "./types/index.js";
 export type { StepMark, StepMarkKind } from "./ports/flow-runner.js";
+export type { CustomAgent, CustomAgentInput } from "./agents/custom.js";
+export type { AgentProtocol, KnownAgentId } from "./agents/known.js";

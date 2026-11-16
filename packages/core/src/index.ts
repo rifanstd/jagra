@@ -56,6 +56,28 @@ export {
 export { AdbDeviceBridge } from "./adapters/devices/adb-device-bridge.js";
 export { AdbkitApkReader } from "./adapters/apk/adbkit-apk-reader.js";
 export { MaestroFlowRunner } from "./adapters/maestro/maestro-flow-runner.js";
+export {
+  KNOWN_AGENTS,
+  isKnownAgentId,
+  type AgentProtocol,
+  type KnownAgent,
+  type KnownAgentId,
+} from "./agents/known.js";
+export {
+  fillCommand,
+  readCustomAgent,
+  splitCommand,
+  type CustomAgent,
+  type CustomAgentInput,
+} from "./agents/custom.js";
+export {
+  agentLaunch,
+  detectAgents,
+  findAgents,
+  locateAgentProgram,
+  type AgentFinding,
+} from "./adapters/agents/find.js";
+export { CliAgent, type CliAgentKind } from "./adapters/agents/cli-agent.js";
 export { MaestroSyntaxChecker } from "./adapters/maestro/maestro-syntax-checker.js";
 export { SyntaxChecks, type SyntaxState } from "./project/syntax-checks.js";
 export {

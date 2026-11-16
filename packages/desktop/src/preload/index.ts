@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer, type IpcRendererEvent } from "electron";
-import type { ToolStatus } from "@jagra/core/types";
+import type { CustomAgentInput, ToolStatus } from "@jagra/core/types";
 import {
   CHANNELS,
   EVENTS,
@@ -95,6 +95,14 @@ const api: JagraApi = {
       ipcRenderer.invoke(CHANNELS.secretsList, projectId),
     remove: (projectId: string, name: string) =>
       ipcRenderer.invoke(CHANNELS.secretsRemove, projectId, name),
+  },
+  agents: {
+    view: () => ipcRenderer.invoke(CHANNELS.agentsView),
+    choose: (id: string) => ipcRenderer.invoke(CHANNELS.agentsChoose, id),
+    addCustom: (input: CustomAgentInput) =>
+      ipcRenderer.invoke(CHANNELS.agentsAddCustom, input),
+    removeCustom: (id: string) =>
+      ipcRenderer.invoke(CHANNELS.agentsRemoveCustom, id),
   },
   environment: {
     check: () => ipcRenderer.invoke(CHANNELS.environmentCheck),

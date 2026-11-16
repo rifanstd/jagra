@@ -169,6 +169,7 @@ function ProjectBody({
           flows={details.flows}
           chosen={chosen}
           onToggle={toggle}
+          go={go}
         />
         {details.helpers.length > 0 && (
           <Helpers id={id} helpers={details.helpers} />
@@ -224,15 +225,18 @@ function Flows({
   flows,
   chosen,
   onToggle: toggle,
+  go,
 }: {
   id: string;
   flows: FlowView[];
   chosen: string[];
   onToggle: (file: string, on: boolean) => void;
+  go: Go;
 }) {
   const { t } = useTranslation();
   const broken = flows.filter((f) => f.problem).length;
   const [creating, setCreating] = useState(false);
+  const noAgent = useNoAgent();
 
   return (
     <Card className="gap-0 py-0">
@@ -252,15 +256,39 @@ function Flows({
             </p>
           )}
         </div>
-        <Button variant="outline" size="sm" onClick={() => setCreating(true)}>
-          {t("newFlow.button")}
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" size="sm" onClick={() => setCreating(true)}>
+            {t("newFlow.button")}
+          </Button>
+          {noAgent && (
+            <Button
+              variant="outline"
+              size="sm"
+              disabled
+              aria-describedby="needs-agent"
+            >
+              {t("project.ai.button")}
+            </Button>
+          )}
+        </div>
         <NewFlowDialog
           projectId={id}
           open={creating}
           onClose={() => setCreating(false)}
         />
       </div>
+      {noAgent && (
+        <p
+          id="needs-agent"
+          className="px-5 pb-3 text-sm text-muted-foreground"
+          data-testid="needs-agent"
+        >
+          {t("project.ai.needsAgent")}{" "}
+          <TextLink onClick={() => go({ screen: "settings" })}>
+            {t("project.ai.setUp")}
+          </TextLink>
+        </p>
+      )}
       {flows.length === 0 ? (
         <p className="px-5 pb-4 text-sm text-muted-foreground">
           {t("project.flows.noneBefore")}{" "}
@@ -325,6 +353,25 @@ function Flows({
       )}
     </Card>
   );
+}
+
+/**
+ * AGT-7: true when no agent is set up. Until the Create flow with AI screen exists, the button
+ * shows only in this disabled state (D-107). Checked again when the window gets focus, so an agent
+ * installed meanwhile shows at once.
+ */
+function useNoAgent(): boolean {
+  const [noAgent, setNoAgent] = useState(false);
+  useEffect(() => {
+    const check = () =>
+      void window.jagra.agents
+        .view()
+        .then((view) => setNoAgent(view.inUse === undefined));
+    check();
+    window.addEventListener("focus", check);
+    return () => window.removeEventListener("focus", check);
+  }, []);
+  return noAgent;
 }
 
 /** D-98: Maestro's syntax check of this file has not finished. The flow can still be chosen. */

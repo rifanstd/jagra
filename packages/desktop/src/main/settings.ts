@@ -11,12 +11,33 @@ export const settingsSchema = z.strictObject({
 
 const TOOLS = ["java", "adb", "maestro", "emulator", "mockoon"] as const;
 
+const command = z.array(z.string()).min(1);
+const customAgentSchema = z.discriminatedUnion("protocol", [
+  z.strictObject({
+    id: z.string().min(1),
+    name: z.string().min(1),
+    protocol: z.literal("acp"),
+    command,
+  }),
+  z.strictObject({
+    id: z.string().min(1),
+    name: z.string().min(1),
+    protocol: z.literal("cli"),
+    start: command,
+    continue: command.optional(),
+  }),
+]);
+
 /** Everything `settings.json` holds. */
 const storedSchema = settingsSchema.extend({
   /** ENV-6: paths set by hand, which win over detection. */
   toolPaths: z.partialRecord(z.enum(TOOLS), z.string().min(1)).optional(),
   /** FLOW-5: the program that opens flow files instead of the system's default app. */
   editor: z.string().min(1).optional(),
+  /** AGT-1 */
+  agent: z.string().min(1).optional(),
+  /** AGT-2, AGT-3, D-109 */
+  customAgents: z.array(customAgentSchema).optional(),
 });
 
 /**
