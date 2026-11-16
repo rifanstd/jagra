@@ -57,6 +57,12 @@ const api: JagraApi = {
       ipcRenderer.invoke(CHANNELS.projectsChooseDevice, id, deviceId),
     changeApk: (id: string, to: "file" | "newest") =>
       ipcRenderer.invoke(CHANNELS.projectsChangeApk, id, to),
+    newFlow: (id: string, name: string) =>
+      ipcRenderer.invoke(CHANNELS.projectsNewFlow, id, name),
+    watchFlows: (id: string) =>
+      ipcRenderer.invoke(CHANNELS.projectsWatchFlows, id),
+    unwatchFlows: () => ipcRenderer.invoke(CHANNELS.projectsUnwatchFlows),
+    onFlowsChanged: (listener) => listen<string>(EVENTS.flowsChanged, listener),
     openFlow: (id: string, file: string) =>
       ipcRenderer.invoke(CHANNELS.projectsOpenFlow, id, file),
   },

@@ -16,7 +16,7 @@ import {
   saveRun,
   type Run,
 } from "@jagra/core";
-import { FakeApkReader } from "@jagra/core/fakes";
+import { FakeApkReader, FakeFileWatcher } from "@jagra/core/fakes";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { Projects, type Dialogs } from "./projects.js";
 
@@ -27,6 +27,7 @@ let documents: string;
 let answers: (string | undefined)[];
 let opened: string[];
 let reader: FakeApkReader;
+let watcher: FakeFileWatcher;
 
 beforeEach(async () => {
   root = await mkdtemp(join(tmpdir(), "jagra-projects-"));
@@ -36,6 +37,7 @@ beforeEach(async () => {
   answers = [];
   opened = [];
   reader = new FakeApkReader();
+  watcher = new FakeFileWatcher();
   ids = 0;
 });
 afterEach(async () => {
@@ -61,6 +63,7 @@ function projects(): Projects {
       opened.push(path);
       return Promise.resolve();
     },
+    watcher,
     newId: () => `p${++ids}`,
   });
 }
@@ -426,5 +429,47 @@ describe("the project page (PRJ-4, PRJ-5, RUN-2, DEV-3, FLOW-6)", () => {
       join(path, ".jagra", "flows", "parts", "sign-in.yaml"),
       join(path, ".jagra", "flows", "broken.yaml"),
     ]);
+  });
+});
+
+describe("New flow and watching flows (FLOW-4, FLOW-8)", () => {
+  async function made(): Promise<{ id: string; path: string; list: Projects }> {
+    const path = await folder("shop", {
+      ".jagra/config.yaml": "format: 1\nname: shop\nappId: com.shop\n",
+    });
+    const list = projects();
+    answers.push(path);
+    await list.pickFolder();
+    const created = await list.create({ name: "shop", apk: "search" });
+    if (!created.ok) throw new Error("not created");
+    return { id: created.value.id, path, list };
+  }
+
+  it("creates the flow from the template with the project's appId, and opens it", async () => {
+    const { id, path, list } = await made();
+    expect(await list.newFlow(id, "Login works")).toEqual({
+      ok: true,
+      value: { file: "login-works.yaml" },
+    });
+    const file = join(path, ".jagra", "flows", "login-works.yaml");
+    expect(await readFile(file, "utf8")).toContain(
+      "appId: com.shop\nname: Login works",
+    );
+    expect(opened).toEqual([file]);
+    expect(await list.newFlow(id, "login works")).toMatchObject({
+      ok: false,
+      error: { code: "FLOW_EXISTS" },
+    });
+  });
+
+  it("watches only the flows of the project on screen", async () => {
+    const { id, path, list } = await made();
+    let changes = 0;
+    await list.watchFlows(id, () => changes++);
+    const flows = join(path, ".jagra", "flows");
+    watcher.change(flows);
+    list.unwatchFlows();
+    watcher.change(flows);
+    expect(changes).toBe(1);
   });
 });

@@ -315,6 +315,12 @@ export interface JagraApi {
     ): Promise<Result<ApkView> | undefined>;
     /** Opens a flow or helper flow with the system's default app (FLOW-5). */
     openFlow(id: string, file: string): Promise<void>;
+    /** FLOW-4: creates a flow from the template and opens it in the editor. */
+    newFlow(id: string, name: string): Promise<Result<{ file: string }>>;
+    /** FLOW-8: watches this project's flows until another project is watched or `unwatchFlows`. */
+    watchFlows(id: string): Promise<void>;
+    unwatchFlows(): Promise<void>;
+    onFlowsChanged(listener: (projectId: string) => void): () => void;
   };
   devices: {
     /** The current list. Changes come through `onChange` from then on (DEV-2). */
@@ -360,6 +366,10 @@ export interface JagraApi {
 /** The source code (ABT-1, D-27). The only outside link besides the install guides. */
 export const REPOSITORY = "https://github.com/rifanstd/jagra";
 
+/** FLOW-9: Maestro's own page on Maestro Studio, linked from the short guide (D-100). */
+export const MAESTRO_STUDIO_DOCS =
+  "https://docs.maestro.dev/getting-started/maestro-studio";
+
 /** IPC channel names. main checks every message on them (SEC-6). */
 export const CHANNELS = {
   appInfo: "app:info",
@@ -391,6 +401,9 @@ export const CHANNELS = {
   projectsChooseDevice: "projects:choose-device",
   projectsChangeApk: "projects:change-apk",
   projectsOpenFlow: "projects:open-flow",
+  projectsNewFlow: "projects:new-flow",
+  projectsWatchFlows: "projects:watch-flows",
+  projectsUnwatchFlows: "projects:unwatch-flows",
   devicesWatch: "devices:watch",
   devicesRefresh: "devices:refresh",
   runsStart: "runs:start",
@@ -409,4 +422,5 @@ export const EVENTS = {
   environmentProgress: "environment:progress",
   devicesChange: "devices:change",
   runsUpdate: "runs:update",
+  flowsChanged: "projects:flows-changed",
 } as const;

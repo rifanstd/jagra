@@ -528,6 +528,31 @@
     "copied": "Tersalin",
     "bugInfoNote": "Yang disalin: versi Jagra, sistem operasi, versi setiap tool, dan bagian terakhir log, dengan secret disamarkan."
   },
+  "newFlow": {
+    "button": "Flow baru",
+    "title": "Flow baru",
+    "description": "Jagra membuat file di .jagra/flows dari template, lalu membukanya di editor.",
+    "name": "Nama flow",
+    "placeholder": "Misalnya: Login dengan password salah",
+    "cancel": "Batal",
+    "create": "Buat dan buka"
+  },
+  "studio": {
+    "lead": "Flow sering gagal karena nama tombol yang ditebak.",
+    "link": "Cara menemukan nama elemen dengan Maestro Studio",
+    "title": "Menemukan nama elemen dengan Maestro Studio",
+    "intro": "Maestro Studio, aplikasi desktop dari Maestro, menampilkan elemen di layar perangkat beserta langkah Maestro untuk menjangkaunya, jadi teks tombol tidak perlu ditebak.",
+    "steps": {
+      "install": "Pasang Maestro Studio dari situs Maestro. Jagra tidak memasangnya.",
+      "device": "Nyalakan emulator dan buka aplikasinya di sana.",
+      "open": "Buka Maestro Studio, lalu pilih emulatornya lewat Select device di kiri atas.",
+      "rightClick": "Klik kanan sebuah elemen di layar. Maestro Studio menampilkan langkah untuk elemen itu, misalnya mengetuknya.",
+      "copy": "Salin langkah itu ke file flow, lalu jalankan flow-nya di Jagra."
+    },
+    "tip": "Maestro Studio bisa memakai folder .jagra/flows proyek sebagai workspace-nya, jadi flow yang disimpannya langsung muncul di Jagra.",
+    "docs": "Maestro Studio di situs Maestro",
+    "close": "Tutup"
+  },
   "errors": {
     "PROGRAM_NOT_FOUND": "{{program}} tidak ditemukan. Instal dulu, atau atur lokasinya di Pengaturan > Lokasi tool.",
     "PROGRAM_IS_SCRIPT": "{{program}} di {{path}} adalah script, dan Jagra tidak menjalankan script. Instal programnya langsung.",
@@ -574,6 +599,8 @@
     "PROJECT_SETUP_FAILED": "Folder .jagra di {{folder}} tidak bisa dibuat.",
     "MOCKOON_FILE_OUTSIDE_PROJECT": "{{file}} ada di luar folder proyek. Pilih file Mockoon yang ada di dalamnya.",
     "SAMPLE_NOT_BUNDLED": "Build Jagra ini tidak berisi aplikasi contoh.",
-    "SAMPLE_COPY_FAILED": "Aplikasi contoh tidak bisa disalin ke {{folder}}."
+    "SAMPLE_COPY_FAILED": "Aplikasi contoh tidak bisa disalin ke {{folder}}.",
+    "FLOW_NAME_INVALID": "\"{{name}}\" tidak menghasilkan nama file. Pakai huruf atau angka.",
+    "FLOW_EXISTS": "{{file}} sudah ada. Pilih nama lain."
   }
 }
