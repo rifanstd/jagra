@@ -68,6 +68,30 @@ test("shows the sample's flows, helper flow, Mockoon and device, and keeps the c
 
   await page.getByTestId("flow-save-item.yaml").getByRole("checkbox").click();
   await expect(page.getByTestId("flows-chosen")).toHaveText("4 of 5 chosen");
+  // The choice is saved before the app closes, or the next start would still show all five.
+  await expect
+    .poll(() =>
+      page.evaluate(async () => {
+        const jagra = (
+          window as unknown as {
+            jagra: {
+              projects: {
+                list(): Promise<{ id: string }[]>;
+                get(
+                  id: string,
+                ): Promise<{ details?: { chosen: string[] } } | undefined>;
+              };
+            };
+          }
+        ).jagra;
+        const [project] = await jagra.projects.list();
+        return (
+          project &&
+          (await jagra.projects.get(project.id))?.details?.chosen.length
+        );
+      }),
+    )
+    .toBe(4);
 
   await app.close();
   await start();

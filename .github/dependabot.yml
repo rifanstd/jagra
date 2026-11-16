@@ -4,6 +4,12 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    # D-67: only versions released at least 14 days ago. Electron's own releases are taken at
+    # once, since they usually carry security fixes. Security updates never wait.
+    cooldown:
+      default-days: 14
+      exclude:
+        - electron
     ignore:
       # Jagra runs on Node 24, so the Node types must stay on 24.x.
       - dependency-name: "@types/node"
@@ -12,3 +18,5 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    cooldown:
+      default-days: 14
