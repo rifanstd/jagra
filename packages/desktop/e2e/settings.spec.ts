@@ -68,16 +68,21 @@ test("follows the system language again when asked (LNG-1)", async () => {
 
   await page.getByRole("combobox").click();
   await page.getByRole("option", { name: /^Ikuti sistem/ }).click();
-  const settings = await page.evaluate(() =>
-    (
-      window as unknown as {
-        jagra: {
-          settings: { get(): Promise<{ settings: { language?: string } }> };
-        };
-      }
-    ).jagra.settings.get(),
-  );
-  expect(settings.settings.language).toBeUndefined();
+  // The choice is saved a moment after the click.
+  await expect
+    .poll(async () => {
+      const view = await page.evaluate(() =>
+        (
+          window as unknown as {
+            jagra: {
+              settings: { get(): Promise<{ settings: { language?: string } }> };
+            };
+          }
+        ).jagra.settings.get(),
+      );
+      return "language" in view.settings;
+    })
+    .toBe(false);
 });
 
 test("sets a tool's location by hand, and goes back to automatic (ENV-6)", async () => {
