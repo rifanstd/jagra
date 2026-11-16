@@ -24,6 +24,7 @@ export const ERROR_CODES = {
   APK_NOT_FOUND: true,
   APK_UNREADABLE: true,
   OUTPUT_MASK_FAILED: true,
+  SYNTAX_CHECK_FAILED: true,
   PROJECT_SETUP_FAILED: true,
   MOCKOON_FILE_OUTSIDE_PROJECT: true,
   SAMPLE_NOT_BUNDLED: true,
@@ -53,6 +54,8 @@ export const ERROR_CODES = {
   FLOW_STEPS_MISSING: true,
   FLOW_STEP_INVALID: true,
   FLOW_AI_COMMAND: true,
+  FLOW_MAESTRO_REFUSED: true,
+  FLOW_MAESTRO_REFUSED_FILE: true,
   FLOW_HELPER_NOT_FOUND: true,
 } as const satisfies Record<ErrorCode, true>;
 

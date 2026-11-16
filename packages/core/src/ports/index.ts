@@ -9,4 +9,5 @@ export type * from "./port-checker.js";
 export type * from "./process-control.js";
 export type * from "./process-runner.js";
 export type * from "./secret-store.js";
+export type * from "./syntax-checker.js";
 export type * from "./tool-probe.js";

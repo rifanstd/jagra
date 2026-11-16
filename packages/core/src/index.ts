@@ -56,6 +56,8 @@ export {
 export { AdbDeviceBridge } from "./adapters/devices/adb-device-bridge.js";
 export { AdbkitApkReader } from "./adapters/apk/adbkit-apk-reader.js";
 export { MaestroFlowRunner } from "./adapters/maestro/maestro-flow-runner.js";
+export { MaestroSyntaxChecker } from "./adapters/maestro/maestro-syntax-checker.js";
+export { SyntaxChecks, type SyntaxState } from "./project/syntax-checks.js";
 export {
   EnvSecretStore,
   SECRET_PREFIX,

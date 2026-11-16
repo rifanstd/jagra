@@ -13,6 +13,8 @@ import {
   type FlowRunRequest,
   type FlowRunStatus,
   type Result,
+  type SyntaxChecker,
+  type SyntaxVerdict,
   type ToolFinding,
   type ToolName,
 } from "@jagra/core";
@@ -155,6 +157,35 @@ export class TestFlowRunner implements FlowRunner {
       reason: "Element not found: Text matching regex: Save",
       ...marks,
     });
+  }
+}
+
+/**
+ * Maestro's syntax check in test mode: each check takes `JAGRA_TEST_SYNTAX_MS` (0 by default) and
+ * accepts the flow, unless `JAGRA_TEST_SYNTAX` refuses its file, for example
+ * `typo.yaml=4:Invalid Command: tapOnn`. Entries are separated by `;`, and a line of 0 means none.
+ */
+export class TestSyntaxChecker implements SyntaxChecker {
+  private readonly refusals = new Map<string, SyntaxVerdict>();
+  private readonly ms: number;
+
+  constructor(env: NodeJS.ProcessEnv) {
+    this.ms = Number(env.JAGRA_TEST_SYNTAX_MS ?? "0");
+    for (const entry of (env.JAGRA_TEST_SYNTAX ?? "").split(";")) {
+      const match = /^([^=]+)=(\d+):(.+)$/.exec(entry);
+      if (!match?.[1] || !match[3]) continue;
+      const line = Number(match[2]);
+      this.refusals.set(match[1], {
+        accepted: false,
+        message: match[3],
+        ...(line > 0 ? { line } : {}),
+      });
+    }
+  }
+
+  async check(file: string): Promise<Result<SyntaxVerdict>> {
+    await sleep(this.ms);
+    return ok(this.refusals.get(basename(file)) ?? { accepted: true });
   }
 }
 

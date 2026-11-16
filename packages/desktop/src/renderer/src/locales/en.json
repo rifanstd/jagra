@@ -269,7 +269,8 @@
       "noneBefore": "No flows yet. Flows are YAML files in",
       "noneAfter": ".",
       "leftOut": "It is left out of runs.",
-      "broken": "Broken"
+      "broken": "Broken",
+      "checking": "Checking with Maestro"
     },
     "helpers": {
       "title": "Helper flows",
@@ -572,6 +573,7 @@
     "APK_NOT_FOUND": "No APK was found in {{searchPath}}. Build the app, or choose an APK.",
     "APK_UNREADABLE": "{{file}} could not be read as an APK.",
     "OUTPUT_MASK_FAILED": "Maestro's output could not be checked for secrets, so it was not kept.",
+    "SYNTAX_CHECK_FAILED": "Maestro could not check the syntax of {{file}}.",
     "DEVICE_NOT_FOUND": "Device {{deviceId}} is not connected.",
     "DEVICE_NOT_AUTHORISED": "Phone {{deviceId}} has not allowed USB debugging. Unlock it and accept the prompt.",
     "DEVICE_NOT_RESPONDING": "Phone {{deviceId}} does not respond. Unplug it and plug it in again.",
@@ -595,6 +597,8 @@
     "FLOW_STEPS_MISSING": "{{file}}, line {{line}}, has no steps.",
     "FLOW_STEP_INVALID": "{{file}}, line {{line}}, is not a Maestro step.",
     "FLOW_AI_COMMAND": "{{file}}, line {{line}}, uses {{command}}, which lets an AI decide the result. Jagra does not run it.",
+    "FLOW_MAESTRO_REFUSED": "{{file}}, line {{line}}, is refused by Maestro: {{message}}.",
+    "FLOW_MAESTRO_REFUSED_FILE": "{{file}} is refused by Maestro: {{message}}.",
     "FLOW_HELPER_NOT_FOUND": "{{file}}, line {{line}}, calls {{helper}}, which does not exist.",
     "PROJECT_SETUP_FAILED": "The .jagra folder in {{folder}} could not be created.",
     "MOCKOON_FILE_OUTSIDE_PROJECT": "{{file}} is outside the project folder. Choose a Mockoon file inside it.",

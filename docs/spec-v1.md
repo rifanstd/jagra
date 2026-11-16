@@ -351,7 +351,7 @@ properties:
 
   The file name is the name in lowercase with spaces turned into hyphens (for example `login-wrong-password.yaml`). If the file exists, Jagra asks for another name.
 - **FLOW-5** Jagra opens files with the operating system's default app for `.yaml`. Settings may hold an editor command instead (for example `code`).
-- **FLOW-6** Before a run and whenever the flow list refreshes, Jagra checks every flow: it must be valid YAML, have a header with `appId`, the `---` separator and a list of steps. A broken flow is shown with its file, line and a plain explanation, and is left out of the run. If Maestro offers its own syntax check, Jagra uses it as well (see `to-verify.md`).
+- **FLOW-6** Before a run and whenever the flow list refreshes, Jagra checks every flow: it must be valid YAML, have a header with `appId`, the `---` separator and a list of steps. A broken flow is shown with its file, line and a plain explanation, and is left out of the run. The app also runs Maestro's own syntax check, `maestro check-syntax`, in the background, and shows a flow it refuses with its line and Maestro's message (`decisions.md` D-98, D-101).
 - **FLOW-7** Secrets are written in flows as variables (`${NAME}`). Values are set per project in Settings > Secrets and stored as in `SEC-3`. The Secrets page lists every variable name found in the project's flows, and marks the ones without a value.
 - **FLOW-8** Jagra watches `.jagra/flows` and refreshes the list when files are added, changed or removed, for example after a `git pull` or an edit in the user's editor.
 - **FLOW-9** The project page links to a short guide on finding element names with Maestro Studio, because guessing button text is the most common reason a new flow fails.

@@ -261,3 +261,39 @@ test("new flow and studio guide", async () => {
   await app.close();
   await rm(home, { recursive: true, force: true });
 });
+
+test("maestro syntax check", async () => {
+  const home = await mkdtemp(join(tmpdir(), "jagra-shots-"));
+  const { app, page } = await launch(home, {
+    env: {
+      JAGRA_TEST_SYNTAX: "save-item.yaml=12:Invalid Command: tapOnn",
+      JAGRA_TEST_SYNTAX_MS: "4000",
+    },
+  });
+  await page.setViewportSize({ width: 1200, height: 900 });
+  await page.emulateMedia({ colorScheme: null });
+  await page.getByRole("button", { name: "Continue to projects" }).click();
+  await page.getByRole("button", { name: "Try the sample app" }).click();
+  const shoot = async (name: string) => {
+    for (const theme of ["light", "dark"] as const) {
+      await app.evaluate(
+        ({ nativeTheme }, value) => (nativeTheme.themeSource = value),
+        theme,
+      );
+      await page.waitForTimeout(300);
+      await page.screenshot({
+        path: join(folder, `${name}-${theme}.png`),
+        fullPage: true,
+      });
+    }
+  };
+  await page.getByText("Checking with Maestro").first().waitFor();
+  await shoot("syntax-checking");
+  await page
+    .getByTestId("flow-save-item.yaml")
+    .getByText("Broken")
+    .waitFor({ timeout: 30_000 });
+  await shoot("syntax-refused");
+  await app.close();
+  await rm(home, { recursive: true, force: true });
+});

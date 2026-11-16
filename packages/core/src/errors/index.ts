@@ -39,6 +39,8 @@ export type JagraError =
   | { code: "CONFIG_WRITE_FAILED"; file: string; detail: string }
   /** Maestro's output could not be masked, so it must not be kept (RES-7). */
   | { code: "OUTPUT_MASK_FAILED"; folder: string; detail: string }
+  /** `maestro check-syntax` gave no verdict, so the flow is not held back by it (D-98). */
+  | { code: "SYNTAX_CHECK_FAILED"; file: string; detail: string }
   /** The `.jagra` folder could not be created or updated (PRJ-1). */
   | { code: "PROJECT_SETUP_FAILED"; folder: string; detail: string }
   /** The Mockoon file must sit inside the project folder, which config.yaml points into (spec section 4). */
@@ -99,6 +101,15 @@ export type FlowProblem =
   | { code: "FLOW_STEP_INVALID"; file: string; line: number }
   /** A command that lets an AI model decide or feed a result (FLOW-10, D-33). */
   | { code: "FLOW_AI_COMMAND"; file: string; line: number; command: string }
+  /** `maestro check-syntax` refused the flow, with Maestro's own words (D-98). */
+  | {
+      code: "FLOW_MAESTRO_REFUSED";
+      file: string;
+      line: number;
+      message: string;
+    }
+  /** The same, when Maestro does not say on which line. */
+  | { code: "FLOW_MAESTRO_REFUSED_FILE"; file: string; message: string }
   | {
       code: "FLOW_HELPER_NOT_FOUND";
       file: string;

@@ -38,6 +38,43 @@ describe("planRun (spec section 7, step 1)", () => {
     ]);
   });
 
+  it("skips the flows Maestro refuses, checking only those with no problem of their own (D-98)", async () => {
+    await write("a.yaml", flow("- launchApp"));
+    await write("typo.yaml", flow("- tapOnn: Save"));
+    await write("broken.yaml", "appId: x\n---\n- [unclosed\n");
+    const asked: string[][] = [];
+    const plan = await planRun({
+      projectFolder: project,
+      secret: secrets({}),
+      syntax: (files) => {
+        asked.push(files.map((f) => basename(f)));
+        const typo = files.find((f) => basename(f) === "typo.yaml") ?? "";
+        return Promise.resolve(
+          new Map([
+            [
+              typo,
+              {
+                code: "FLOW_MAESTRO_REFUSED" as const,
+                file: typo,
+                line: 3,
+                message: "Invalid Command: tapOnn",
+              },
+            ],
+          ]),
+        );
+      },
+    });
+    if (!plan.ok) throw new Error(JSON.stringify(plan.error));
+    expect(asked).toEqual([["a.yaml", "typo.yaml"]]);
+    expect(plan.value.flows.map((f) => basename(f.file))).toEqual(["a.yaml"]);
+    expect(
+      plan.value.skipped.map((f) => [basename(f.file), f.problems[0]?.code]),
+    ).toEqual([
+      ["broken.yaml", "FLOW_YAML_INVALID"],
+      ["typo.yaml", "FLOW_MAESTRO_REFUSED"],
+    ]);
+  });
+
   it("takes only the chosen flows (RUN-2)", async () => {
     await write("a.yaml", flow("- launchApp"));
     await write("b.yaml", flow("- launchApp"));

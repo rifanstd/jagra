@@ -3,7 +3,12 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { isBlackScreenshot } from "@jagra/core";
 import { describe, expect, it } from "vitest";
-import { isTestMode, TestFlowRunner, testToolProbe } from "./test-mode.js";
+import {
+  isTestMode,
+  TestFlowRunner,
+  TestSyntaxChecker,
+  testToolProbe,
+} from "./test-mode.js";
 
 const request = { paths: {} };
 
@@ -79,5 +84,26 @@ describe("TestFlowRunner", () => {
       "FATAL EXCEPTION",
     );
     await rm(outputDir, { recursive: true, force: true });
+  });
+});
+
+describe("TestSyntaxChecker", () => {
+  it("accepts by default, and refuses the files JAGRA_TEST_SYNTAX names", async () => {
+    const checker = new TestSyntaxChecker({
+      JAGRA_TEST_SYNTAX:
+        "typo.yaml=4:Invalid Command: tapOnn;prop.yaml=0:Unknown Property: idd",
+    });
+    expect(await checker.check("/p/.jagra/flows/a.yaml")).toEqual({
+      ok: true,
+      value: { accepted: true },
+    });
+    expect(await checker.check("/p/.jagra/flows/typo.yaml")).toEqual({
+      ok: true,
+      value: { accepted: false, message: "Invalid Command: tapOnn", line: 4 },
+    });
+    expect(await checker.check("/p/.jagra/flows/prop.yaml")).toEqual({
+      ok: true,
+      value: { accepted: false, message: "Unknown Property: idd" },
+    });
   });
 });

@@ -45,6 +45,8 @@ const ERRORS: Describe = {
   APK_UNREADABLE: (e) => `${e.file} could not be read as an APK: ${e.detail}`,
   OUTPUT_MASK_FAILED: (e) =>
     `Maestro's output in ${e.folder} could not be masked, so it was not kept: ${e.detail}`,
+  SYNTAX_CHECK_FAILED: (e) =>
+    `Maestro could not check the syntax of ${e.file}: ${e.detail}`,
   PROJECT_SETUP_FAILED: (e) =>
     `The .jagra folder in ${e.folder} could not be created: ${e.detail}`,
   MOCKOON_FILE_OUTSIDE_PROJECT: (e) =>
@@ -93,6 +95,10 @@ const ERRORS: Describe = {
   FLOW_STEP_INVALID: (e) => `${e.file}:${e.line} is not a Maestro step.`,
   FLOW_AI_COMMAND: (e) =>
     `${e.file}:${e.line} uses ${e.command}, which lets an AI decide the result. Jagra does not run it.`,
+  FLOW_MAESTRO_REFUSED: (e) =>
+    `${e.file}:${e.line} is refused by Maestro: ${e.message}.`,
+  FLOW_MAESTRO_REFUSED_FILE: (e) =>
+    `${e.file} is refused by Maestro: ${e.message}.`,
   FLOW_HELPER_NOT_FOUND: (e) =>
     `${e.file}:${e.line} calls ${e.helper}, which does not exist.`,
 };

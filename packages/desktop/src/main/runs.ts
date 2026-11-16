@@ -39,6 +39,7 @@ import {
   type RunStateStore,
   type SecretStore,
   type Step,
+  type SyntaxChecks,
   type ToolName,
   type ToolStatus,
 } from "@jagra/core";
@@ -71,6 +72,8 @@ export interface RunsOptions {
   /** The device bridge of the device list, once adb is known. */
   bridge(): DeviceBridge | undefined;
   flowRunner(tools: ToolStatus[]): FlowRunner;
+  /** Maestro's syntax check. A run waits for the chosen flows not checked yet (D-98). */
+  syntax?: SyntaxChecks;
   mockServer(tools: ToolStatus[]): MockServer;
   ports: PortChecker;
   state: RunStateStore;
@@ -146,10 +149,12 @@ export class Runs {
       };
     }
 
+    const syntax = options.syntax;
     const plan = await planRun({
       projectFolder: folder,
       chosen: local.flows,
       secret: (name) => options.secrets.get(project.id, name),
+      syntax: syntax && ((files) => syntax.settle(files)),
     });
     if (!plan.ok) {
       return plan.error.code === "SECRETS_MISSING"
