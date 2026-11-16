@@ -135,6 +135,8 @@ export interface FlowView {
   name: string;
   /** Why it cannot run. A flow with a problem is left out of runs. */
   problem?: JagraError;
+  /** Maestro's syntax check of this version has not finished (D-98). */
+  checking?: boolean;
 }
 
 /** A helper flow in `.jagra/flows/parts`, never run on its own (FLOW-3). */
@@ -144,6 +146,7 @@ export interface HelperView {
   /** How many flows call it. */
   usedBy: number;
   problem?: JagraError;
+  checking?: boolean;
 }
 
 export interface ProjectDetails {

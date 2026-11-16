@@ -316,6 +316,7 @@ function Flows({
                       {flow.file}
                     </span>
                   </span>
+                  {flow.checking && <Checking />}
                 </label>
               </li>
             ),
@@ -323,6 +324,19 @@ function Flows({
         </ul>
       )}
     </Card>
+  );
+}
+
+/** D-98: Maestro's syntax check of this file has not finished. The flow can still be chosen. */
+function Checking() {
+  const { t } = useTranslation();
+  return (
+    <Status
+      tone="running"
+      className="text-sm font-normal text-muted-foreground"
+    >
+      {t("project.flows.checking")}
+    </Status>
   );
 }
 
@@ -359,6 +373,7 @@ function Helpers({ id, helpers }: { id: string; helpers: HelperView[] }) {
             {helper.problem && (
               <Status tone="failed">{t("project.flows.broken")}</Status>
             )}
+            {helper.checking && <Checking />}
             <Button
               variant="ghost"
               size="sm"

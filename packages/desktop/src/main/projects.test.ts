@@ -14,9 +14,14 @@ import {
   loadLocal,
   runsFolder,
   saveRun,
+  SyntaxChecks,
   type Run,
 } from "@jagra/core";
-import { FakeApkReader, FakeFileWatcher } from "@jagra/core/fakes";
+import {
+  FakeApkReader,
+  FakeFileWatcher,
+  FakeSyntaxChecker,
+} from "@jagra/core/fakes";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { Projects, type Dialogs } from "./projects.js";
 
@@ -52,8 +57,9 @@ const dialogs: Dialogs = {
 };
 
 let ids = 0;
-function projects(): Projects {
+function projects(syntax?: SyntaxChecks): Projects {
   return new Projects({
+    syntax,
     appData,
     documents,
     sample,
@@ -336,7 +342,9 @@ describe("Try the sample app (SMP-6)", () => {
 describe("the project page (PRJ-4, PRJ-5, RUN-2, DEV-3, FLOW-6)", () => {
   const flow = (steps: string) => `appId: com.shop\n---\n${steps}`;
 
-  async function shop(): Promise<{ id: string; path: string; list: Projects }> {
+  async function shop(
+    syntax?: SyntaxChecks,
+  ): Promise<{ id: string; path: string; list: Projects }> {
     const path = await folder("shop", {
       ".jagra/config.yaml":
         "format: 1\nname: shop\nmockoon:\n  file: .jagra/mockoon.json\n",
@@ -354,13 +362,70 @@ describe("the project page (PRJ-4, PRJ-5, RUN-2, DEV-3, FLOW-6)", () => {
       versionName: "1.0",
       versionCode: 1,
     });
-    const list = projects();
+    const list = projects(syntax);
     answers.push(path);
     await list.pickFolder();
     const created = await list.create({ name: "shop", apk: "search" });
     if (!created.ok) throw new Error("not created");
     return { id: created.value.id, path, list };
   }
+
+  it("shows flows being checked by Maestro, then the ones it refuses (D-98)", async () => {
+    const checker = new FakeSyntaxChecker();
+    checker.hold = true;
+    const page: { list?: Projects } = {};
+    const syntax = new SyntaxChecks({
+      checker: () => checker,
+      onChecked: (file) => page.list?.flowChecked(file),
+    });
+    const shopped = await shop(syntax);
+    const list = (page.list = shopped.list);
+    const flows = join(shopped.path, ".jagra", "flows");
+    checker.set(join(flows, "list.yaml"), {
+      accepted: false,
+      message: "Invalid Command: tapOnn",
+      line: 3,
+    });
+    let refreshed = 0;
+    await list.watchFlows(shopped.id, () => refreshed++);
+
+    expect((await list.get(shopped.id))?.details).toMatchObject({
+      flows: [
+        { file: "broken.yaml", problem: { code: "FLOW_YAML_INVALID" } },
+        { file: "list.yaml", checking: true },
+        { file: "login.yaml", checking: true },
+      ],
+      helpers: [{ file: "parts/sign-in.yaml", checking: true }],
+      chosen: ["list.yaml", "login.yaml"],
+    });
+    checker.hold = false;
+    checker.release();
+    const checked = ["list.yaml", "login.yaml", join("parts", "sign-in.yaml")];
+    await syntax.settle(checked.map((file) => join(flows, file)));
+    // Jagra's own check already refuses broken.yaml, so Maestro does not get it.
+    expect(
+      checker.checked.map((f) => f.slice(flows.length + 1)).sort(),
+    ).toEqual(checked.sort());
+    expect(refreshed).toBe(3);
+    const details = (await list.get(shopped.id))?.details;
+    expect(details).toMatchObject({
+      flows: [
+        { file: "broken.yaml" },
+        {
+          file: "list.yaml",
+          problem: {
+            code: "FLOW_MAESTRO_REFUSED",
+            line: 3,
+            message: "Invalid Command: tapOnn",
+          },
+        },
+        { file: "login.yaml" },
+      ],
+      chosen: ["login.yaml"],
+    });
+    expect(details?.flows[2]?.checking).toBeUndefined();
+    expect(details?.helpers[0]?.checking).toBeUndefined();
+  });
 
   it("lists flows, broken flows and helper flows with how often they are used", async () => {
     const { id, list } = await shop();

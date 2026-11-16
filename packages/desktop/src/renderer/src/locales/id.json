@@ -269,7 +269,8 @@
       "noneBefore": "Belum ada flow. Flow adalah file YAML di",
       "noneAfter": ".",
       "leftOut": "Flow ini tidak ikut dijalankan.",
-      "broken": "Rusak"
+      "broken": "Rusak",
+      "checking": "Sedang dicek Maestro"
     },
     "helpers": {
       "title": "Flow pembantu",
@@ -572,6 +573,7 @@
     "APK_NOT_FOUND": "Tidak ada APK di {{searchPath}}. Build aplikasinya, atau pilih APK sendiri.",
     "APK_UNREADABLE": "{{file}} tidak bisa dibaca sebagai APK.",
     "OUTPUT_MASK_FAILED": "Output Maestro tidak bisa diperiksa dari secret, jadi tidak disimpan.",
+    "SYNTAX_CHECK_FAILED": "Maestro tidak bisa memeriksa sintaks {{file}}.",
     "DEVICE_NOT_FOUND": "Perangkat {{deviceId}} tidak terhubung.",
     "DEVICE_NOT_AUTHORISED": "HP {{deviceId}} belum mengizinkan USB debugging. Buka kunci HP dan setujui permintaannya.",
     "DEVICE_NOT_RESPONDING": "HP {{deviceId}} tidak merespons. Cabut lalu colokkan lagi.",
@@ -595,6 +597,8 @@
     "FLOW_STEPS_MISSING": "{{file}}, baris {{line}}, tidak punya langkah.",
     "FLOW_STEP_INVALID": "{{file}}, baris {{line}}, bukan langkah Maestro.",
     "FLOW_AI_COMMAND": "{{file}}, baris {{line}}, memakai {{command}}, yang membiarkan AI menentukan hasil. Jagra tidak menjalankannya.",
+    "FLOW_MAESTRO_REFUSED": "{{file}}, baris {{line}}, ditolak Maestro: {{message}}.",
+    "FLOW_MAESTRO_REFUSED_FILE": "{{file}} ditolak Maestro: {{message}}.",
     "FLOW_HELPER_NOT_FOUND": "{{file}}, baris {{line}}, memanggil {{helper}}, yang tidak ada.",
     "PROJECT_SETUP_FAILED": "Folder .jagra di {{folder}} tidak bisa dibuat.",
     "MOCKOON_FILE_OUTSIDE_PROJECT": "{{file}} ada di luar folder proyek. Pilih file Mockoon yang ada di dalamnya.",

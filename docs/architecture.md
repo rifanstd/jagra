@@ -79,7 +79,8 @@ core/src/
 | `FlowRunner` | Run one flow on one device with variables, a time limit, an output folder and a cancel signal, report the latest step, and return the result: step marks, the failing step, reason, screenshot, screen contents (D-50) and crash report | `maestro test` with Maestro's HTML report and debug output, every text file masked (D-47 to D-51) |
 | `AgentClient` | Start a session, send a request, continue a session, cancel | Two adapters: `CliAgent` (Claude Code, Codex, custom commands) and `AcpAgent` (ACP agents, using the official ACP TypeScript SDK) |
 | `SecretStore` | Read and write secret values per project | Desktop: OS credential store. CLI: `JAGRA_SECRET_<NAME>` environment variables |
-| `FileWatcher` | Report changes in `.jagra/flows` | A file watching library (proposed) |
+| `SyntaxChecker` | Check one flow file with Maestro, without a device, and return Maestro's message and line when it refuses it | `maestro check-syntax <file>` through Java on Windows (D-34), one file per call (D-98, D-101) |
+| `FileWatcher` | Report changes in `.jagra/flows` | Node's recursive `fs.watch` (D-99) |
 | `Clock` | Time, for durations and timeouts | System clock (a fake clock in tests) |
 
 `SecretStore` and the update check are the only places where the desktop app and the CLI behave differently, and both sit behind a port, so `core` stays the same for both.

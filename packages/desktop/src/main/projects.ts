@@ -32,10 +32,14 @@ import {
   type ApkInfo,
   type ApkReader,
   type FileWatcher,
+  type Flow,
+  type JagraError,
   type KnownProject,
   type ProjectConfig,
   type Result,
   type Run,
+  type SyntaxChecks,
+  type SyntaxState,
 } from "@jagra/core";
 import type {
   ApkView,
@@ -67,6 +71,8 @@ export interface ProjectsOptions {
   openPath(path: string): Promise<void>;
   /** FLOW-8 */
   watcher: FileWatcher;
+  /** Maestro's own syntax check, run in the background (D-98). */
+  syntax?: SyntaxChecks;
   newId?: () => string;
 }
 
@@ -81,6 +87,7 @@ interface Pending {
 export class Projects {
   private pending: Pending | undefined;
   private stopWatching: (() => void) | undefined;
+  private watching: { folder: string; onChange: () => void } | undefined;
   // The APK is read again every few seconds while a project page is open; its contents only
   // change when the file does.
   private readonly apkInfo = new Map<
@@ -147,16 +154,24 @@ export class Projects {
   async watchFlows(id: string, onChange: () => void): Promise<void> {
     this.unwatchFlows();
     const project = await this.find(id);
-    if (project)
-      this.stopWatching = this.options.watcher.watch(
-        flowsFolder(project.folder),
-        onChange,
-      );
+    if (!project) return;
+    const folder = flowsFolder(project.folder);
+    this.watching = { folder, onChange };
+    this.stopWatching = this.options.watcher.watch(folder, onChange);
   }
 
   unwatchFlows(): void {
     this.stopWatching?.();
     this.stopWatching = undefined;
+    this.watching = undefined;
+  }
+
+  /** A syntax check finished. The page on screen refreshes if the file is one of its flows. */
+  flowChecked(file: string): void {
+    if (!this.watching) return;
+    const inside = relative(this.watching.folder, file);
+    if (!inside.startsWith("..") && !isAbsolute(inside))
+      this.watching.onChange();
   }
 
   async exists(id: string): Promise<boolean> {
@@ -352,6 +367,34 @@ export class Projects {
     };
   }
 
+  /**
+   * Jagra's own problems first; Maestro checks only files without one (D-98). A file whose check
+   * has not finished shows as being checked and stays runnable: a run waits for the result.
+   */
+  private async syntaxStates(
+    files: Flow[],
+  ): Promise<(flow: Flow) => { problem?: JagraError; checking?: true }> {
+    const syntax = this.options.syntax;
+    const states = new Map<string, SyntaxState>();
+    if (syntax) {
+      await Promise.all(
+        files
+          .filter((flow) => flow.problems.length === 0)
+          .map(async (flow) =>
+            states.set(flow.file, await syntax.state(flow.file)),
+          ),
+      );
+    }
+    return (flow) => {
+      const own = flow.problems[0];
+      if (own) return { problem: own };
+      const state = states.get(flow.file);
+      if (state?.state === "refused") return { problem: state.problem };
+      if (state?.state === "checking") return { checking: true };
+      return {};
+    };
+  }
+
   private async details(
     id: string,
     folder: string,
@@ -363,10 +406,11 @@ export class Projects {
       listRuns(runsFolder(this.options.appData, id)),
       mockoonSettings(folder, config),
     ]);
+    const checks = await this.syntaxStates([...list.flows, ...list.helpers]);
     const flows = list.flows.map((flow) => ({
       file: basename(flow.file),
       name: flow.name,
-      problem: flow.problems[0],
+      ...checks(flow),
     }));
     const runnable = flows
       .filter((flow) => !flow.problem)
@@ -377,7 +421,7 @@ export class Projects {
       usedBy: list.flows.filter((flow) =>
         flow.calls.some((call) => resolve(call.file) === resolve(helper.file)),
       ).length,
-      problem: helper.problems[0],
+      ...checks(helper),
     }));
     return {
       flows,

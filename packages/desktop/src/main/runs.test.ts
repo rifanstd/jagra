@@ -12,6 +12,7 @@ import {
   ActiveProcessFile,
   addProject,
   runsFolder,
+  SyntaxChecks,
   type Device,
   type ToolStatus,
 } from "@jagra/core";
@@ -23,6 +24,7 @@ import {
   FakeMockServer,
   FakePortChecker,
   FakeSecretStore,
+  FakeSyntaxChecker,
 } from "@jagra/core/fakes";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { LiveRun } from "../shared/api.js";
@@ -90,8 +92,9 @@ afterEach(async () => {
   await rm(root, { recursive: true, force: true });
 });
 
-function runs(): Runs {
+function runs(syntax?: SyntaxChecks): Runs {
   return new Runs({
+    syntax,
     appData,
     // A second ahead, so files written by the test are always older than the run.
     clock: new FakeClock(Date.now() + 1000),
@@ -159,6 +162,25 @@ describe("Runs (spec section 7)", () => {
     expect(await readFile(index, "utf8")).toContain("Jagra run report");
     await service.openReport(projectId, done.run.id);
     expect(opened).toEqual([index]);
+  });
+
+  it("waits for Maestro's syntax check and leaves out the flows it refuses (D-98)", async () => {
+    const checker = new FakeSyntaxChecker();
+    const b = join(folder, ".jagra/flows/b.yaml");
+    // Results are kept by contents, so the refused flow must differ from a.yaml.
+    await write(b, flow("- tapOnn: Save\n"));
+    checker.set(b, { accepted: false, message: "Invalid Command: tapOnn" });
+    const service = runs(new SyntaxChecks({ checker: () => checker }));
+    expect(await service.start({ projectId, deviceId: pixel.id })).toEqual({
+      started: true,
+    });
+    const done = await finished();
+    expect(done.run.flows.map((f) => f.file)).toEqual([
+      join(folder, ".jagra/flows/a.yaml"),
+    ]);
+    expect(checker.checked.sort()).toEqual(
+      [join(folder, ".jagra/flows/a.yaml"), b].sort(),
+    );
   });
 
   it("stops at the first check that fails, before touching the device", async () => {

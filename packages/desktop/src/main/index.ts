@@ -15,7 +15,9 @@ import {
   MaestroFlowRunner,
   Masker,
   MockoonServer,
+  MaestroSyntaxChecker,
   NodeFileWatcher,
+  SyntaxChecks,
   NodePortChecker,
   NodeProcessControl,
   NodeProcessRunner,
@@ -25,6 +27,7 @@ import {
   type ApkReader,
   type PortChecker,
   type SecretStore,
+  type SyntaxChecker,
   type ToolPaths,
   type ToolProbe,
   type ToolStatus,
@@ -57,6 +60,7 @@ import {
   isTestMode,
   testApkReader,
   TestFlowRunner,
+  TestSyntaxChecker,
   testDeviceBridge,
   testToolProbe,
 } from "./test-mode.js";
@@ -152,6 +156,32 @@ const devices = new Devices(
   },
 );
 
+// D-98: one checker per Maestro found, so another Maestro, or the same one fixed, starts over.
+const testSyntax = testMode ? new TestSyntaxChecker(process.env) : undefined;
+let maestroSyntax: { key: string; checker: SyntaxChecker } | undefined;
+const syntax = new SyntaxChecks({
+  checker: () => {
+    if (testSyntax) return testSyntax;
+    const maestro = lastStatuses.find((s) => s.tool === "maestro");
+    if (!maestro?.path) return undefined;
+    const key = JSON.stringify([maestro.path, maestro.state, toolPaths]);
+    if (maestroSyntax?.key !== key) {
+      maestroSyntax = {
+        key,
+        checker: new MaestroSyntaxChecker({
+          runner,
+          maestro: maestro.path,
+          toolPaths,
+        }),
+      };
+    }
+    return maestroSyntax.checker;
+  },
+  onChecked: (file) => projects.flowChecked(file),
+  onFailed: (error) =>
+    void log("warn", "syntax-check-failed", { code: error.code }),
+});
+
 const runs = new Runs({
   appData,
   clock,
@@ -160,6 +190,7 @@ const runs = new Runs({
   checkTools: async (tools) =>
     checkEnvironment(probe, { tools, paths: await readToolPaths() }),
   bridge: () => devices.currentBridge(),
+  syntax,
   flowRunner: (tools) =>
     testMode
       ? new TestFlowRunner(process.env)
@@ -216,6 +247,7 @@ const projects = new Projects({
       }),
   },
   watcher: new NodeFileWatcher(),
+  syntax,
   // FLOW-5: flow and config files open with the editor chosen in Settings, else the default app.
   openPath: async (path) =>
     openFile(path, {

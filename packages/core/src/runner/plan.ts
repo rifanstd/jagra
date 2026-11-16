@@ -1,5 +1,5 @@
 import { basename } from "node:path";
-import { fail, ok, type Result } from "../errors/index.js";
+import { fail, ok, type FlowProblem, type Result } from "../errors/index.js";
 import type { Flow } from "../project/flow.js";
 import { discoverFlows, variablesNeeded } from "../project/flows.js";
 
@@ -9,6 +9,11 @@ export interface PlanInput {
   chosen?: readonly string[];
   /** The value of a variable, from the project's secrets (RUN-10, CLI-3). */
   secret: (name: string) => Promise<string | undefined>;
+  /**
+   * Maestro's own check of the given flow files, returning the refused ones (D-98). The app
+   * passes it; the CLI does not, so a run in CI does not wait for it.
+   */
+  syntax?: (files: string[]) => Promise<Map<string, FlowProblem>>;
 }
 
 export interface RunPlan {
@@ -30,6 +35,14 @@ export async function planRun(input: PlanInput): Promise<Result<RunPlan>> {
   const chosen = input.chosen
     ? list.flows.filter((f) => input.chosen?.includes(basename(f.file)))
     : list.flows;
+  const refused =
+    (await input.syntax?.(
+      chosen.filter((f) => f.problems.length === 0).map((f) => f.file),
+    )) ?? new Map<string, FlowProblem>();
+  for (const flow of chosen) {
+    const problem = refused.get(flow.file);
+    if (problem) flow.problems.push(problem);
+  }
   const flows = chosen.filter((f) => f.problems.length === 0);
   const skipped = chosen.filter((f) => f.problems.length > 0);
   if (flows.length === 0) return fail({ code: "NO_FLOWS" });
