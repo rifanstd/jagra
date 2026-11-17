@@ -108,6 +108,18 @@ describe("CliAgent: Claude Code (AGT-10, D-102)", () => {
     expect(args).not.toContain("--session-id");
   });
 
+  it("says it cannot continue a session Claude Code no longer has (AGT-18)", async () => {
+    const { client } = setup(
+      claude,
+      "/bin/claude",
+      out("No conversation found with session ID: abc"),
+    );
+    expect(await client.continue("abc", request)).toEqual({
+      ok: false,
+      error: { code: "AGENT_CANNOT_CONTINUE", agent: "claude-code" },
+    });
+  });
+
   it("reports an error answer and output that is not JSON", async () => {
     const error = JSON.stringify({
       is_error: true,

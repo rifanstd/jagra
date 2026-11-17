@@ -159,6 +159,10 @@ export class CliAgent implements AgentClient {
 
     switch (agent.kind) {
       case "claude-code":
+        // An unknown or expired session is plain text, not JSON (to-verify.md).
+        if (existing && /No conversation found/i.test(output.stdout)) {
+          return fail({ code: "AGENT_CANNOT_CONTINUE", agent: this.name });
+        }
         return this.claudeReply(output.stdout, output.stderr);
       case "codex": {
         const message = await readFile(lastMessage, "utf8").catch(() => "");

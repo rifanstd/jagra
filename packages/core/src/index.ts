@@ -79,6 +79,29 @@ export {
 } from "./adapters/agents/find.js";
 export { CliAgent, type CliAgentKind } from "./adapters/agents/cli-agent.js";
 export { AcpAgent } from "./adapters/agents/acp-agent.js";
+export {
+  AGENT_TIME_LIMIT_MS,
+  askForFix,
+  askForFlow,
+  hasSourceCode,
+  type AgentOutcome,
+} from "./agents/ask.js";
+export {
+  buildFix,
+  buildHistory,
+  buildInstructions,
+  TEMPLATE,
+  type FixRequest,
+  type FlowRequest,
+} from "./agents/instructions.js";
+export { readReport, type AgentReport } from "./agents/report.js";
+export {
+  endSession,
+  loadSession,
+  saveSession,
+  sessionFolder,
+  type AgentSession,
+} from "./agents/session.js";
 export { isInside } from "./agents/paths.js";
 export { MaestroSyntaxChecker } from "./adapters/maestro/maestro-syntax-checker.js";
 export { SyntaxChecks, type SyntaxState } from "./project/syntax-checks.js";

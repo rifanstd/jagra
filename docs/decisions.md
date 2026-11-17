@@ -508,3 +508,14 @@ Format of each entry: what was decided, why, and what was considered instead.
 ### D-112. ProcessRunner can hand over a program's standard input and output
 **Decided:** `ProcessSpec.output` takes `stream`, which gives the program's standard input and output as web streams for a protocol such as ACP, while standard error still arrives as lines. The program is still started without a shell, recorded in `state/active.json` and stopped with its children.
 **Why:** ACP talks JSON-RPC over standard input and output. Adding a mode to `start` keeps one way of starting programs, so the tracking that stops leftovers (REL-2) covers agents too.
+
+### D-113. Instructions, the report and sessions
+**Decided:**
+- **The instructions** (`AGT-14`) are three parts in this order: the template, the team's rules under their own heading, and the request. The user's scenario and the earlier flow are quoted, so they read as the request and not as rules.
+- **The request** names the file to write when the user named the flow, and otherwise lets the agent choose a name in English, lowercase with hyphens. It lists the helper flows and the existing flows with their names. It says the project has source code when it holds `settings.gradle`, `settings.gradle.kts`, `build.gradle`, `build.gradle.kts` or `app/src`.
+- **The report** (`AGT-16`) is the last JSON object in the final message with the fields `flow`, `checks`, `possibleBug` (or `null`) and `suggestedTests`. The flow it names counts only when it is a YAML file inside `.jagra/flows`.
+- **Each session** keeps its record, the instructions and the agent's files in `projects/<id>/sessions/<session id>/`, and ends when the user saves or discards the flow.
+- **Ask agent to fix** (`AGT-17`, `AGT-18`) continues the session. It starts a new session with the earlier work written out only when the agent cannot continue: it has no way to, has no session id, or no longer has the session (Claude Code then prints `No conversation found with session ID`). Any other error is shown to the user and nothing is retried (`AGT-5`).
+- **An agent still working after 15 minutes** is stopped and the user is told (`AGT-13`).
+
+**Why:** `AGT-14` to `AGT-18` set what the instructions hold and when the history fallback runs, but not the exact shapes. Retrying on any error would call the agent again without the user asking. Checking the reported path stops a report from pointing Jagra at a file outside the flows folder.
