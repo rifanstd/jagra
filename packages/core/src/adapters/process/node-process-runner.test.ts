@@ -157,6 +157,37 @@ describe("NodeProcessRunner without a shell (SEC-8)", () => {
     expect(lines.map((l) => l.text).join("")).toBe("00000004abc\n");
   });
 
+  it("gives standard input and output as streams when asked, for ACP", async () => {
+    const lines: OutputLine[] = [];
+    const started = await runner.start(
+      {
+        program: NODE,
+        args: [
+          "-e",
+          "process.stdin.on('data', (d) => process.stdout.write(String(d).toUpperCase())); process.stdin.on('end', () => console.error('bye'))",
+        ],
+        output: "stream",
+      },
+      (line) => lines.push(line),
+    );
+    if (!started.ok) throw new Error("could not start");
+    const { input, output, exited } = started.value;
+    if (!input || !output) throw new Error("no streams");
+    const writer = input.getWriter();
+    await writer.write(new TextEncoder().encode("hello\n"));
+    await writer.close();
+    const reader = output.getReader();
+    let text = "";
+    for (;;) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      text += new TextDecoder().decode(value);
+    }
+    await exited;
+    expect(text).toBe("HELLO\n");
+    expect(lines).toEqual([{ stream: "stderr", text: "bye" }]);
+  });
+
   it("reports a missing program as a code", async () => {
     const started = await runner.start({
       program: "jagra-no-such-program",

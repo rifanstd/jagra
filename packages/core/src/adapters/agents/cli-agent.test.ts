@@ -259,9 +259,9 @@ describe("CliAgent: custom command (AGT-3, D-21, D-108)", () => {
       ok: true,
       value: { finalMessage: "ok" },
     });
-    expect(await client.continue("s", request)).toMatchObject({
+    expect(await client.continue("s", request)).toEqual({
       ok: false,
-      error: { code: "AGENT_FAILED" },
+      error: { code: "AGENT_CANNOT_CONTINUE", agent: "Aider" },
     });
   });
 

@@ -69,7 +69,7 @@ core/src/
 
 | Port | What it does | Real adapter |
 |---|---|---|
-| `ProcessRunner` | Start a program with an argument list (never a shell string), stream its output, stop it and its children, record what is running. Also launch a program that outlives Jagra, for emulators (D-45) | Node `child_process` with `shell: false`. On Windows only `.exe` and `.com`, found on `PATH` only (D-31). Stopping uses `taskkill /T /F` on Windows and the process group on macOS |
+| `ProcessRunner` | Start a program with an argument list (never a shell string), stream its output, stop it and its children, record what is running. Also launch a program that outlives Jagra, for emulators (D-45), and hand over standard input and output for ACP (D-112) | Node `child_process` with `shell: false`. On Windows only `.exe` and `.com`, found on `PATH` only (D-31). Stopping uses `taskkill /T /F` on Windows and the process group on macOS |
 | `ToolProbe` | Find a tool and read its version, returning what it saw (`ToolFinding`) | `ProcessRunner` calls such as `java -version`. Maestro and Mockoon CLI through Java and Node on Windows (D-34). Search order and the Windows registry read in D-37 |
 | `DeviceBridge` | List and watch devices and emulators, start an emulator, report boot state and load, install and uninstall, clear app data, add and remove `adb reverse`, read the Android version. The `devices` module decides when an emulator is ready (D-44) | `adb` (`track-devices -l` for watching) and the SDK `emulator` binary (D-42) |
 | `ApkReader` | Read package name, version name and version code from an APK | `@devicefarmer/adbkit-apkreader` (D-46) |

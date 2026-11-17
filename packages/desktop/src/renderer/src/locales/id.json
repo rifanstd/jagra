@@ -617,7 +617,9 @@
     "AGENT_COMMAND_NEEDS": "Perintahnya wajib berisi {{placeholder}}.",
     "AGENT_NAME_TAKEN": "Sudah ada agen bernama {{name}}.",
     "AGENT_FAILED": "{{agent}} berhenti dengan error.",
-    "AGENT_CANCELLED": "{{agent}} dihentikan."
+    "AGENT_CANCELLED": "{{agent}} dihentikan.",
+    "AGENT_CANNOT_CONTINUE": "{{agent}} tidak bisa melanjutkan sesi.",
+    "AGENT_NOT_SIGNED_IN": "{{agent}} belum login. Login lewat {{agent}} sendiri, lalu coba lagi."
   },
   "agents": {
     "title": "Agen AI",

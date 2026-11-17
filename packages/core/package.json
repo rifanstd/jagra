@@ -28,6 +28,7 @@
     "test:device": "vitest run --config vitest.device.config.js"
   },
   "dependencies": {
+    "@agentclientprotocol/sdk": "2.4.0",
     "@devicefarmer/adbkit-apkreader": "4.0.0",
     "yaml": "2.9.1",
     "zod": "4.6.7"
