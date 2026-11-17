@@ -444,6 +444,20 @@ export class Runs {
   }
 }
 
+/** A flow's steps as its file reads now, with its helpers' steps (AGT-22). */
+export async function flowSteps(
+  projectFolder: string,
+  file: string,
+): Promise<StepView[] | undefined> {
+  const list = await discoverFlows(projectFolder);
+  const flow = [...list.flows, ...list.helpers, ...list.others].find(
+    (f) => resolve(f.file) === resolve(file),
+  );
+  return (
+    flow && stepViews(flow.steps, flow, list, flowsFolder(projectFolder), 0)
+  );
+}
+
 /**
  * The steps of a flow, with the steps of each helper flow a `runFlow` runs, as Maestro reports
  * them (D-95). Helpers deeper than a few levels, or that call themselves, are not opened.

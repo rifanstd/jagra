@@ -292,6 +292,7 @@ export function registerIpc(
     ]),
     ([request]) => ai.fix(request),
   );
+  on(CHANNELS.aiPreview, z.tuple([]), () => ai.preview());
   on(CHANNELS.aiSave, z.tuple([]), () => ai.save());
   on(CHANNELS.aiDiscard, z.tuple([]), () => ai.discard());
 

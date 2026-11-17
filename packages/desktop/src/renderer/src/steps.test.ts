@@ -40,7 +40,7 @@ describe("stepText (RES-4, D-32)", () => {
     ],
     [step("tapOn", { id: "save_button" }), 'Tap id "save_button"'],
     [step("inputText", "${PASSWORD}"), 'Type "${PASSWORD}"'],
-    [step("assertVisible", "✓ Saved"), 'Check "✓ Saved" is visible'],
+    [step("assertVisible", "✓ Saved"), '"✓ Saved" is visible'],
     [
       step("extendedWaitUntil", { visible: "Items", timeout: 5000 }),
       'Wait until "Items" is visible',

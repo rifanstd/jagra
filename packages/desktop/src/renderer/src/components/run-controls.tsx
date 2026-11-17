@@ -1,5 +1,5 @@
 import type { Device } from "@jagra/core/types";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { StartAnswer } from "../../../shared/api";
 import { describeError } from "../errors";
@@ -40,6 +40,9 @@ export function RunControls({
   go,
   label,
   beforeStart,
+  flows,
+  onStarted,
+  autoStart = false,
 }: {
   projectId: string;
   chosen: number;
@@ -50,6 +53,12 @@ export function RunControls({
   label?: string;
   /** Runs first, for example to choose the flows of an earlier run. */
   beforeStart?: () => Promise<void>;
+  /** Only these flows, by file name, such as the review run's one flow (AGT-21). */
+  flows?: string[];
+  /** Instead of going to the Running screen once the run starts. */
+  onStarted?: () => void;
+  /** Starts once by itself when the device is ready (AGT-21). */
+  autoStart?: boolean;
 }) {
   const { t } = useTranslation();
   const live = useLiveRun();
@@ -69,9 +78,11 @@ export function RunControls({
         projectId,
         deviceId: device.id,
         acceptPackage,
+        ...(flows ? { flows } : {}),
       });
-      if ("started" in next) go({ screen: "running" });
-      else setAnswer(next);
+      if (!("started" in next)) setAnswer(next);
+      else if (onStarted) onStarted();
+      else go({ screen: "running" });
     } finally {
       setBusy(false);
     }
@@ -97,6 +108,17 @@ export function RunControls({
     !device ||
     !ready ||
     !USABLE.has(device.state);
+
+  // AGT-21: the review run starts by itself once, when the device is ready.
+  const started = useRef(false);
+  const startNow = useRef(start);
+  startNow.current = start;
+  useEffect(() => {
+    if (autoStart && !started.current && !disabled) {
+      started.current = true;
+      void startNow.current();
+    }
+  }, [autoStart, disabled]);
   const secrets = answer && "secrets" in answer ? answer.secrets : undefined;
   const differs =
     answer && "packageDiffers" in answer ? answer.packageDiffers : undefined;

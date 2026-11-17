@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { copyFile, readFile, rm, stat } from "node:fs/promises";
+import { copyFile, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import {
   asText,
@@ -39,7 +39,7 @@ import type {
   StepView,
 } from "../shared/api.js";
 import type { Agents } from "./agents.js";
-import type { Runs } from "./runs.js";
+import { flowSteps, type Runs } from "./runs.js";
 
 export interface AiOptions {
   appData: string;
@@ -60,6 +60,11 @@ interface Current {
   appId: string;
   choice: AgentChoice & { id: string; name: string };
   session?: AgentSession;
+  /**
+   * The flow as it was before the session's first call: null when the agent created it. Discard
+   * puts this back, so it never deletes a flow that was there before.
+   */
+  original?: { flow: string; content: Uint8Array | null };
 }
 
 /**
@@ -269,6 +274,20 @@ export class Ai {
     }
   }
 
+  /** AGT-22: the flow's steps and its YAML, before and after the review run. */
+  async preview(): Promise<{ steps?: StepView[]; yaml?: string } | undefined> {
+    const current = this.current;
+    const flow = this.live?.flow;
+    if (!current || !flow) return undefined;
+    const file = join(flowsFolder(current.folder), ...flow.split("/"));
+    const yaml = await readFile(file, "utf8").catch(() => undefined);
+    const steps = await flowSteps(current.folder, file);
+    return {
+      ...(steps ? { steps } : {}),
+      ...(yaml !== undefined ? { yaml } : {}),
+    };
+  }
+
   /** The review run's result with the AGT-24 note. */
   async review(runId: string): Promise<AiReview | undefined> {
     const current = this.current;
@@ -298,7 +317,12 @@ export class Ai {
     if (current && flow && !this.busy) {
       const flows = flowsFolder(current.folder);
       const file = join(flows, ...flow.split("/"));
-      if (await isInside(flows, file)) await rm(file, { force: true });
+      const original =
+        current.original?.flow === flow ? current.original.content : null;
+      if (await isInside(flows, file)) {
+        if (original === null) await rm(file, { force: true });
+        else await writeFile(file, original);
+      }
     }
     await this.end();
   }
@@ -342,6 +366,17 @@ export class Ai {
     const outcome = result.value;
     current.session = outcome.session;
     const flow = outcome.session.flow;
+    if (flow && current.original?.flow !== flow) {
+      const snapshot = await this.snapshot();
+      current.original = {
+        flow,
+        content: snapshot
+          ? await flowBefore(snapshot.snapshot, snapshot.options, flow).catch(
+              () => null,
+            )
+          : null,
+      };
+    }
     const flowExists = flow
       ? await stat(join(flowsFolder(current.folder), ...flow.split("/"))).then(
           (info) => info.isFile(),

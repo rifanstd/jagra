@@ -459,7 +459,9 @@ export interface JagraApi {
     /** AGT-11: whether the first-use notice must show for this project, and what it names. */
     notice(
       projectId: string,
-    ): Promise<{ needed: boolean; agentName: string; folder: string } | undefined>;
+    ): Promise<
+      { needed: boolean; agentName: string; folder: string } | undefined
+    >;
     acceptNotice(projectId: string): Promise<void>;
     start(request: {
       projectId: string;
@@ -479,6 +481,8 @@ export interface JagraApi {
     ): Promise<ChangeView | undefined>;
     /** AGT-20 */
     undoFlow(path: string): Promise<void>;
+    /** AGT-22: the flow's steps and YAML as the file reads now. */
+    preview(): Promise<{ steps?: StepView[]; yaml?: string } | undefined>;
     /** The review run's result, with the failure note. */
     review(runId: string): Promise<AiReview | undefined>;
     /** AGT-27: the note goes to the same session with the failure of the review run. */
@@ -570,6 +574,7 @@ export const CHANNELS = {
   aiViewChange: "ai:view-change",
   aiUndoFlow: "ai:undo-flow",
   aiReview: "ai:review",
+  aiPreview: "ai:preview",
   aiFix: "ai:fix",
   aiSave: "ai:save",
   aiDiscard: "ai:discard",

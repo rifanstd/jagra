@@ -280,6 +280,21 @@ describe("Ai (spec section 10)", () => {
     expect(updates.at(-1)).toBeUndefined();
   });
 
+  it("Discard puts back a flow that was there before, instead of deleting it", async () => {
+    const ai = service();
+    await ai.acceptNotice(projectId);
+    client.during = async () => {
+      await write(".jagra/flows/login.yaml", "changed by the agent\n");
+    };
+    client.queue({ sessionId: "agent-1", finalMessage: report("login.yaml") });
+    await ai.start({ projectId, scenario: "x" });
+    await settled();
+    await ai.discard();
+    expect(
+      await readFile(join(folder, ".jagra", "flows", "login.yaml"), "utf8"),
+    ).toBe("appId: com.shop\n---\n- launchApp\n");
+  });
+
   it("shows the error when the agent fails before writing anything", async () => {
     const ai = service();
     await ai.acceptNotice(projectId);

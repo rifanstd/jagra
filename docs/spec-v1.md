@@ -433,7 +433,7 @@ ACP is the Agent Client Protocol, an open standard for apps to talk to coding ag
 - **AGT-23** After the run, every step has a mark: passed, failed or not run.
 - **AGT-24** When the flow fails, Jagra explains it without AI. If an action step failed, the note says this is likely a problem in the flow, such as a wrong button name, though the app's screen may also have changed. If every action passed and a check failed, the note says this is more likely a bug in the app, though the scenario's expectation may also be wrong. Both notes say "likely", never "certainly".
 - **AGT-25** For a failed flow, Jagra shows the screen at the moment of failure: the screenshot and a list of the texts and elements that were on the screen, captured by Jagra through Maestro right after the failure.
-- **AGT-26** The screen also shows the agent's report: what the flow checks, any possible bug, and each suggested extra test with a "Create this too" button that starts a new request with that scenario.
+- **AGT-26** The screen also shows the agent's report: what the flow checks, any possible bug, and each suggested extra test with a "Create this too" button that saves this flow and opens a new request with that scenario filled in (`decisions.md` D-115).
 - **AGT-27** The user chooses one of three actions. Save keeps the flow; a flow that fails because of an app bug is saved too and keeps failing until the bug is fixed. Ask agent to fix takes an optional note and sends it, with the failing step, the reason, the screenshot and the screen contents, to the same session (`AGT-17`). Discard deletes the flow file. Jagra never repeats a fix on its own.
 
 ### Done when

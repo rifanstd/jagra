@@ -117,6 +117,7 @@ const api: JagraApi = {
       ipcRenderer.invoke(CHANNELS.aiViewChange, kind, path),
     undoFlow: (path: string) => ipcRenderer.invoke(CHANNELS.aiUndoFlow, path),
     review: (runId: string) => ipcRenderer.invoke(CHANNELS.aiReview, runId),
+    preview: () => ipcRenderer.invoke(CHANNELS.aiPreview),
     fix: (request: { note: string; runId?: string }) =>
       ipcRenderer.invoke(CHANNELS.aiFix, request),
     save: () => ipcRenderer.invoke(CHANNELS.aiSave),

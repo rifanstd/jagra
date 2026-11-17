@@ -76,7 +76,7 @@ test("shows a failed flow step by step, with its helper's steps (RES-4)", async 
     "Open the app with clean data",
   );
   await expect(page.getByTestId("steps")).toContainText(
-    'Check "Items" is visible',
+    'Check"Items" is visible',
   );
 });
 

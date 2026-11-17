@@ -173,12 +173,12 @@ test("disables Create flow with AI when no agent is installed, and the rest stil
   await expect(page.getByTestId("agents")).not.toContainText("Found");
 });
 
-test("shows no Create flow with AI button yet when an agent is set up (D-107)", async () => {
+test("enables Create flow with AI when an agent is set up (AGT-7)", async () => {
   await start("claude-code");
   await page.getByRole("button", { name: "Try the sample app" }).click();
   await page.getByTestId("flows-chosen").waitFor();
   await expect(
     page.getByRole("button", { name: "Create flow with AI" }),
-  ).toHaveCount(0);
+  ).toBeEnabled();
   await expect(page.getByTestId("needs-agent")).toHaveCount(0);
 });
