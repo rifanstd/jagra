@@ -138,8 +138,8 @@ The largest milestone. Split it into several pull requests in this order.
 1. `CliAgent` for Claude Code and Codex, custom commands with the no-shell rule, agent detection and the AI agent settings page (AGT-1 to AGT-7, AGT-10).
 2. `AcpAgent` for Gemini CLI, OpenCode, Oh My Pi and other ACP agents, with permission answers (AGT-9).
 3. Instructions from template, team rules and request; the JSON report; sessions and the fallback history (AGT-14 to AGT-18).
-4. The safety net for git and non-git folders, the warning screen, and changes to other flows (AGT-19, AGT-20).
-5. The first-use notice, the request screen, the review run and the Review flow screen with the failure note, screen contents and agent report (AGT-11 to AGT-13, AGT-21 to AGT-27).
+4. The safety net for git and non-git folders, and changes to other flows, in core (AGT-19, AGT-20).
+5. The first-use notice, the request screen, the safety net's warning screen, the review run and the Review flow screen with the failure note, screen contents, changes to other flows and agent report (AGT-11 to AGT-13, AGT-19 to AGT-27). The warning screen moved here from part 4 because it only appears after a request.
 
 - Run the security audit (`test-plan.md`) once this milestone is done.
 

@@ -53,6 +53,8 @@ export type JagraError =
   | { code: "AGENT_CANNOT_CONTINUE"; agent: string }
   /** The agent asks for a login, which the user sets up in the agent itself (AGT-4). */
   | { code: "AGENT_NOT_SIGNED_IN"; agent: string }
+  /** A `git` read failed, so the safety net treats the folder as a plain one (D-114). */
+  | { code: "GIT_FAILED"; detail: string }
   /** AGT-13: the agent was still working after the time limit, and was stopped. */
   | { code: "AGENT_TIMED_OUT"; agent: string; minutes: number }
   /** The `.jagra` folder could not be created or updated (PRJ-1). */

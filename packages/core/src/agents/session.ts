@@ -45,6 +45,12 @@ export function sessionFolder(
   return join(sessionsFolder(appData, projectId), id);
 }
 
+/** The safety net's record and copies for a session (architecture.md section 4). */
+export function backupFolder(appData: string, id: string): string {
+  if (!SESSION_ID.test(id)) throw new Error(`not a session id: ${id}`);
+  return join(appData, "backups", id);
+}
+
 export async function saveSession(
   appData: string,
   projectId: string,
@@ -85,7 +91,7 @@ export async function loadSession(
   }
 }
 
-/** The session ends when the user saves or discards the flow (AGT-18). */
+/** The session ends when the user saves or discards the flow (AGT-18), and its backups go too. */
 export async function endSession(
   appData: string,
   projectId: string,
@@ -96,4 +102,5 @@ export async function endSession(
     recursive: true,
     force: true,
   });
+  await rm(backupFolder(appData, id), { recursive: true, force: true });
 }

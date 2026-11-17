@@ -620,7 +620,8 @@
     "AGENT_CANCELLED": "{{agent}} was stopped.",
     "AGENT_CANNOT_CONTINUE": "{{agent}} cannot continue the session.",
     "AGENT_NOT_SIGNED_IN": "{{agent}} is not signed in. Sign in with {{agent}} itself, then try again.",
-    "AGENT_TIMED_OUT": "{{agent}} was still working after {{minutes}} minutes, so Jagra stopped it."
+    "AGENT_TIMED_OUT": "{{agent}} was still working after {{minutes}} minutes, so Jagra stopped it.",
+    "GIT_FAILED": "git could not read this folder."
   },
   "agents": {
     "title": "AI agent",

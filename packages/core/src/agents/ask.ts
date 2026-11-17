@@ -1,9 +1,17 @@
 import { randomUUID } from "node:crypto";
 import { access, readFile, writeFile } from "node:fs/promises";
 import { basename, join, relative, sep } from "node:path";
-import { fail, ok, type Result } from "../errors/index.js";
+import { fail, ok, type JagraError, type Result } from "../errors/index.js";
 import type { AgentClient, AgentReply } from "../ports/agent-client.js";
 import type { Clock } from "../ports/clock.js";
+import type { GitClient } from "../ports/git.js";
+import {
+  compare,
+  takeSnapshot,
+  type Changes,
+  type SafetyNetOptions,
+  type Snapshot,
+} from "../safety/snapshot.js";
 import { SystemClock } from "../adapters/clock/system-clock.js";
 import { discoverFlows, flowsFolder } from "../project/flows.js";
 import { flowFileName } from "../project/new-flow.js";
@@ -15,7 +23,22 @@ import {
 } from "./instructions.js";
 import { isInside } from "./paths.js";
 import { readReport, type AgentReport } from "./report.js";
-import { saveSession, sessionFolder, type AgentSession } from "./session.js";
+import {
+  backupFolder,
+  saveSession,
+  sessionFolder,
+  type AgentSession,
+} from "./session.js";
+
+/** Without a git client, the safety net copies the folder like any plain one (D-114). */
+const NO_GIT: GitClient = {
+  head: () =>
+    Promise.resolve(fail({ code: "PROGRAM_NOT_FOUND", program: "git" })),
+  changed: () =>
+    Promise.resolve(fail({ code: "PROGRAM_NOT_FOUND", program: "git" })),
+  show: () =>
+    Promise.resolve(fail({ code: "PROGRAM_NOT_FOUND", program: "git" })),
+};
 
 /** AGT-13: an agent still working after this long is stopped. */
 export const AGENT_TIME_LIMIT_MS = 15 * 60_000;
@@ -38,6 +61,9 @@ export interface AskOptions {
   clock?: Clock;
   newId?: () => string;
   timeLimitMs?: number;
+  /** For the safety net in a git repository. Without it, every folder is treated as a plain one. */
+  git?: GitClient;
+  backupLimitBytes?: number;
 }
 
 export interface AskTarget {
@@ -48,9 +74,19 @@ export interface AskTarget {
   signal?: AbortSignal;
 }
 
+/**
+ * What came of one call to the agent. Once the agent has run, the outcome comes back even when it
+ * stopped with an error, because the safety net ran anyway (AGT-13, AGT-19).
+ */
 export interface AgentOutcome {
   session: AgentSession;
+  /** Why the agent stopped early: cancelled, timed out, failed. */
+  error?: JagraError;
   finalMessage: string;
+  /** AGT-19, AGT-20: what changed outside `.jagra/flows`, and in flows other than this one. */
+  changes: Changes;
+  /** False when the folder was too large to copy, so Restore is not offered. */
+  restorable: boolean;
   /** Undefined when the agent's message has no readable report (AGT-16). */
   report?: AgentReport;
   /** Files the agent tried to change outside `.jagra/flows` and was refused. */
@@ -104,11 +140,11 @@ export async function askForFlow(
       (options.clock ?? new SystemClock()).now(),
     ).toISOString(),
   };
+  const snapshot = await guard(options, target, session);
   const reply = await call(options, target, session, instructions, (request) =>
     options.client.start(request),
   );
-  if (!reply.ok) return reply;
-  return ok(await finish(target, session, reply.value));
+  return ok(await settle(options, target, session, reply, snapshot));
 }
 
 /**
@@ -127,6 +163,7 @@ export async function askForFix(
   const file = `.jagra/flows/${target.flow}`;
   const fix: FixRequest = { ...target.fix, file };
   const session: AgentSession = { ...target.session, flow: target.flow };
+  const snapshot = await guard(options, target, session);
   if (session.agentSession) {
     const continued = await call(
       options,
@@ -135,8 +172,9 @@ export async function askForFix(
       buildFix(fix),
       (request) => options.client.continue(session.agentSession ?? "", request),
     );
-    if (continued.ok) return ok(await finish(target, session, continued.value));
-    if (continued.error.code !== "AGENT_CANNOT_CONTINUE") return continued;
+    if (continued.ok || continued.error.code !== "AGENT_CANNOT_CONTINUE") {
+      return ok(await settle(options, target, session, continued, snapshot));
+    }
   }
   const content = await readFile(join(target.folder, file), "utf8").catch(
     () => "",
@@ -150,11 +188,57 @@ export async function askForFix(
   const fresh = await call(options, target, session, instructions, (request) =>
     options.client.start(request),
   );
-  if (!fresh.ok) return fresh;
   // The old agent session is gone; the new one replaces it, or none if the agent gives no id.
   const rest: AgentSession = { ...session };
   delete rest.agentSession;
-  return ok(await finish(target, rest, fresh.value));
+  return ok(await settle(options, target, rest, fresh, snapshot));
+}
+
+/** AGT-19: the folder's state right before the agent starts, in `backups/<session id>`. */
+function guard(
+  options: AskOptions,
+  target: AskTarget,
+  session: AgentSession,
+): Promise<Snapshot> {
+  return takeSnapshot(target.folder, safetyNet(options, target, session));
+}
+
+function safetyNet(
+  options: AskOptions,
+  target: AskTarget,
+  session: AgentSession,
+): SafetyNetOptions {
+  return {
+    backup: backupFolder(target.appData, session.id),
+    git: options.git ?? NO_GIT,
+    ...(options.backupLimitBytes !== undefined
+      ? { limitBytes: options.backupLimitBytes }
+      : {}),
+  };
+}
+
+/** After the agent stops for any reason: the report when there is one, then the comparison. */
+async function settle(
+  options: AskOptions,
+  target: AskTarget,
+  session: AgentSession,
+  reply: Result<AgentReply>,
+  snapshot: Snapshot,
+): Promise<AgentOutcome> {
+  const done = reply.ok
+    ? await finish(target, session, reply.value)
+    : { session, finalMessage: "" };
+  const changes = await compare(
+    snapshot,
+    safetyNet(options, target, session),
+    done.session.flow,
+  );
+  return {
+    ...done,
+    ...(reply.ok ? {} : { error: reply.error }),
+    changes,
+    restorable: snapshot.restorable,
+  };
 }
 
 /** Writes the instructions, then runs the agent with Cancel and the time limit (AGT-13). */
@@ -205,7 +289,7 @@ async function finish(
   target: AskTarget,
   session: AgentSession,
   reply: AgentReply,
-): Promise<AgentOutcome> {
+): Promise<Omit<AgentOutcome, "changes" | "restorable">> {
   const report = readReport(reply.finalMessage);
   const flow = session.flow ?? (await reportedFlow(target.folder, report));
   const saved: AgentSession = {

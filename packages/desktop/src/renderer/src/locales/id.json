@@ -620,7 +620,8 @@
     "AGENT_CANCELLED": "{{agent}} dihentikan.",
     "AGENT_CANNOT_CONTINUE": "{{agent}} tidak bisa melanjutkan sesi.",
     "AGENT_NOT_SIGNED_IN": "{{agent}} belum login. Login lewat {{agent}} sendiri, lalu coba lagi.",
-    "AGENT_TIMED_OUT": "{{agent}} masih bekerja setelah {{minutes}} menit, jadi Jagra menghentikannya."
+    "AGENT_TIMED_OUT": "{{agent}} masih bekerja setelah {{minutes}} menit, jadi Jagra menghentikannya.",
+    "GIT_FAILED": "git tidak bisa membaca folder ini."
   },
   "agents": {
     "title": "Agen AI",

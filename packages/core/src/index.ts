@@ -95,7 +95,26 @@ export {
   type FlowRequest,
 } from "./agents/instructions.js";
 export { readReport, type AgentReport } from "./agents/report.js";
+export { NodeGitClient } from "./adapters/git/node-git-client.js";
 export {
+  BACKUP_LIMIT_BYTES,
+  backupFits,
+  compare,
+  contentBefore,
+  flowBefore,
+  loadSnapshot,
+  restore,
+  takeSnapshot,
+  undoFlow,
+  type ChangeKind,
+  type Changes,
+  type FileChange,
+  type SafetyNetOptions,
+  type Snapshot,
+} from "./safety/snapshot.js";
+export { asText, lineDiff, type DiffLine } from "./safety/diff.js";
+export {
+  backupFolder,
   endSession,
   loadSession,
   saveSession,

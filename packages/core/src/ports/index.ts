@@ -4,6 +4,7 @@ export type * from "./clock.js";
 export type * from "./device-bridge.js";
 export type * from "./file-watcher.js";
 export type * from "./flow-runner.js";
+export type * from "./git.js";
 export type * from "./mock-server.js";
 export type * from "./port-checker.js";
 export type * from "./process-control.js";
