@@ -519,3 +519,16 @@ Format of each entry: what was decided, why, and what was considered instead.
 - **An agent still working after 15 minutes** is stopped and the user is told (`AGT-13`).
 
 **Why:** `AGT-14` to `AGT-18` set what the instructions hold and when the history fallback runs, but not the exact shapes. Retrying on any error would call the agent again without the user asking. Checking the reported path stops a report from pointing Jagra at a file outside the flows folder.
+
+### D-114. How the safety net works
+**Decided:**
+- **Before the agent starts**, the safety net records the project folder in `backups/<session id>/`. In a git repository it keeps the `HEAD` commit, plus a hash and a copy of every file that differs from `HEAD`. It reads that list with `git diff --name-only <HEAD>` and `git ls-files --others --exclude-standard`, so ignored files are not watched. In any other folder, and whenever `git` is missing or fails, it hashes and copies every file.
+- **What is left out:** `.git`, `.gradle`, `build`, `node_modules` and `.idea`, at any depth. `.jagra/flows` is recorded apart and always copied, for `AGT-20`.
+- **The size limit is 500 MB.** Above it, nothing is copied: changes are still listed, but Restore and View changes are not offered. The user can be told before the agent starts (`backupFits`).
+- **After the agent stops**, for any reason including Cancel and the time limit, the safety net compares. A file counts as changed only if its contents differ from what was recorded. The user's earlier changes are part of the record, so they are never counted or undone.
+- **Restore** writes back the copy, or the file at `HEAD`, and deletes files the agent created.
+- **View changes** uses Jagra's own line comparison. Binary files and very large files show no lines.
+- **The backups are deleted when the session ends.**
+- **`git` gets its own `GitClient` port.** It is not part of the environment check, because the safety net works without it.
+
+**Why:** Architecture section 6 sets the approach; this fills in the details it leaves open. The owner chose the 500 MB limit and the fallback to a plain copy without git on 2026-11-17. A line comparison needs no new dependency. Comparing contents rather than timestamps keeps a file the agent opened and saved unchanged from showing up.

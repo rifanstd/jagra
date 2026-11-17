@@ -8,3 +8,4 @@ export * from "./mockoon.js";
 export * from "./process-runner.js";
 export * from "./tools.js";
 export * from "./tool-files.js";
+export * from "./git.js";

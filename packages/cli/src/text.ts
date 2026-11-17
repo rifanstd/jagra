@@ -51,6 +51,7 @@ const ERRORS: Describe = {
   AGENT_NAME_TAKEN: (e) => `There is already an agent called ${e.name}.`,
   AGENT_FAILED: (e) => `${e.agent} stopped with an error: ${e.detail}`,
   AGENT_CANCELLED: (e) => `${e.agent} was stopped.`,
+  GIT_FAILED: (e) => `git could not read the folder: ${e.detail}`,
   AGENT_TIMED_OUT: (e) =>
     `${e.agent} was still working after ${e.minutes} minutes, so Jagra stopped it.`,
   AGENT_CANNOT_CONTINUE: (e) => `${e.agent} cannot continue the session.`,

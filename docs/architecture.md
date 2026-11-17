@@ -81,6 +81,7 @@ core/src/
 | `SecretStore` | Read and write secret values per project | Desktop: OS credential store. CLI: `JAGRA_SECRET_<NAME>` environment variables |
 | `SyntaxChecker` | Check one flow file with Maestro, without a device, and return Maestro's message and line when it refuses it | `maestro check-syntax <file>` through Java on Windows (D-34), one file per call (D-98, D-101) |
 | `FileWatcher` | Report changes in `.jagra/flows` | Node's recursive `fs.watch` (D-99) |
+| `GitClient` | For the safety net: the `HEAD` commit, the files that differ from it, and a file at a commit (D-114) | `git` with `rev-parse`, `diff --name-only`, `ls-files --others --exclude-standard` and `show <commit>:./<path>`, started without a shell |
 | `Clock` | Time, for durations and timeouts | System clock (a fake clock in tests) |
 
 `SecretStore` and the update check are the only places where the desktop app and the CLI behave differently, and both sit behind a port, so `core` stays the same for both.

@@ -12,7 +12,12 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { FakeAgentClient } from "../fakes/agent.js";
 import { FakeClock } from "../fakes/clock.js";
 import { askForFix, askForFlow, hasSourceCode } from "./ask.js";
-import { endSession, loadSession, sessionFolder } from "./session.js";
+import {
+  backupFolder,
+  endSession,
+  loadSession,
+  sessionFolder,
+} from "./session.js";
 
 let root: string;
 let appData: string;
@@ -157,9 +162,12 @@ describe("askForFlow (AGT-12 to AGT-16)", () => {
     client.queue({ code: "AGENT_CANCELLED", agent: "Claude Code" });
     expect(
       await askForFlow(timed, { ...target(), scenario: "x", appId: "a" }),
-    ).toEqual({
-      ok: false,
-      error: { code: "AGENT_TIMED_OUT", agent: "Claude Code", minutes: 0 },
+    ).toMatchObject({
+      ok: true,
+      value: {
+        error: { code: "AGENT_TIMED_OUT", agent: "Claude Code", minutes: 0 },
+        changes: { outside: [], flows: [] },
+      },
     });
   });
 
@@ -174,10 +182,48 @@ describe("askForFlow (AGT-12 to AGT-16)", () => {
         appId: "a",
         signal: abort.signal,
       }),
-    ).toEqual({
-      ok: false,
-      error: { code: "AGENT_CANCELLED", agent: "Claude Code" },
+    ).toMatchObject({
+      ok: true,
+      value: { error: { code: "AGENT_CANCELLED", agent: "Claude Code" } },
     });
+  });
+
+  it("runs the safety net after the agent stops, even when it was cancelled (AGT-13, AGT-19)", async () => {
+    await writeFile(join(folder, "notes.txt"), "mine");
+    const abort = new AbortController();
+    client.during = async () => {
+      await writeFile(join(folder, "settings.gradle.kts"), "changed");
+      await writeFile(join(folder, ".jagra", "flows", "asked.yaml"), "x");
+      await writeFile(join(folder, ".jagra", "flows", "login-works.yaml"), "y");
+      abort.abort();
+    };
+    client.queue({ code: "AGENT_CANCELLED", agent: "Claude Code" });
+    const outcome = await askForFlow(options(), {
+      ...target(),
+      scenario: "x",
+      flowName: "asked",
+      appId: "a",
+      signal: abort.signal,
+    });
+    expect(outcome).toMatchObject({
+      ok: true,
+      value: {
+        error: { code: "AGENT_CANCELLED" },
+        restorable: true,
+        changes: {
+          outside: [{ path: "settings.gradle.kts", kind: "changed" }],
+          flows: [{ path: "login-works.yaml", kind: "changed" }],
+        },
+      },
+    });
+    const id = outcome.ok ? outcome.value.session.id : "";
+    expect(
+      await readFile(join(backupFolder(appData, id), "snapshot.json"), "utf8"),
+    ).toContain('"mode":"files"');
+    await endSession(appData, "p1", id);
+    await expect(
+      stat(join(backupFolder(appData, id), "snapshot.json")),
+    ).rejects.toThrow();
   });
 });
 
@@ -280,8 +326,8 @@ describe("askForFix (AGT-17, AGT-18, AGT-27)", () => {
         fix,
       }),
     ).toMatchObject({
-      ok: false,
-      error: { code: "AGENT_FAILED" },
+      ok: true,
+      value: { error: { code: "AGENT_FAILED" } },
     });
     expect(client.requests).toHaveLength(2);
   });
