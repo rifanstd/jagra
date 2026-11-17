@@ -143,7 +143,7 @@ Local data lives in the operating system's app data folder. The desktop app and 
   projects.json            known projects: id and folder path
   projects/<project id>/
     local.json             hand-picked APK, last device, chosen flows, AI notice accepted
-    sessions/              agent sessions in progress
+    sessions/<session id>/ agent sessions in progress: the record, the instructions, the agent's files (D-113)
     runs/<run id>/
       run.json             the Run record
       index.html           report index (RES-6)

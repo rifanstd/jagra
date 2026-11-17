@@ -619,7 +619,8 @@
     "AGENT_FAILED": "{{agent}} berhenti dengan error.",
     "AGENT_CANCELLED": "{{agent}} dihentikan.",
     "AGENT_CANNOT_CONTINUE": "{{agent}} tidak bisa melanjutkan sesi.",
-    "AGENT_NOT_SIGNED_IN": "{{agent}} belum login. Login lewat {{agent}} sendiri, lalu coba lagi."
+    "AGENT_NOT_SIGNED_IN": "{{agent}} belum login. Login lewat {{agent}} sendiri, lalu coba lagi.",
+    "AGENT_TIMED_OUT": "{{agent}} masih bekerja setelah {{minutes}} menit, jadi Jagra menghentikannya."
   },
   "agents": {
     "title": "Agen AI",

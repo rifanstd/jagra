@@ -51,6 +51,8 @@ const ERRORS: Describe = {
   AGENT_NAME_TAKEN: (e) => `There is already an agent called ${e.name}.`,
   AGENT_FAILED: (e) => `${e.agent} stopped with an error: ${e.detail}`,
   AGENT_CANCELLED: (e) => `${e.agent} was stopped.`,
+  AGENT_TIMED_OUT: (e) =>
+    `${e.agent} was still working after ${e.minutes} minutes, so Jagra stopped it.`,
   AGENT_CANNOT_CONTINUE: (e) => `${e.agent} cannot continue the session.`,
   AGENT_NOT_SIGNED_IN: (e) =>
     `${e.agent} is not signed in. Sign in with ${e.agent} itself, then try again.`,

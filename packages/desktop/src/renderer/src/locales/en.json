@@ -619,7 +619,8 @@
     "AGENT_FAILED": "{{agent}} stopped with an error.",
     "AGENT_CANCELLED": "{{agent}} was stopped.",
     "AGENT_CANNOT_CONTINUE": "{{agent}} cannot continue the session.",
-    "AGENT_NOT_SIGNED_IN": "{{agent}} is not signed in. Sign in with {{agent}} itself, then try again."
+    "AGENT_NOT_SIGNED_IN": "{{agent}} is not signed in. Sign in with {{agent}} itself, then try again.",
+    "AGENT_TIMED_OUT": "{{agent}} was still working after {{minutes}} minutes, so Jagra stopped it."
   },
   "agents": {
     "title": "AI agent",

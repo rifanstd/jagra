@@ -53,6 +53,8 @@ export type JagraError =
   | { code: "AGENT_CANNOT_CONTINUE"; agent: string }
   /** The agent asks for a login, which the user sets up in the agent itself (AGT-4). */
   | { code: "AGENT_NOT_SIGNED_IN"; agent: string }
+  /** AGT-13: the agent was still working after the time limit, and was stopped. */
+  | { code: "AGENT_TIMED_OUT"; agent: string; minutes: number }
   /** The `.jagra` folder could not be created or updated (PRJ-1). */
   | { code: "PROJECT_SETUP_FAILED"; folder: string; detail: string }
   /** The Mockoon file must sit inside the project folder, which config.yaml points into (spec section 4). */
