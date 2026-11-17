@@ -3,10 +3,12 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { ActiveProcessFile, type ToolStatus } from "@jagra/core";
 import {
+  FakeAgentClient,
   FakeApkReader,
   FakeClock,
   FakeFileWatcher,
   FakeFlowRunner,
+  FakeGitClient,
   FakeMockServer,
   FakePortChecker,
   FakeSecretStore,
@@ -16,6 +18,7 @@ import { CHANNELS, EVENTS } from "../shared/api.js";
 import { registerIpc, type IpcMainLike } from "./ipc.js";
 import { Devices } from "./devices.js";
 import { Agents } from "./agents.js";
+import { Ai } from "./ai.js";
 import { Projects } from "./projects.js";
 import { reportText } from "./report-text.js";
 import { Runs } from "./runs.js";
@@ -101,6 +104,14 @@ function setup() {
         broadcast: () => undefined,
       }),
       secrets,
+      ai: new Ai({
+        appData: dir,
+        agents: { inUse: () => Promise.resolve(undefined) },
+        clientFor: () => new FakeAgentClient(),
+        git: new FakeGitClient(),
+        runs: { flowDetail: () => Promise.resolve(undefined) },
+        broadcast: () => undefined,
+      }),
       agents: new Agents({
         settings: settingsFile,
         find: () =>

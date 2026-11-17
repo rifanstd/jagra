@@ -621,7 +621,8 @@
     "AGENT_CANNOT_CONTINUE": "{{agent}} cannot continue the session.",
     "AGENT_NOT_SIGNED_IN": "{{agent}} is not signed in. Sign in with {{agent}} itself, then try again.",
     "AGENT_TIMED_OUT": "{{agent}} was still working after {{minutes}} minutes, so Jagra stopped it.",
-    "GIT_FAILED": "git could not read this folder."
+    "GIT_FAILED": "git could not read this folder.",
+    "AGENT_NONE": "No AI agent is set up. Set one up in Settings."
   },
   "agents": {
     "title": "AI agent",

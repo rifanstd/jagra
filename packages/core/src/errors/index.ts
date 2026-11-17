@@ -49,6 +49,8 @@ export type JagraError =
   /** The agent stopped with an error, or its answer could not be read. */
   | { code: "AGENT_FAILED"; agent: string; detail: string }
   | { code: "AGENT_CANCELLED"; agent: string }
+  /** AGT-7: no agent is set up. */
+  | { code: "AGENT_NONE" }
   /** The agent cannot continue a session; Jagra starts a new one with the history (AGT-18). */
   | { code: "AGENT_CANNOT_CONTINUE"; agent: string }
   /** The agent asks for a login, which the user sets up in the agent itself (AGT-4). */

@@ -8,3 +8,4 @@ export type { AgentProtocol, KnownAgentId } from "./agents/known.js";
 export type { AgentReport } from "./agents/report.js";
 export type { ChangeKind, Changes, FileChange } from "./safety/types.js";
 export type { DiffLine } from "./safety/diff.js";
+export type { FailureLikely } from "./agents/failure-note.js";

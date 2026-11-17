@@ -152,7 +152,8 @@ export class Runs {
     const syntax = options.syntax;
     const plan = await planRun({
       projectFolder: folder,
-      chosen: local.flows,
+      // AGT-21: the review run takes only the new flow, and leaves the user's choice as it is.
+      chosen: request.flows ?? local.flows,
       secret: (name) => options.secrets.get(project.id, name),
       syntax: syntax && ((files) => syntax.settle(files)),
     });

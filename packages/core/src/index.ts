@@ -80,6 +80,10 @@ export {
 export { CliAgent, type CliAgentKind } from "./adapters/agents/cli-agent.js";
 export { AcpAgent } from "./adapters/agents/acp-agent.js";
 export {
+  agentClientFor,
+  type AgentChoice,
+} from "./adapters/agents/client-for.js";
+export {
   AGENT_TIME_LIMIT_MS,
   askForFix,
   askForFlow,
@@ -95,6 +99,7 @@ export {
   type FlowRequest,
 } from "./agents/instructions.js";
 export { readReport, type AgentReport } from "./agents/report.js";
+export { failureLikely, type FailureLikely } from "./agents/failure-note.js";
 export { NodeGitClient } from "./adapters/git/node-git-client.js";
 export {
   BACKUP_LIMIT_BYTES,

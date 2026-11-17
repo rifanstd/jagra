@@ -126,6 +126,17 @@ async function finished(): Promise<LiveRun> {
 }
 
 describe("Runs (spec section 7)", () => {
+  it("runs only the given flows for a review, keeping the user's choice (AGT-21)", async () => {
+    const service = runs();
+    expect(
+      await service.start({ projectId, deviceId: pixel.id, flows: ["b.yaml"] }),
+    ).toEqual({ started: true });
+    const done = await finished();
+    expect(done.run.flows.map((f) => f.file)).toEqual([
+      join(folder, ".jagra/flows/b.yaml"),
+    ]);
+  });
+
   it("runs the chosen flows and keeps the result, with a report in the user's language", async () => {
     flowRunner.set(join(folder, ".jagra/flows/b.yaml"), {
       status: "failed",

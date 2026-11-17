@@ -67,6 +67,28 @@ describe("Agents (AGT-1, D-110)", () => {
     );
   });
 
+  it("gives the agent in use with its program, to start it", async () => {
+    const { service } = agents(["omp"]);
+    expect(await service.inUse()).toMatchObject({
+      id: "omp",
+      name: "Oh My Pi",
+      path: "/bin/omp",
+      known: { protocol: "acp", acpArgs: ["acp"] },
+    });
+    await service.addCustom({
+      name: "Mine",
+      protocol: "acp",
+      command: "mine acp",
+    });
+    expect(await service.inUse()).toMatchObject({
+      id: "custom-1",
+      name: "Mine",
+      custom: { command: ["mine", "acp"] },
+    });
+    await service.removeCustom("custom-1");
+    expect(await agents([]).service.inUse()).toBeUndefined();
+  });
+
   it("has no agent in use when none is installed (AGT-7)", async () => {
     expect((await agents([]).service.view()).inUse).toBeUndefined();
   });

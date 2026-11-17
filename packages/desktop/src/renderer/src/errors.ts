@@ -31,6 +31,7 @@ export const ERROR_CODES = {
   AGENT_NAME_TAKEN: true,
   AGENT_FAILED: true,
   AGENT_CANCELLED: true,
+  AGENT_NONE: true,
   AGENT_CANNOT_CONTINUE: true,
   AGENT_TIMED_OUT: true,
   GIT_FAILED: true,

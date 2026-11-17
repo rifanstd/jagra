@@ -2,10 +2,14 @@
 // Shared by main, preload and renderer, so it holds types and names only.
 import type {
   AgentProtocol,
+  AgentReport,
   ApkInfo,
   CustomAgent,
   CustomAgentInput,
   Device,
+  DiffLine,
+  FailureLikely,
+  FileChange,
   JagraError,
   Result,
   FlowResult,
@@ -55,6 +59,70 @@ export interface AgentView {
   /** Its program is on this computer. */
   found: boolean;
 }
+
+/**
+ * Where a Create flow with AI request stands (AGT-12 to AGT-27). `agent`: the agent works.
+ * `warning`: it changed files outside `.jagra/flows` (AGT-19). `review`: the flow is ready to run
+ * and review. `stopped`: it stopped early, cancelled, timed out or with an error.
+ */
+export type AiPhase = "agent" | "warning" | "review" | "stopped";
+
+export interface AiLive {
+  projectId: string;
+  projectName: string;
+  agentName: string;
+  scenario: string;
+  phase: AiPhase;
+  /** When the agent started, for the time it has worked (AGT-13). */
+  startedAt: string;
+  cancelling: boolean;
+  /** Why the agent stopped early. */
+  error?: JagraError;
+  /** AGT-19: files changed outside `.jagra/flows`. */
+  outside: FileChange[];
+  /** False when the folder was too large to copy, so Restore is not offered. */
+  restorable: boolean;
+  /** Files Restore could not put back. */
+  notRestored?: string[];
+  /** AGT-20: flows other than this one that the agent changed. */
+  otherFlows: FileChange[];
+  /** The flow, inside `.jagra/flows` with `/`. Undefined when the agent named none. */
+  flow?: string;
+  /** The flow's file is there. */
+  flowExists: boolean;
+  /** AGT-16: undefined when the agent's message had no readable report. */
+  report?: AgentReport;
+  /** The agent's final message, shown when there is no report. */
+  finalMessage: string;
+  /** Files the agent tried to change outside `.jagra/flows` and was refused. */
+  refused?: string[];
+  /** Ask agent to fix has been used at least once in this session. */
+  fixed: boolean;
+}
+
+/** View changes for one file (AGT-19, AGT-20). */
+export interface ChangeView {
+  path: string;
+  /** Lines removed and added; undefined for binary or very large files. */
+  lines?: DiffLine[];
+  /** The file is not text. */
+  binary?: boolean;
+  /** No copy was made, so there is nothing to compare with. */
+  unavailable?: boolean;
+}
+
+/** The review run's result for the Review flow screen (AGT-21 to AGT-25). */
+export interface AiReview {
+  detail: FlowDetail;
+  /** AGT-24: where the failure most likely comes from. */
+  likely?: FailureLikely;
+}
+
+export type AiStartAnswer =
+  | { started: true }
+  /** AGT-11: the notice for this project has not been accepted yet. */
+  | { notice: true }
+  | { error: JagraError };
 
 export interface AgentsView {
   agents: AgentView[];
@@ -218,6 +286,8 @@ export interface StartRun {
   projectId: string;
   deviceId: string;
   acceptPackage?: boolean;
+  /** Only these flows, by file name, without changing the choice for next time (AGT-21). */
+  flows?: string[];
 }
 
 /** The parts of a run before the flows (RUN-8, DEV-4, MCK-2). */
@@ -385,6 +455,39 @@ export interface JagraApi {
     list(projectId: string): Promise<SecretName[] | undefined>;
     remove(projectId: string, name: string): Promise<void>;
   };
+  ai: {
+    /** AGT-11: whether the first-use notice must show for this project, and what it names. */
+    notice(
+      projectId: string,
+    ): Promise<{ needed: boolean; agentName: string; folder: string } | undefined>;
+    acceptNotice(projectId: string): Promise<void>;
+    start(request: {
+      projectId: string;
+      scenario: string;
+      flowName?: string;
+    }): Promise<AiStartAnswer>;
+    /** AGT-13 */
+    cancel(): Promise<void>;
+    live(): Promise<AiLive | undefined>;
+    onUpdate(listener: (live: AiLive | undefined) => void): () => void;
+    /** AGT-19: puts every listed file back, then goes on to the review. */
+    restore(): Promise<void>;
+    keep(): Promise<void>;
+    viewChange(
+      kind: "outside" | "flow",
+      path: string,
+    ): Promise<ChangeView | undefined>;
+    /** AGT-20 */
+    undoFlow(path: string): Promise<void>;
+    /** The review run's result, with the failure note. */
+    review(runId: string): Promise<AiReview | undefined>;
+    /** AGT-27: the note goes to the same session with the failure of the review run. */
+    fix(request: { note: string; runId?: string }): Promise<AiStartAnswer>;
+    /** AGT-27: keeps the flow and ends the session. */
+    save(): Promise<void>;
+    /** AGT-27: deletes the flow file and ends the session. */
+    discard(): Promise<void>;
+  };
   agents: {
     view(): Promise<AgentsView>;
     choose(id: string): Promise<AgentsView>;
@@ -457,6 +560,19 @@ export const CHANNELS = {
   runsFlowDetail: "runs:flow-detail",
   runsHistory: "runs:history",
   secretsSet: "secrets:set",
+  aiNotice: "ai:notice",
+  aiAcceptNotice: "ai:accept-notice",
+  aiStart: "ai:start",
+  aiCancel: "ai:cancel",
+  aiLive: "ai:live",
+  aiRestore: "ai:restore",
+  aiKeep: "ai:keep",
+  aiViewChange: "ai:view-change",
+  aiUndoFlow: "ai:undo-flow",
+  aiReview: "ai:review",
+  aiFix: "ai:fix",
+  aiSave: "ai:save",
+  aiDiscard: "ai:discard",
   agentsView: "agents:view",
   agentsChoose: "agents:choose",
   agentsAddCustom: "agents:add-custom",
@@ -468,5 +584,6 @@ export const EVENTS = {
   environmentProgress: "environment:progress",
   devicesChange: "devices:change",
   runsUpdate: "runs:update",
+  aiUpdate: "ai:update",
   flowsChanged: "projects:flows-changed",
 } as const;
