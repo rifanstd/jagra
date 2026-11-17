@@ -12,9 +12,11 @@ export interface ProcessSpec {
   signal?: AbortSignal;
   /**
    * `lines` (the default) hands output over one line at a time. `chunks` hands it over as it
-   * arrives, for output that is not split into lines, such as `adb track-devices`.
+   * arrives, for output that is not split into lines, such as `adb track-devices`. `stream` gives
+   * the program's standard input and output as streams, for a protocol such as ACP; standard
+   * error still comes as lines.
    */
-  output?: "lines" | "chunks";
+  output?: "lines" | "chunks" | "stream";
 }
 
 /** One line of output, or one piece of it when the spec asks for `chunks`. */
@@ -34,6 +36,10 @@ export interface RunningProcess {
   readonly exited: Promise<ProcessExit>;
   /** Stops the program and every process it started. Resolves once it has exited. */
   stop(): Promise<void>;
+  /** The program's standard input, with `output: "stream"` only. */
+  readonly input?: WritableStream<Uint8Array>;
+  /** The program's standard output, with `output: "stream"` only. */
+  readonly output?: ReadableStream<Uint8Array>;
 }
 
 /** Starts external programs without a shell, ever (SEC-8, D-21). */

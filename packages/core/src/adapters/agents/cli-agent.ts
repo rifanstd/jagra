@@ -114,11 +114,7 @@ export class CliAgent implements AgentClient {
       case "custom": {
         const template = existing ? agent.agent.continue : agent.agent.start;
         if (!template) {
-          return fail({
-            code: "AGENT_FAILED",
-            agent: this.name,
-            detail: "this agent has no continue command",
-          });
+          return fail({ code: "AGENT_CANNOT_CONTINUE", agent: this.name });
         }
         command = fillCommand(template, {
           instructions: request.instructionsFile,

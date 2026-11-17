@@ -2,6 +2,7 @@ import { spawn, type ChildProcess } from "node:child_process";
 import { statSync } from "node:fs";
 import { join, win32 } from "node:path";
 import { createInterface } from "node:readline";
+import { Readable, Writable } from "node:stream";
 import { fail, ok, type JagraError, type Result } from "../../errors/index.js";
 import type { ActiveProcessStore } from "../../process/active-processes.js";
 import type {
@@ -51,7 +52,7 @@ export class NodeProcessRunner implements ProcessRunner {
         windowsHide: true,
         // Own process group on macOS and Linux, so stop() can signal the program and its children.
         detached: this.platform !== "win32",
-        stdio: ["ignore", "pipe", "pipe"],
+        stdio: [spec.output === "stream" ? "pipe" : "ignore", "pipe", "pipe"],
       });
     } catch (e) {
       return fail({
@@ -93,6 +94,12 @@ export class NodeProcessRunner implements ProcessRunner {
       pid,
       exited,
       stop: () => this.stop(child, pid, exited),
+      ...(spec.output === "stream" && child.stdin && child.stdout
+        ? {
+            input: Writable.toWeb(child.stdin),
+            output: Readable.toWeb(child.stdout) as ReadableStream<Uint8Array>,
+          }
+        : {}),
     };
 
     try {
@@ -170,12 +177,13 @@ export class NodeProcessRunner implements ProcessRunner {
   private watchExit(
     child: ChildProcess,
     pid: number,
-    output: "lines" | "chunks",
+    output: "lines" | "chunks" | "stream",
     onLine?: (line: OutputLine) => void,
   ): Promise<ProcessExit> {
     for (const stream of ["stdout", "stderr"] as const) {
       const source = child[stream];
-      if (!source) continue;
+      // With `stream`, standard output belongs to whoever reads `output`.
+      if (!source || (output === "stream" && stream === "stdout")) continue;
       source.setEncoding("utf8");
       if (output === "chunks") {
         source.on("data", (text: string) => onLine?.({ stream, text }));

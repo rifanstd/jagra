@@ -78,6 +78,8 @@ export {
   type AgentFinding,
 } from "./adapters/agents/find.js";
 export { CliAgent, type CliAgentKind } from "./adapters/agents/cli-agent.js";
+export { AcpAgent } from "./adapters/agents/acp-agent.js";
+export { isInside } from "./agents/paths.js";
 export { MaestroSyntaxChecker } from "./adapters/maestro/maestro-syntax-checker.js";
 export { SyntaxChecks, type SyntaxState } from "./project/syntax-checks.js";
 export {

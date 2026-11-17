@@ -11,6 +11,11 @@ export interface FakeProgram {
   lines?: OutputLine[];
   /** Exit right after printing. When left out, the program runs until stopped. */
   exit?: ProcessExit;
+  /** Standard input and output, for `output: "stream"`, such as a fake ACP agent's. */
+  streams?: {
+    input: WritableStream<Uint8Array>;
+    output: ReadableStream<Uint8Array>;
+  };
 }
 
 export type FakeAnswer =
@@ -55,7 +60,9 @@ export class FakeProcessRunner implements ProcessRunner {
     if (spec.signal?.aborted) void stop();
     spec.signal?.addEventListener("abort", () => void stop(), { once: true });
 
-    return Promise.resolve(ok({ pid: this.nextPid++, exited, stop }));
+    return Promise.resolve(
+      ok({ pid: this.nextPid++, exited, stop, ...(answer.streams ?? {}) }),
+    );
   }
 
   launch(
