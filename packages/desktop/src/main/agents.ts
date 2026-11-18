@@ -4,6 +4,7 @@ import {
   KNOWN_AGENTS,
   ok,
   readCustomAgent,
+  type AgentChoice,
   type AgentFinding,
   type CustomAgent,
   type CustomAgentInput,
@@ -58,6 +59,23 @@ export class Agents {
     // Until the user chooses, the first agent found is used (D-110).
     const inUse = chosen ?? agents.find((a) => a.found);
     return inUse ? { agents, inUse: inUse.id } : { agents };
+  }
+
+  /** The agent Create flow with AI uses, with what is needed to start it (D-110). */
+  async inUse(): Promise<
+    (AgentChoice & { id: string; name: string }) | undefined
+  > {
+    const view = await this.view();
+    const id = view.inUse;
+    if (!id) return undefined;
+    const known = KNOWN_AGENTS.find((agent) => agent.id === id);
+    if (known) {
+      const path = (await this.options.find()).find((f) => f.id === id)?.path;
+      return path ? { id, name: known.name, known, path } : undefined;
+    }
+    const { settings } = await this.options.settings.view();
+    const custom = settings.customAgents?.find((agent) => agent.id === id);
+    return custom ? { id, name: custom.name, custom } : undefined;
   }
 
   async choose(id: string): Promise<AgentsView> {

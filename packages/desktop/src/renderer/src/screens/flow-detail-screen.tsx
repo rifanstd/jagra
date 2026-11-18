@@ -233,8 +233,11 @@ function Crumb({
   );
 }
 
-/** Each step with its mark; a step that runs other steps opens to show them (RES-4). */
-function Steps({
+/**
+ * Each step with its mark; a step that runs other steps opens to show them (RES-4). Checks carry a
+ * label, so actions and checks look different (AGT-22).
+ */
+export function Steps({
   steps,
   marks,
   depth = 0,
@@ -257,6 +260,11 @@ function Steps({
           <span className="w-[1.1em]" aria-hidden="true" />
         )}
         <span className={mark?.mark === "failed" ? "font-medium" : undefined}>
+          {step.kind === "check" && (
+            <span className="mr-2 inline-flex items-center rounded-sm border px-2 py-0.5 text-xs text-muted-foreground">
+              {t("steps.check")}
+            </span>
+          )}
           {text}
         </span>
       </span>
@@ -321,7 +329,7 @@ function CrashReport({ text }: { text: string }) {
  * Maestro reports no mark for the steps after the one that failed. Those steps did not run, as
  * mockup 07 shows them (RES-4).
  */
-function withNotRun(
+export function withNotRun(
   steps: StepView[],
   flow: FlowResult,
 ): StepMark[] | undefined {

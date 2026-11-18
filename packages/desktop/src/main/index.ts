@@ -19,6 +19,8 @@ import {
   detectAgents,
   locateAgentProgram,
   NodeFileWatcher,
+  NodeGitClient,
+  agentClientFor,
   SyntaxChecks,
   NodePortChecker,
   NodeProcessControl,
@@ -53,6 +55,8 @@ import {
 } from "../shared/api.js";
 import { confirmBox } from "./agent-confirm.js";
 import { Agents } from "./agents.js";
+import { Ai } from "./ai.js";
+import { TestAgentClient } from "./test-agent.js";
 import { bugInfo } from "./bug-info.js";
 import { Devices } from "./devices.js";
 import { openFile } from "./open-file.js";
@@ -256,6 +260,23 @@ const runs = new Runs({
   },
 });
 
+// Create flow with AI (spec section 10). One git client for the safety net (D-114).
+const ai = new Ai({
+  appData,
+  agents,
+  clientFor: (choice) =>
+    testMode
+      ? new TestAgentClient(process.env)
+      : agentClientFor(choice, runner),
+  git: new NodeGitClient(runner),
+  runs,
+  broadcast: (live) => {
+    for (const window of BrowserWindow.getAllWindows()) {
+      window.webContents.send(EVENTS.aiUpdate, live);
+    }
+  },
+});
+
 const projects = new Projects({
   appData,
   // Test mode keeps the sample copy away from the real Documents folder (D-87).
@@ -365,6 +386,7 @@ void app.whenReady().then(async () => {
       runs,
       secrets,
       agents,
+      ai,
       pickToolPath: async (tool) => {
         const path = await pick({ properties: ["openFile"] });
         if (path === undefined) return undefined;

@@ -532,3 +532,14 @@ Format of each entry: what was decided, why, and what was considered instead.
 - **`git` gets its own `GitClient` port.** It is not part of the environment check, because the safety net works without it.
 
 **Why:** Architecture section 6 sets the approach; this fills in the details it leaves open. The owner chose the 500 MB limit and the fallback to a plain copy without git on 2026-11-17. A line comparison needs no new dependency. Comparing contents rather than timestamps keeps a file the agent opened and saved unchanged from showing up.
+
+### D-115. How the Review flow screen behaves
+**Decided:**
+- **Create flow with AI** is a button on the project page once an agent is set up. This replaces the hidden state of D-107.
+- **The review run** (`AGT-21`) starts by itself, once, on the device the project used last, when that device is ready and the APK is found. It goes through the usual checks: secrets, a different package, tools. Otherwise the screen shows the flow without a result, with the device choice and a Run this flow button. The run is saved in History like any other run, and leaves the flows chosen for normal runs as they were.
+- **Checks carry a "Check" label** on the Review and Flow detail screens, as the mockups show. The texts of `assertVisible`, `assertNotVisible` and `assertTrue` no longer start with the word, so it is not said twice (`AGT-22`).
+- **Discard** deletes the flow when the agent created it. When the agent changed a flow that was already there, Discard puts back that flow as it was before the session.
+- **Create this too** (`AGT-26`) saves the flow on screen and opens a new request with the suggested scenario filled in. The user then presses Create flow, so no agent call starts without a user action (`AGT-5`).
+- **Only one request runs at a time.** While it runs, the form for any project says so.
+
+**Why:** The spec names these actions but not how they combine. Creating the next flow must not silently throw away the one on screen. Discard must never delete a flow the user had before. Starting a new agent call from a suggestion still needs the user's press.

@@ -52,6 +52,7 @@ test("opens with the renderer isolated (SEC-6)", async () => {
     process: "undefined",
     api: [
       "agents",
+      "ai",
       "app",
       "devices",
       "environment",

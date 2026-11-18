@@ -339,3 +339,54 @@ test("ai agent screens", async () => {
   await app.close();
   await rm(home, { recursive: true, force: true });
 });
+
+test("create flow with ai screens", async () => {
+  const home = await mkdtemp(join(tmpdir(), "jagra-shots-"));
+  const { app, page } = await launch(home, {
+    env: {
+      JAGRA_TEST_AGENT_MS: "1500",
+      JAGRA_TEST_AGENT_OUTSIDE: "app/src/main/res/values/strings.xml",
+      JAGRA_TEST_RUN: "ai-flow.yaml=failed",
+      JAGRA_TEST_FLOW_MS: "300",
+    },
+  });
+  await page.setViewportSize({ width: 1200, height: 900 });
+  await page.emulateMedia({ colorScheme: null });
+  const shoot = async (name: string) => {
+    for (const theme of ["light", "dark"] as const) {
+      await app.evaluate(
+        ({ nativeTheme }, value) => (nativeTheme.themeSource = value),
+        theme,
+      );
+      await page.waitForTimeout(300);
+      await page.screenshot({
+        path: join(folder, `${name}-${theme}.png`),
+        fullPage: true,
+      });
+    }
+  };
+  await page.getByRole("button", { name: "Continue to projects" }).click();
+  await page.getByRole("button", { name: "Try the sample app" }).click();
+  await page.getByRole("button", { name: "Create flow with AI" }).click();
+  await page
+    .getByLabel("Scenario")
+    .fill(
+      "Change the stock of Oat milk 1 L to 25, save, then check the list shows 25.",
+    );
+  await shoot("ai-form");
+  await page.getByRole("button", { name: "Create flow" }).click();
+  await page.getByRole("dialog", { name: /will read/ }).waitFor();
+  await shoot("ai-notice");
+  await page.getByRole("button", { name: "Continue" }).click();
+  await page.getByTestId("ai-steps").waitFor();
+  await shoot("ai-working");
+  await page
+    .getByRole("dialog", { name: /changed files outside/ })
+    .waitFor({ timeout: 10_000 });
+  await shoot("ai-warning");
+  await page.getByRole("button", { name: "Restore" }).click();
+  await page.getByTestId("failure-note").waitFor({ timeout: 15_000 });
+  await shoot("ai-review");
+  await app.close();
+  await rm(home, { recursive: true, force: true });
+});

@@ -236,7 +236,8 @@ function Flows({
   const { t } = useTranslation();
   const broken = flows.filter((f) => f.problem).length;
   const [creating, setCreating] = useState(false);
-  const noAgent = useNoAgent();
+  const agent = useAgentReady();
+  const noAgent = agent === false;
 
   return (
     <Card className="gap-0 py-0">
@@ -260,12 +261,13 @@ function Flows({
           <Button variant="outline" size="sm" onClick={() => setCreating(true)}>
             {t("newFlow.button")}
           </Button>
-          {noAgent && (
+          {agent !== undefined && (
             <Button
               variant="outline"
               size="sm"
-              disabled
-              aria-describedby="needs-agent"
+              disabled={noAgent}
+              aria-describedby={noAgent ? "needs-agent" : undefined}
+              onClick={() => go({ screen: "ai", projectId: id })}
             >
               {t("project.ai.button")}
             </Button>
@@ -356,22 +358,21 @@ function Flows({
 }
 
 /**
- * AGT-7: true when no agent is set up. Until the Create flow with AI screen exists, the button
- * shows only in this disabled state (D-107). Checked again when the window gets focus, so an agent
- * installed meanwhile shows at once.
+ * AGT-7: whether an agent is set up, undefined until known. Checked again when the window gets
+ * focus, so an agent installed meanwhile shows at once.
  */
-function useNoAgent(): boolean {
-  const [noAgent, setNoAgent] = useState(false);
+function useAgentReady(): boolean | undefined {
+  const [ready, setReady] = useState<boolean>();
   useEffect(() => {
     const check = () =>
       void window.jagra.agents
         .view()
-        .then((view) => setNoAgent(view.inUse === undefined));
+        .then((view) => setReady(view.inUse !== undefined));
     check();
     window.addEventListener("focus", check);
     return () => window.removeEventListener("focus", check);
   }, []);
-  return noAgent;
+  return ready;
 }
 
 /** D-98: Maestro's syntax check of this file has not finished. The flow can still be chosen. */
@@ -521,7 +522,7 @@ function ApkField({
 }
 
 /** DEV-1 to DEV-3, DEV-6: the device for the run, with what to do when it is not ready. */
-function DeviceField({
+export function DeviceField({
   view,
   refresh,
   device,

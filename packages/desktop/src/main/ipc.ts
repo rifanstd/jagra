@@ -10,6 +10,7 @@ import {
 } from "../shared/api.js";
 import type { SecretStore } from "@jagra/core";
 import type { Agents } from "./agents.js";
+import type { Ai } from "./ai.js";
 import type { Devices } from "./devices.js";
 import { RUN_ID, type Runs } from "./runs.js";
 import type { Projects } from "./projects.js";
@@ -28,6 +29,7 @@ export interface Handlers {
   runs: Runs;
   secrets: SecretStore;
   agents: Agents;
+  ai: Ai;
   checkEnvironment(
     onProgress: (status: ToolStatus) => void,
   ): Promise<EnvironmentView>;
@@ -175,6 +177,11 @@ export function registerIpc(
         projectId: z.string().min(1).max(100),
         deviceId: z.string().min(1).max(255),
         acceptPackage: z.boolean().optional(),
+        flows: z
+          .array(z.string().regex(/^[^\\/]{1,255}\.ya?ml$/i))
+          .min(1)
+          .max(100)
+          .optional(),
       }),
     ]),
     ([request]) => runs.start(request),
@@ -239,6 +246,55 @@ export function registerIpc(
       await handlers.secrets.remove(projectId, name);
     },
   );
+
+  // Create flow with AI (spec section 10). Paths come only from main's own lists (AGT-19, AGT-20).
+  const { ai } = handlers;
+  const relativePath = z
+    .string()
+    .min(1)
+    .max(1000)
+    .refine((path) => !path.split(/[\\/]/).includes(".."));
+  on(CHANNELS.aiNotice, id, ([projectId]) => ai.notice(projectId));
+  on(CHANNELS.aiAcceptNotice, id, ([projectId]) => ai.acceptNotice(projectId));
+  on(
+    CHANNELS.aiStart,
+    z.tuple([
+      z.strictObject({
+        projectId: z.string().min(1).max(100),
+        scenario: z.string().trim().min(1).max(10_000),
+        flowName: z.string().trim().max(100).optional(),
+      }),
+    ]),
+    ([request]) => ai.start(request),
+  );
+  on(CHANNELS.aiCancel, z.tuple([]), () => ai.cancel());
+  on(CHANNELS.aiLive, z.tuple([]), () => ai.state());
+  on(CHANNELS.aiRestore, z.tuple([]), () => ai.restore());
+  on(CHANNELS.aiKeep, z.tuple([]), () => ai.keep());
+  on(
+    CHANNELS.aiViewChange,
+    z.tuple([z.enum(["outside", "flow"]), relativePath]),
+    ([kind, path]) => ai.viewChange(kind, path),
+  );
+  on(CHANNELS.aiUndoFlow, z.tuple([relativePath]), ([path]) =>
+    ai.undoFlow(path),
+  );
+  on(CHANNELS.aiReview, z.tuple([z.string().regex(RUN_ID)]), ([runId]) =>
+    ai.review(runId),
+  );
+  on(
+    CHANNELS.aiFix,
+    z.tuple([
+      z.strictObject({
+        note: z.string().max(10_000),
+        runId: z.string().regex(RUN_ID).optional(),
+      }),
+    ]),
+    ([request]) => ai.fix(request),
+  );
+  on(CHANNELS.aiPreview, z.tuple([]), () => ai.preview());
+  on(CHANNELS.aiSave, z.tuple([]), () => ai.save());
+  on(CHANNELS.aiDiscard, z.tuple([]), () => ai.discard());
 
   // AGT-1 to AGT-3. A command is only text here; main splits it and the user confirms it (D-109).
   const { agents } = handlers;

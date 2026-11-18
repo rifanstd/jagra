@@ -3,6 +3,7 @@ import type { CustomAgentInput, ToolStatus } from "@jagra/core/types";
 import {
   CHANNELS,
   EVENTS,
+  type AiLive,
   type DevicesView,
   type JagraApi,
   type LiveRun,
@@ -95,6 +96,32 @@ const api: JagraApi = {
       ipcRenderer.invoke(CHANNELS.secretsList, projectId),
     remove: (projectId: string, name: string) =>
       ipcRenderer.invoke(CHANNELS.secretsRemove, projectId, name),
+  },
+  ai: {
+    notice: (projectId: string) =>
+      ipcRenderer.invoke(CHANNELS.aiNotice, projectId),
+    acceptNotice: (projectId: string) =>
+      ipcRenderer.invoke(CHANNELS.aiAcceptNotice, projectId),
+    start: (request: {
+      projectId: string;
+      scenario: string;
+      flowName?: string;
+    }) => ipcRenderer.invoke(CHANNELS.aiStart, request),
+    cancel: () => ipcRenderer.invoke(CHANNELS.aiCancel),
+    live: () => ipcRenderer.invoke(CHANNELS.aiLive),
+    onUpdate: (listener) =>
+      listen<AiLive | undefined>(EVENTS.aiUpdate, listener),
+    restore: () => ipcRenderer.invoke(CHANNELS.aiRestore),
+    keep: () => ipcRenderer.invoke(CHANNELS.aiKeep),
+    viewChange: (kind: "outside" | "flow", path: string) =>
+      ipcRenderer.invoke(CHANNELS.aiViewChange, kind, path),
+    undoFlow: (path: string) => ipcRenderer.invoke(CHANNELS.aiUndoFlow, path),
+    review: (runId: string) => ipcRenderer.invoke(CHANNELS.aiReview, runId),
+    preview: () => ipcRenderer.invoke(CHANNELS.aiPreview),
+    fix: (request: { note: string; runId?: string }) =>
+      ipcRenderer.invoke(CHANNELS.aiFix, request),
+    save: () => ipcRenderer.invoke(CHANNELS.aiSave),
+    discard: () => ipcRenderer.invoke(CHANNELS.aiDiscard),
   },
   agents: {
     view: () => ipcRenderer.invoke(CHANNELS.agentsView),

@@ -13,6 +13,7 @@ import { ResultsScreen } from "./screens/results-screen";
 import { RunningScreen } from "./screens/running-screen";
 import { AboutScreen } from "./screens/about-screen";
 import { SettingsScreen, type LanguageChoice } from "./screens/settings-screen";
+import { AiScreen } from "./screens/ai-screen";
 import { useEnvironment } from "./use-environment";
 
 /**
@@ -91,6 +92,14 @@ export function App({
         <HistoryScreen
           key={route.projectId}
           projectId={route.projectId}
+          go={setRoute}
+        />
+      )}
+      {route.screen === "ai" && (
+        <AiScreen
+          key={`${route.projectId}-${route.scenario ?? ""}`}
+          projectId={route.projectId}
+          {...(route.scenario ? { scenario: route.scenario } : {})}
           go={setRoute}
         />
       )}

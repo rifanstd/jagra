@@ -465,9 +465,9 @@
     "scroll": "Scroll",
     "scrollUntilVisible": "Scroll until {{target}} is visible",
     "swipe": "Swipe",
-    "assertVisible": "Check {{target}} is visible",
-    "assertNotVisible": "Check {{target}} is not visible",
-    "assertTrue": "Check a condition",
+    "assertVisible": "{{target}} is visible",
+    "assertNotVisible": "{{target}} is not visible",
+    "assertTrue": "A condition is true",
     "waitVisible": "Wait until {{target}} is visible",
     "waitNotVisible": "Wait until {{target}} is gone",
     "wait": "Wait",
@@ -479,7 +479,8 @@
     "runScript": "Run a script",
     "repeatTimes": "Repeat {{times}} times",
     "repeat": "Repeat",
-    "retry": "Try again on failure"
+    "retry": "Try again on failure",
+    "check": "Check"
   },
   "flowDetail": {
     "crumbResults": "Run results",
@@ -621,7 +622,8 @@
     "AGENT_CANNOT_CONTINUE": "{{agent}} cannot continue the session.",
     "AGENT_NOT_SIGNED_IN": "{{agent}} is not signed in. Sign in with {{agent}} itself, then try again.",
     "AGENT_TIMED_OUT": "{{agent}} was still working after {{minutes}} minutes, so Jagra stopped it.",
-    "GIT_FAILED": "git could not read this folder."
+    "GIT_FAILED": "git could not read this folder.",
+    "AGENT_NONE": "No AI agent is set up. Set one up in Settings."
   },
   "agents": {
     "title": "AI agent",
@@ -662,6 +664,107 @@
       "note": "Each argument is passed exactly as shown. Nothing goes through a shell.",
       "save": "Save",
       "cancel": "Cancel"
+    }
+  },
+  "ai": {
+    "form": {
+      "title": "Create flow with AI",
+      "lead": "Describe the test in plain words. The agent writes the flow, Jagra runs it, and Maestro decides whether it passes.",
+      "scenario": "Scenario",
+      "scenarioHint": "Any language. Say what must be on screen at the end, because that is what gets checked.",
+      "flowName": "File name",
+      "optional": "(optional)",
+      "flowNamePlaceholder": "flow-name.yaml",
+      "agent": "Agent: {{agent}} ·",
+      "change": "change",
+      "cancel": "Cancel",
+      "create": "Create flow",
+      "busy": "An agent is already writing a flow for another project. Wait until it is done."
+    },
+    "notice": {
+      "title": "{{agent}} will read this project's code",
+      "reads": "To write the flow, {{agent}} reads the code in",
+      "sends": "and sends it to its provider. Jagra itself sends nothing.",
+      "work": "If this is a work app, check that your company allows sending its code to an AI provider.",
+      "once": "This notice does not show again for this project after Continue.",
+      "cancel": "Cancel",
+      "continue": "Continue"
+    },
+    "working": {
+      "title": "The agent is writing the flow",
+      "cancel": "Cancel",
+      "cancelling": "Stopping…",
+      "agent": "{{agent}} writes the flow",
+      "busy": "Working",
+      "done": "Done",
+      "checkBefore": "Checking files changed outside",
+      "waiting": "Waiting",
+      "changed": "Files changed",
+      "run": "Running the new flow",
+      "rulesBefore": "The agent may write only in",
+      "rulesAfter": "and runs no command. If it is still working after 15 minutes, Jagra stops it."
+    },
+    "warning": {
+      "title": "The agent changed files outside the flows folder",
+      "leadBefore": "The agent may only write in",
+      "leadAfter": ", but these files changed while it worked:",
+      "restoreNote": "Restore makes these files exactly as they were before the agent started. Changes you made before that stay.",
+      "noBackup": "This folder was too large to copy before the agent started, so Jagra can only show which files changed.",
+      "view": "View changes",
+      "keep": "Keep",
+      "restore": "Restore"
+    },
+    "change": {
+      "created": "created",
+      "changed": "changed",
+      "deleted": "deleted",
+      "title": "Changes",
+      "lead": "Each file as it was before the agent started (−) and as it is now (+).",
+      "binary": "This file is not text, so its lines cannot be shown.",
+      "unavailable": "There is no copy from before the agent started.",
+      "tooLarge": "This file is too large to compare.",
+      "close": "Close"
+    },
+    "stopped": {
+      "title": "The agent stopped",
+      "back": "Back to the project"
+    },
+    "review": {
+      "title": "Review the flow",
+      "noFlow": "The agent wrote no flow",
+      "passed": "Passed",
+      "failed": "Failed",
+      "discard": "Discard",
+      "save": "Save flow",
+      "likely": {
+        "flow": "An action failed. This is likely a problem in the flow, such as a wrong button name, though the app's screen may also have changed.",
+        "app": "Every action passed, then a check failed. This is more likely a bug in the app, though the scenario's expectation may also be wrong."
+      },
+      "saveAnyway": "A flow that fails because of an app bug can still be saved. It keeps failing until the bug is fixed.",
+      "notRestored": "These files could not be restored: {{files}}",
+      "content": "The flow",
+      "showYaml": "Show YAML",
+      "showSteps": "Show steps",
+      "runTitle": "Run the flow",
+      "runLead": "Jagra runs the new flow once on the device, the same way as a normal run.",
+      "run": "Run this flow",
+      "running": "Running the flow on {{device}}…",
+      "screen": "The screen at the failure",
+      "screenshot": "The screen when the flow failed",
+      "texts": "Texts on the screen",
+      "report": "The agent's report",
+      "checks": "What it checks",
+      "possibleBug": "Possible bug",
+      "refused": "Files the agent tried to change and was stopped",
+      "suggested": "Other tests to consider",
+      "createToo": "Create this too",
+      "otherFlows": "Other flows the agent changed",
+      "view": "View",
+      "message": "The agent's message",
+      "fixTitle": "Ask the agent to fix it",
+      "fixPlaceholder": "A note for the agent (optional)",
+      "fixHint": "The failing step, the reason, the screenshot and the texts on the screen go with it, to the same session.",
+      "fixSend": "Send to the agent"
     }
   }
 }

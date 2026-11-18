@@ -152,7 +152,8 @@ export class Runs {
     const syntax = options.syntax;
     const plan = await planRun({
       projectFolder: folder,
-      chosen: local.flows,
+      // AGT-21: the review run takes only the new flow, and leaves the user's choice as it is.
+      chosen: request.flows ?? local.flows,
       secret: (name) => options.secrets.get(project.id, name),
       syntax: syntax && ((files) => syntax.settle(files)),
     });
@@ -441,6 +442,20 @@ export class Runs {
   private send(): void {
     if (this.live) this.options.broadcast(this.live);
   }
+}
+
+/** A flow's steps as its file reads now, with its helpers' steps (AGT-22). */
+export async function flowSteps(
+  projectFolder: string,
+  file: string,
+): Promise<StepView[] | undefined> {
+  const list = await discoverFlows(projectFolder);
+  const flow = [...list.flows, ...list.helpers, ...list.others].find(
+    (f) => resolve(f.file) === resolve(file),
+  );
+  return (
+    flow && stepViews(flow.steps, flow, list, flowsFolder(projectFolder), 0)
+  );
 }
 
 /**

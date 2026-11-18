@@ -465,9 +465,9 @@
     "scroll": "Gulir",
     "scrollUntilVisible": "Gulir sampai {{target}} terlihat",
     "swipe": "Geser",
-    "assertVisible": "Cek {{target}} terlihat",
-    "assertNotVisible": "Cek {{target}} tidak terlihat",
-    "assertTrue": "Cek sebuah kondisi",
+    "assertVisible": "{{target}} terlihat",
+    "assertNotVisible": "{{target}} tidak terlihat",
+    "assertTrue": "Sebuah kondisi benar",
     "waitVisible": "Tunggu sampai {{target}} terlihat",
     "waitNotVisible": "Tunggu sampai {{target}} hilang",
     "wait": "Tunggu",
@@ -479,7 +479,8 @@
     "runScript": "Jalankan skrip",
     "repeatTimes": "Ulangi {{times}} kali",
     "repeat": "Ulangi",
-    "retry": "Coba lagi kalau gagal"
+    "retry": "Coba lagi kalau gagal",
+    "check": "Cek"
   },
   "flowDetail": {
     "crumbResults": "Hasil run",
@@ -621,7 +622,8 @@
     "AGENT_CANNOT_CONTINUE": "{{agent}} tidak bisa melanjutkan sesi.",
     "AGENT_NOT_SIGNED_IN": "{{agent}} belum login. Login lewat {{agent}} sendiri, lalu coba lagi.",
     "AGENT_TIMED_OUT": "{{agent}} masih bekerja setelah {{minutes}} menit, jadi Jagra menghentikannya.",
-    "GIT_FAILED": "git tidak bisa membaca folder ini."
+    "GIT_FAILED": "git tidak bisa membaca folder ini.",
+    "AGENT_NONE": "Belum ada agen AI yang diatur. Atur di Pengaturan."
   },
   "agents": {
     "title": "Agen AI",
@@ -662,6 +664,107 @@
       "note": "Setiap argumen dikirim persis seperti di atas. Tidak ada yang lewat shell.",
       "save": "Simpan",
       "cancel": "Batal"
+    }
+  },
+  "ai": {
+    "form": {
+      "title": "Buat flow dengan AI",
+      "lead": "Tulis skenarionya dengan bahasa biasa. Agen menulis flow, Jagra menjalankannya, Maestro menentukan lolos atau gagal.",
+      "scenario": "Skenario",
+      "scenarioHint": "Bahasa apa pun. Sebutkan apa yang harus terlihat di akhir, karena itu yang dicek.",
+      "flowName": "Nama file",
+      "optional": "(opsional)",
+      "flowNamePlaceholder": "nama-flow.yaml",
+      "agent": "Agen: {{agent}} ·",
+      "change": "ganti",
+      "cancel": "Batal",
+      "create": "Buat flow",
+      "busy": "Ada agen yang sedang menulis flow untuk proyek lain. Tunggu sampai selesai."
+    },
+    "notice": {
+      "title": "{{agent}} akan membaca kode proyek ini",
+      "reads": "Untuk menulis flow, {{agent}} membaca kode di",
+      "sends": "dan mengirimnya ke penyedianya. Jagra sendiri tidak mengirim apa pun.",
+      "work": "Kalau ini aplikasi kantor, pastikan aturan kantor mengizinkan kode dikirim ke penyedia AI.",
+      "once": "Pemberitahuan ini tidak muncul lagi untuk proyek ini setelah Lanjut.",
+      "cancel": "Batal",
+      "continue": "Lanjut"
+    },
+    "working": {
+      "title": "Agen sedang menulis flow",
+      "cancel": "Batalkan",
+      "cancelling": "Menghentikan…",
+      "agent": "{{agent}} menulis flow",
+      "busy": "Bekerja",
+      "done": "Selesai",
+      "checkBefore": "Memeriksa file yang berubah di luar",
+      "waiting": "Antre",
+      "changed": "Ada file berubah",
+      "run": "Menjalankan flow baru",
+      "rulesBefore": "Agen hanya boleh menulis di",
+      "rulesAfter": "dan tidak menjalankan perintah apa pun. Kalau masih bekerja setelah 15 menit, Jagra menghentikannya."
+    },
+    "warning": {
+      "title": "Agen mengubah file di luar folder flow",
+      "leadBefore": "Agen hanya boleh menulis di",
+      "leadAfter": ", tapi file ini berubah selama agen bekerja:",
+      "restoreNote": "Kembalikan membuat file ini persis seperti sebelum agen mulai. Perubahan yang sudah ada sebelum itu tetap ada.",
+      "noBackup": "Folder ini terlalu besar untuk dicadangkan sebelum agen mulai, jadi Jagra hanya bisa menunjukkan file mana yang berubah.",
+      "view": "Lihat perubahan",
+      "keep": "Biarkan",
+      "restore": "Kembalikan"
+    },
+    "change": {
+      "created": "dibuat",
+      "changed": "diubah",
+      "deleted": "dihapus",
+      "title": "Perubahan",
+      "lead": "Setiap file sebelum agen mulai (−) dan sekarang (+).",
+      "binary": "File ini bukan teks, jadi barisnya tidak bisa ditampilkan.",
+      "unavailable": "Tidak ada salinan dari sebelum agen mulai.",
+      "tooLarge": "File ini terlalu besar untuk dibandingkan.",
+      "close": "Tutup"
+    },
+    "stopped": {
+      "title": "Agen berhenti",
+      "back": "Kembali ke proyek"
+    },
+    "review": {
+      "title": "Periksa flow",
+      "noFlow": "Agen tidak menulis flow",
+      "passed": "Lolos",
+      "failed": "Gagal",
+      "discard": "Buang",
+      "save": "Simpan flow",
+      "likely": {
+        "flow": "Sebuah aksi gagal. Kemungkinan besar ini masalah di flow, misalnya nama tombol yang salah, walaupun bisa juga layar aplikasinya berubah.",
+        "app": "Semua aksi berhasil, lalu sebuah cek gagal. Kemungkinan besar ini bug di aplikasi, walaupun bisa juga harapan di skenarionya yang keliru."
+      },
+      "saveAnyway": "Flow yang gagal karena bug aplikasi tetap bisa disimpan. Flow itu akan terus gagal sampai bugnya diperbaiki.",
+      "notRestored": "File ini tidak bisa dikembalikan: {{files}}",
+      "content": "Isi flow",
+      "showYaml": "Tampilkan YAML",
+      "showSteps": "Tampilkan langkah",
+      "runTitle": "Jalankan flow",
+      "runLead": "Jagra menjalankan flow baru sekali di perangkat, sama seperti run biasa.",
+      "run": "Jalankan flow ini",
+      "running": "Menjalankan flow di {{device}}…",
+      "screen": "Layar saat gagal",
+      "screenshot": "Layar saat flow gagal",
+      "texts": "Teks di layar",
+      "report": "Laporan agen",
+      "checks": "Yang dicek",
+      "possibleBug": "Kemungkinan bug",
+      "refused": "File yang coba diubah agen dan dihentikan",
+      "suggested": "Saran tes lain",
+      "createToo": "Buat ini juga",
+      "otherFlows": "Flow lain yang ikut diubah",
+      "view": "Lihat",
+      "message": "Pesan agen",
+      "fixTitle": "Minta agen memperbaiki",
+      "fixPlaceholder": "Catatan untuk agen (opsional)",
+      "fixHint": "Langkah yang gagal, alasannya, screenshot, dan teks di layar ikut dikirim ke sesi yang sama.",
+      "fixSend": "Kirim ke agen"
     }
   }
 }
