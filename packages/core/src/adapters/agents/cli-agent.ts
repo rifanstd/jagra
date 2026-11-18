@@ -18,6 +18,12 @@ const OUTPUT_LIMIT = 256 * 1024;
 
 const CLAUDE_PROMPT =
   "Do the task described in your instructions, then end with the JSON report they ask for.";
+/**
+ * On `--resume` Claude Code keeps the session's first system prompt, so the new request goes in
+ * the prompt instead, as a file in the session folder it may read (D-116).
+ */
+const claudeContinuePrompt = (file: string) =>
+  `Read the file ${file} and do what it asks, then end with the JSON report your instructions ask for.`;
 const codexPrompt = (file: string) =>
   `Read the file ${file} and do the task it describes, then end with the JSON report it asks for.`;
 
@@ -88,10 +94,18 @@ export class CliAgent implements AgentClient {
           "--output-format",
           "json",
           ...(existing ? ["--resume", existing] : ["--session-id", session]),
+          // Reading only: the session folder holds the instructions and the failure screenshot.
+          // It takes several folders, so it comes before the flags, never before the prompt.
+          "--add-dir",
+          request.workFolder,
           ...CLAUDE_PERMISSIONS,
-          "--append-system-prompt-file",
-          request.instructionsFile,
-          CLAUDE_PROMPT,
+          ...(existing
+            ? [claudeContinuePrompt(request.instructionsFile)]
+            : [
+                "--append-system-prompt-file",
+                request.instructionsFile,
+                CLAUDE_PROMPT,
+              ]),
         ];
         break;
       case "codex":
