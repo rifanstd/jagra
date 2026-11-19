@@ -137,6 +137,28 @@ describe("Runs (spec section 7)", () => {
     ]);
   });
 
+  it("holds back an agent's flow that runs a script in the review run, not in the user's own run (D-117)", async () => {
+    await write(
+      join(folder, ".jagra/flows/script.yaml"),
+      flow("- runScript: send.js\n"),
+    );
+    const service = runs();
+    expect(
+      await service.start({
+        projectId,
+        deviceId: pixel.id,
+        flows: ["script.yaml"],
+      }),
+    ).toEqual({
+      error: {
+        code: "FLOW_AGENT_SCRIPT",
+        file: join(folder, ".jagra/flows/script.yaml"),
+        line: 3,
+        command: "runScript",
+      },
+    });
+  });
+
   it("runs the chosen flows and keeps the result, with a report in the user's language", async () => {
     flowRunner.set(join(folder, ".jagra/flows/b.yaml"), {
       status: "failed",

@@ -1,4 +1,4 @@
-import { cp, mkdir, rm, stat } from "node:fs/promises";
+import { cp, lstat, mkdir, rm, stat } from "node:fs/promises";
 import {
   basename,
   dirname,
@@ -27,6 +27,7 @@ import {
   projectRelative,
   removeProject,
   runsFolder,
+  noLinksBetween,
   setUpProject,
   updateLocal,
   type ApkInfo,
@@ -317,7 +318,14 @@ export class Projects {
 
   async openConfig(id: string): Promise<void> {
     const project = await this.find(id);
-    if (project) await this.options.openPath(configFile(project.folder));
+    if (!project) return;
+    const file = configFile(project.folder);
+    // Opened with the system's handler, so only a real file inside a real .jagra folder: a
+    // cloned repository could ship config.yaml as a link to a program (D-117).
+    const info = await lstat(file).catch(() => undefined);
+    if (info?.isFile() && (await noLinksBetween(project.folder, file))) {
+      await this.options.openPath(file);
+    }
   }
 
   sampleFolder(): string {

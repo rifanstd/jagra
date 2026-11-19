@@ -1,4 +1,11 @@
-import { mkdir, open, readdir, readFile, writeFile } from "node:fs/promises";
+import {
+  mkdir,
+  open,
+  readdir,
+  readFile,
+  rm,
+  writeFile,
+} from "node:fs/promises";
 import { basename, join } from "node:path";
 import { fail, ok, type Result } from "../../errors/index.js";
 import { maskFiles, outputMasker } from "../../log/mask-files.js";
@@ -132,6 +139,10 @@ export class MaestroFlowRunner implements FlowRunner {
     try {
       await maskFiles(outputDir, masker);
     } catch (e) {
+      // Output that could not be masked is not kept (D-48).
+      await rm(outputDir, { recursive: true, force: true }).catch(
+        () => undefined,
+      );
       return fail({
         code: "OUTPUT_MASK_FAILED",
         folder: outputDir,

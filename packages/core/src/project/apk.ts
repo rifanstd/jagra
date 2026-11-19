@@ -1,9 +1,11 @@
-import { readdir, readFile, rename, stat, writeFile } from "node:fs/promises";
-import { basename, join, resolve } from "node:path";
+import { readdir, readFile, stat } from "node:fs/promises";
+import { join, resolve } from "node:path";
 import { parseDocument } from "yaml";
 import { fail, ok, type JagraError, type Result } from "../errors/index.js";
 import type { ApkInfo } from "../types/index.js";
+import { checkJagraFolder } from "../agents/paths.js";
 import { configFile, type ProjectConfig } from "./config.js";
+import { replaceFile } from "./replace-file.js";
 
 export interface FoundApk {
   path: string;
@@ -117,11 +119,10 @@ export async function fillAppId(
     return ok(undefined);
   doc.set("appId", packageName);
 
-  // Write next to it first, so a crash never leaves a half-written config.yaml.
-  const temporary = join(projectFolder, ".jagra", `.${basename(file)}.tmp`);
+  const folder = await checkJagraFolder(projectFolder);
+  if (!folder.ok) return folder;
   try {
-    await writeFile(temporary, doc.toString(), "utf8");
-    await rename(temporary, file);
+    await replaceFile(file, doc.toString());
   } catch (e) {
     return fail({
       code: "CONFIG_WRITE_FAILED",

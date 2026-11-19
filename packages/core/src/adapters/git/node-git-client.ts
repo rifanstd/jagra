@@ -5,6 +5,20 @@ import type { ProcessRunner } from "../../ports/process-runner.js";
 /** Keeps git from taking locks a running IDE might be waiting for. */
 const GIT_ENV = { GIT_OPTIONAL_LOCKS: "0" };
 
+/**
+ * Settings given on the command line, which win over the repository's own: no fsmonitor program,
+ * no untracked cache, and no bare repository found by itself. The safety net also stops using git
+ * when the repository's settings changed while the agent ran (D-117).
+ */
+const SAFE_CONFIG = [
+  "-c",
+  "core.fsmonitor=false",
+  "-c",
+  "core.untrackedCache=false",
+  "-c",
+  "safe.bareRepository=explicit",
+];
+
 interface GitOutput {
   code: number | null;
   stdout: Uint8Array;
@@ -50,6 +64,9 @@ export class NodeGitClient implements GitClient {
             "-z",
             "--relative",
             "--no-renames",
+            "--no-ext-diff",
+            "--no-textconv",
+            "--ignore-submodules=all",
             commit,
             "--",
           ],
@@ -66,6 +83,31 @@ export class NodeGitClient implements GitClient {
       }
     }
     return ok([...paths].sort());
+  }
+
+  async untracked(folder: string): Promise<Result<string[]>> {
+    const output = await this.git(folder, [
+      "ls-files",
+      "--others",
+      "--directory",
+      "--no-empty-directory",
+      "-z",
+    ]);
+    if (!output.ok) return output;
+    if (output.value.code !== 0) return this.failed(output.value);
+    return ok(
+      text(output.value.stdout)
+        .split("\0")
+        .filter((path) => path !== "")
+        .sort(),
+    );
+  }
+
+  async gitDir(folder: string): Promise<Result<string>> {
+    const output = await this.git(folder, ["rev-parse", "--absolute-git-dir"]);
+    if (!output.ok) return output;
+    if (output.value.code !== 0) return this.failed(output.value);
+    return ok(text(output.value.stdout).trim());
   }
 
   async show(
@@ -93,7 +135,7 @@ export class NodeGitClient implements GitClient {
     const started = await this.runner.start(
       {
         program: this.program,
-        args: ["-C", folder, ...args],
+        args: [...SAFE_CONFIG, "-C", folder, ...args],
         env: GIT_ENV,
         output: "stream",
       },

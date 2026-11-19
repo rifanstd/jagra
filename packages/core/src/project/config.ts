@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import { basename, join } from "node:path";
 import { isNode, LineCounter, parseDocument, type Document } from "yaml";
 import { z } from "zod";
+import { checkJagraFolder } from "../agents/paths.js";
 import { fail, ok, type Result } from "../errors/index.js";
 import { SUPPORTED_FORMAT } from "./format.js";
 
@@ -50,6 +51,8 @@ export async function loadConfig(
   projectFolder: string,
 ): Promise<Result<ProjectConfig>> {
   const file = configFile(projectFolder);
+  const folder = await checkJagraFolder(projectFolder);
+  if (!folder.ok) return folder;
   let text: string;
   try {
     text = await readFile(file, "utf8");

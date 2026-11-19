@@ -1,5 +1,5 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { dirname, isAbsolute, join } from "node:path";
+import { dirname, isAbsolute, join, resolve } from "node:path";
 import {
   client,
   methods,
@@ -10,7 +10,7 @@ import {
   type RequestPermissionRequest,
   type RequestPermissionResponse,
 } from "@agentclientprotocol/sdk";
-import { isInside } from "../../agents/paths.js";
+import { isInside, noLinksBetween } from "../../agents/paths.js";
 import { fail, ok, type Result } from "../../errors/index.js";
 import type {
   AgentClient,
@@ -113,15 +113,16 @@ export class AcpAgent implements AgentClient {
         answer(params, request.folder, flows, refused),
       )
       .onRequest(methods.client.fs.writeTextFile, async ({ params }) => {
-        if (!(await isInside(flows, params.path))) {
+        if (!(await writable(request.folder, flows, params.path))) {
           refused.push(params.path);
           throw RequestError.invalidParams(
             { path: params.path },
             "Jagra lets the agent write only inside .jagra/flows",
           );
         }
-        await mkdir(dirname(params.path), { recursive: true });
-        await writeFile(params.path, params.content, "utf8");
+        const target = resolve(params.path);
+        await mkdir(dirname(target), { recursive: true });
+        await writeFile(target, params.content, "utf8");
         return {};
       })
       .onRequest(methods.client.fs.readTextFile, async ({ params }) => {
@@ -232,17 +233,20 @@ export async function answer(
   const kind = call.kind ?? "other";
   const paths = (call.locations ?? []).map((location) => location.path);
   let allowed = false;
+  // A request that names no file is refused: Jagra cannot tell what it would touch (D-117).
   if (WRITING.has(kind)) {
     allowed =
       paths.length > 0 &&
-      (await Promise.all(paths.map((path) => isInside(flows, path)))).every(
-        Boolean,
-      );
+      (
+        await Promise.all(paths.map((path) => writable(folder, flows, path)))
+      ).every(Boolean);
     if (!allowed) refused.push(...paths);
   } else if (READING.has(kind)) {
-    allowed = (
-      await Promise.all(paths.map((path) => isInside(folder, path)))
-    ).every(Boolean);
+    allowed =
+      paths.length > 0 &&
+      (await Promise.all(paths.map((path) => isInside(folder, path)))).every(
+        Boolean,
+      );
   }
   const option = params.options.find(
     (o) => o.kind === (allowed ? "allow_once" : "reject_once"),
@@ -252,6 +256,18 @@ export async function answer(
       ? { outcome: "selected", optionId: option.optionId }
       : { outcome: "cancelled" },
   };
+}
+
+/**
+ * Whether the agent may write `path`: inside `.jagra/flows`, with no link on the way from the
+ * project folder, so a linked `.jagra` or `.jagra/flows` cannot move the write (D-117).
+ */
+async function writable(
+  folder: string,
+  flows: string,
+  path: string,
+): Promise<boolean> {
+  return (await isInside(flows, path)) && (await noLinksBetween(folder, path));
 }
 
 /** A text file, or the lines the agent asked for (`line` counts from 1). */

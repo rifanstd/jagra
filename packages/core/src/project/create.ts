@@ -1,9 +1,10 @@
-import { mkdir, readFile, rename, stat, writeFile } from "node:fs/promises";
+import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
 import { basename, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { parseDocument } from "yaml";
 import { fail, ok, type JagraError, type Result } from "../errors/index.js";
 import { configFile, loadConfig, type ProjectConfig } from "./config.js";
 import { discoverFlows } from "./flows.js";
+import { replaceFile } from "./replace-file.js";
 
 /** What a folder holds before it becomes a project, for the Create project screen (PRJ-1). */
 export interface FolderLook {
@@ -116,10 +117,7 @@ export async function setUpProject(
       changed = true;
     }
     if (!changed) return ok(undefined);
-    // Write next to it first, so a crash never leaves a half-written config.yaml.
-    const temporary = join(folder, ".jagra", ".config.yaml.tmp");
-    await writeFile(temporary, doc.toString(), "utf8");
-    await rename(temporary, file);
+    await replaceFile(file, doc.toString());
   } catch (e) {
     return fail({
       code: "PROJECT_SETUP_FAILED",

@@ -61,6 +61,11 @@ export type JagraError =
   | { code: "AGENT_TIMED_OUT"; agent: string; minutes: number }
   /** The `.jagra` folder could not be created or updated (PRJ-1). */
   | { code: "PROJECT_SETUP_FAILED"; folder: string; detail: string }
+  /**
+   * `.jagra`, `.jagra/flows` or `.jagra/flows/parts` is a link or not a folder, so writes there
+   * could land outside the project (PRJ-11, D-117).
+   */
+  | { code: "JAGRA_FOLDER_LINKED"; path: string }
   /** The Mockoon file must sit inside the project folder, which config.yaml points into (spec section 4). */
   | { code: "MOCKOON_FILE_OUTSIDE_PROJECT"; file: string }
   /** The app was built without the sample project (SMP-5). */
@@ -119,6 +124,11 @@ export type FlowProblem =
   | { code: "FLOW_STEP_INVALID"; file: string; line: number }
   /** A command that lets an AI model decide or feed a result (FLOW-10, D-33). */
   | { code: "FLOW_AI_COMMAND"; file: string; line: number; command: string }
+  /**
+   * A flow an agent wrote runs JavaScript on the computer (`runScript`, `evalScript` or a
+   * `${...}` that is not a plain variable), which agents may not do (D-04, D-117).
+   */
+  | { code: "FLOW_AGENT_SCRIPT"; file: string; line: number; command: string }
   /** `maestro check-syntax` refused the flow, with Maestro's own words (D-98). */
   | {
       code: "FLOW_MAESTRO_REFUSED";

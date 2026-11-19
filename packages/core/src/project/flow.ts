@@ -28,6 +28,9 @@ export const AI_COMMANDS = new Set([
   "extractTextWithAI",
 ]);
 
+/** Commands that run JavaScript on the computer, inside Maestro (D-117). */
+const SCRIPT_COMMANDS = new Set(["runScript", "evalScript"]);
+
 /** Commands whose value can hold nested commands under `commands:`. */
 const NESTING_COMMANDS = new Set(["runFlow", "repeat", "retry"]);
 
@@ -51,6 +54,11 @@ export interface Flow {
   calls: HelperCall[];
   /** `${NAME}` variables this file uses and does not define itself (RUN-10). */
   variables: string[];
+  /**
+   * Where the file runs JavaScript on the computer: `runScript`, `evalScript`, or a `${...}`
+   * that is not a plain variable. Refused in flows an agent wrote (D-117).
+   */
+  scripts: { line: number; command: string }[];
   problems: FlowProblem[];
 }
 
@@ -69,6 +77,7 @@ export function emptyFlow(
     steps: [],
     calls: [],
     variables: [],
+    scripts: [],
     problems,
   };
 }
@@ -150,6 +159,12 @@ export function parseFlow(text: string, file: string, isHelper: boolean): Flow {
   const defined = new Set(
     isPlainObject(headerValues.env) ? Object.keys(headerValues.env) : [],
   );
+  if (hasExpression(headerValues.env)) {
+    flow.scripts.push({
+      line: lineOf(nodeAt(header, "env")),
+      command: "${...}",
+    });
+  }
 
   const reader = new StepReader(file, lineOf, flow);
   for (const hook of ["onFlowStart", "onFlowComplete"]) {
@@ -231,6 +246,18 @@ class StepReader {
         command,
       });
     }
+    // Nested `commands:` are read as steps of their own, each on its own line.
+    const own =
+      NESTING_COMMANDS.has(command) && isPlainObject(args)
+        ? Object.fromEntries(
+            Object.entries(args).filter(([key]) => key !== "commands"),
+          )
+        : args;
+    if (SCRIPT_COMMANDS.has(command)) {
+      this.flow.scripts.push({ line, command });
+    } else if (hasExpression(own)) {
+      this.flow.scripts.push({ line, command: "${...}" });
+    }
     const kind: StepKind = CHECK_COMMANDS.has(command) ? "check" : "action";
     return { kind, command, args, line };
   }
@@ -289,6 +316,19 @@ function variablesIn(values: unknown[]): Set<string> {
   };
   values.forEach(visit);
   return found;
+}
+
+/** Whether a value holds a `${...}` that is more than a plain variable name, which Maestro runs as JavaScript. */
+function hasExpression(value: unknown): boolean {
+  if (typeof value === "string") {
+    for (const match of value.matchAll(/\$\{([^}]*)\}?/g)) {
+      if (!/^\s*[A-Za-z_][A-Za-z0-9_]*\s*$/.test(match[1] ?? "")) return true;
+    }
+    return false;
+  }
+  if (Array.isArray(value)) return value.some(hasExpression);
+  if (isPlainObject(value)) return Object.values(value).some(hasExpression);
+  return false;
 }
 
 function nodeAt(map: YAMLMap, key: string): Node | undefined {

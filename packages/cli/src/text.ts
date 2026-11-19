@@ -62,6 +62,8 @@ const ERRORS: Describe = {
     `Maestro could not check the syntax of ${e.file}: ${e.detail}`,
   PROJECT_SETUP_FAILED: (e) =>
     `The .jagra folder in ${e.folder} could not be created: ${e.detail}`,
+  JAGRA_FOLDER_LINKED: (e) =>
+    `${e.path} is a link or not a folder. Jagra writes only into a real .jagra folder, so it stops here. Replace it with a normal folder.`,
   MOCKOON_FILE_OUTSIDE_PROJECT: (e) =>
     `${e.file} is outside the project folder. Choose a Mockoon file inside it.`,
   SAMPLE_NOT_BUNDLED: () => "This build of Jagra has no sample app.",
@@ -108,6 +110,8 @@ const ERRORS: Describe = {
   FLOW_STEP_INVALID: (e) => `${e.file}:${e.line} is not a Maestro step.`,
   FLOW_AI_COMMAND: (e) =>
     `${e.file}:${e.line} uses ${e.command}, which lets an AI decide the result. Jagra does not run it.`,
+  FLOW_AGENT_SCRIPT: (e) =>
+    `${e.file}:${e.line} uses ${e.command}, which runs JavaScript on this computer. A flow written by an agent may not do that, so Jagra does not run it.`,
   FLOW_MAESTRO_REFUSED: (e) =>
     `${e.file}:${e.line} is refused by Maestro: ${e.message}.`,
   FLOW_MAESTRO_REFUSED_FILE: (e) =>

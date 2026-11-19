@@ -16,6 +16,13 @@ export interface GitClient {
     folder: string,
     commit: string | undefined,
   ): Promise<Result<string[]>>;
+  /**
+   * Untracked entries, ignored ones included, with a folder that holds only untracked files
+   * listed once as `folder/`. Lets the safety net see what the agent hid with ignore rules (D-117).
+   */
+  untracked(folder: string): Promise<Result<string[]>>;
+  /** The absolute path of the repository's git folder. */
+  gitDir(folder: string): Promise<Result<string>>;
   /** A file's bytes at `commit`, or undefined when the file is not in that commit. */
   show(
     folder: string,

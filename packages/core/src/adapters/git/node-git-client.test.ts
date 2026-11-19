@@ -1,5 +1,13 @@
 import { execFileSync } from "node:child_process";
-import { mkdir, mkdtemp, rm, unlink, writeFile } from "node:fs/promises";
+import {
+  mkdir,
+  mkdtemp,
+  readFile,
+  realpath,
+  rm,
+  unlink,
+  writeFile,
+} from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
@@ -91,5 +99,42 @@ describe("NodeGitClient (AGT-19, D-114)", () => {
       "git-that-does-not-exist",
     );
     expect((await missing.head(plain)).ok).toBe(false);
+  });
+
+  it("lists untracked entries with ignored ones, a new folder once, and the git folder (D-117)", async () => {
+    const app = await repository();
+    await mkdir(join(app, "build"));
+    await writeFile(join(app, "build", "out.txt"), "ignored");
+    await mkdir(join(app, "buildSrc"));
+    await writeFile(join(app, "buildSrc", ".gitignore"), "*\n");
+    await writeFile(join(app, "buildSrc", "build.gradle.kts"), "x");
+    await mkdir(join(app, "empty"));
+    expect(await git.untracked(app)).toEqual({
+      ok: true,
+      value: ["build/", "buildSrc/"],
+    });
+    const gitDir = await git.gitDir(app);
+    if (!gitDir.ok) throw new Error("no git folder");
+    // Temporary folders have other spellings (/private/var on macOS, short names on Windows).
+    expect(await realpath(gitDir.value)).toBe(
+      await realpath(join(root, "repo", ".git")),
+    );
+  });
+
+  it("never runs the repository's fsmonitor program (D-117)", async () => {
+    const app = await repository();
+    const head = await git.head(app);
+    if (!head.ok || !head.value) throw new Error("no head");
+    const marker = join(root, "marker").replace(/\\/g, "/");
+    const hook = join(root, "hook.sh").replace(/\\/g, "/");
+    await writeFile(hook, `#!/bin/sh\necho ran >> "${marker}"\nexit 1\n`, {
+      mode: 0o755,
+    });
+    run(join(root, "repo"), "config", "core.fsmonitor", hook);
+    await writeFile(join(app, "app", "strings.xml"), "Log in\n");
+    expect((await git.changed(app, head.value)).ok).toBe(true);
+    expect((await git.untracked(app)).ok).toBe(true);
+    expect((await git.show(app, head.value, "README.md")).ok).toBe(true);
+    await expect(readFile(marker, "utf8")).rejects.toThrow();
   });
 });

@@ -310,4 +310,35 @@ env:
       ).toEqual(["FLOW_AI_COMMAND"]);
     });
   });
+
+  describe("scripts that run on the computer (D-117)", () => {
+    it("records runScript, evalScript and ${...} that is more than a variable, in hooks and nested steps", () => {
+      const flow = parse(`appId: a
+env:
+  HOST: \${http.get('https://example.com').body}
+onFlowStart:
+  - evalScript: \${output.x = 1}
+---
+- inputText: \${USER_NAME}
+- runScript: setup.js
+- runFlow:
+    commands:
+      - inputText: \${ PASSWORD }
+      - tapOn: \${'Sa' + 've'}
+`);
+      expect(flow.problems).toEqual([]);
+      expect(flow.scripts).toEqual([
+        { line: 3, command: "${...}" },
+        { line: 5, command: "evalScript" },
+        { line: 8, command: "runScript" },
+        { line: 12, command: "${...}" },
+      ]);
+    });
+
+    it("records nothing for a flow with only plain variables", () => {
+      expect(
+        parse("appId: a\n---\n- inputText: ${USER_NAME}\n- back\n").scripts,
+      ).toEqual([]);
+    });
+  });
 });

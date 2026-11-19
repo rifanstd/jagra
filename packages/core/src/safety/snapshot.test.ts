@@ -2,9 +2,11 @@ import { execFileSync } from "node:child_process";
 import {
   mkdir,
   mkdtemp,
+  readdir,
   readFile,
   rm,
   stat,
+  symlink,
   unlink,
   writeFile,
 } from "node:fs/promises";
@@ -247,6 +249,16 @@ describe("safety net without git", () => {
           ok: false,
           error: { code: "PROGRAM_NOT_FOUND", program: "git" },
         }),
+      untracked: () =>
+        Promise.resolve({
+          ok: false,
+          error: { code: "PROGRAM_NOT_FOUND", program: "git" },
+        }),
+      gitDir: () =>
+        Promise.resolve({
+          ok: false,
+          error: { code: "PROGRAM_NOT_FOUND", program: "git" },
+        }),
     };
     const snapshot = await takeSnapshot(folder, { backup, git: missing });
     expect(snapshot.mode).toBe("files");
@@ -254,5 +266,99 @@ describe("safety net without git", () => {
     expect((await compare(snapshot, { backup, git: missing })).outside).toEqual(
       [{ path: "README.md", kind: "changed" }],
     );
+  });
+});
+
+describe("safety net against an agent that hides or redirects its writes (D-117)", () => {
+  const options = (): SafetyNetOptions => ({ backup, git });
+  let outside: string;
+
+  beforeEach(async () => {
+    await project();
+    run("init", "-q");
+    run("config", "user.email", "t@example.com");
+    run("config", "user.name", "T");
+    await write(".gitignore", "build/\n");
+    await write("docs/notes.txt", "notes\n");
+    run("add", ".");
+    run("commit", "-q", "-m", "first");
+    outside = join(root, "outside");
+    await mkdir(outside);
+    await writeFile(join(outside, "victim.txt"), "outside\n");
+  });
+
+  /** A junction needs no admin rights on Windows; false where links cannot be made. */
+  const link = async (target: string, path: string) => {
+    try {
+      await symlink(target, join(folder, ...path.split("/")), "junction");
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  it("lists a folder the agent hid with its own ignore rules, and Restore removes it", async () => {
+    const snapshot = await takeSnapshot(folder, options());
+    await write("buildSrc/.gitignore", "*\n");
+    await write("buildSrc/build.gradle.kts", "println(1)\n");
+    const changes = await compare(snapshot, options(), "asked.yaml");
+    expect(changes.outside).toEqual([{ path: "buildSrc/", kind: "created" }]);
+    expect(await restore(snapshot, options(), ["buildSrc/"])).toEqual([]);
+    expect(await gone("buildSrc")).toBe(true);
+  });
+
+  it("stops trusting git when the repository's settings changed, and shows that", async () => {
+    const snapshot = await takeSnapshot(folder, options());
+    run("config", "core.fsmonitor", "something");
+    const changes = await compare(snapshot, options(), "asked.yaml");
+    expect(changes.outside).toEqual([{ path: ".git", kind: "changed" }]);
+  });
+
+  it("never restores through a folder the agent replaced with a link", async () => {
+    const snapshot = await takeSnapshot(folder, options());
+    await rm(join(folder, "docs"), { recursive: true });
+    if (!(await link(outside, "docs"))) return;
+    const changes = await compare(snapshot, options(), "asked.yaml");
+    expect(changes.outside).toEqual([{ path: "docs", kind: "changed" }]);
+    expect(
+      await restore(snapshot, options(), ["docs", "docs/notes.txt"]),
+    ).toEqual(["docs", "docs/notes.txt"]);
+    expect(await readdir(outside)).toEqual(["victim.txt"]);
+  });
+
+  it("puts a file back in place of a link instead of writing through it", async () => {
+    const snapshot = await takeSnapshot(folder, options());
+    await unlink(join(folder, "README.md"));
+    try {
+      // A link to a file needs Developer Mode on Windows; macOS always allows it.
+      await symlink(
+        join(outside, "victim.txt"),
+        join(folder, "README.md"),
+        "file",
+      );
+    } catch {
+      return;
+    }
+    const changes = await compare(snapshot, options(), "asked.yaml");
+    expect(changes.outside).toEqual([{ path: "README.md", kind: "changed" }]);
+    expect(await restore(snapshot, options(), ["README.md"])).toEqual([]);
+    expect(await read("README.md")).toBe("shop\n");
+    expect(await readFile(join(outside, "victim.txt"), "utf8")).toBe(
+      "outside\n",
+    );
+  });
+
+  it("shows .jagra/flows replaced with a link, and never undoes a flow through it", async () => {
+    const snapshot = await takeSnapshot(folder, options());
+    await rm(join(folder, ".jagra", "flows"), { recursive: true });
+    if (!(await link(outside, ".jagra/flows"))) return;
+    const changes = await compare(snapshot, options(), "asked.yaml");
+    expect(changes.outside).toContainEqual({
+      path: ".jagra/flows",
+      kind: "changed",
+    });
+    expect(changes.flows).toEqual([]);
+    expect(await undoFlow(snapshot, options(), "victim.txt")).toBe(false);
+    expect(await readdir(outside)).toEqual(["victim.txt"]);
   });
 });

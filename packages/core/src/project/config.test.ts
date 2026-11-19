@@ -1,8 +1,19 @@
-import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import {
+  mkdir,
+  mkdtemp,
+  readdir,
+  readFile,
+  rm,
+  symlink,
+  writeFile,
+} from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { fillAppId } from "./apk.js";
 import { configFile, loadConfig, parseConfig } from "./config.js";
+import { setUpProject } from "./create.js";
+import { createFlow } from "./new-flow.js";
 
 const FILE = "/repo/.jagra/config.yaml";
 const parse = (text: string) => parseConfig(text, FILE, "aplikasi-a");
@@ -169,5 +180,38 @@ describe("loadConfig", () => {
   it("reports a missing file", async () => {
     const result = await loadConfig(join(tmpdir(), "jagra-no-such-project"));
     expect(result.ok ? null : result.error.code).toBe("FILE_NOT_FOUND");
+  });
+});
+
+describe("a .jagra folder that is a link (D-117)", () => {
+  it("refuses to read or write through it, so nothing lands outside the project", async () => {
+    const root = await mkdtemp(join(tmpdir(), "jagra-linked-"));
+    try {
+      const project = join(root, "repo");
+      const outside = join(root, "outside");
+      await mkdir(project);
+      await mkdir(join(outside, "flows"), { recursive: true });
+      await writeFile(join(outside, "config.yaml"), "format: 1\n");
+      try {
+        // A junction needs no admin rights on Windows.
+        await symlink(outside, join(project, ".jagra"), "junction");
+      } catch {
+        return;
+      }
+      const linked = {
+        ok: false,
+        error: { code: "JAGRA_FOLDER_LINKED", path: join(project, ".jagra") },
+      };
+      expect(await loadConfig(project)).toEqual(linked);
+      expect(await createFlow(project, "Login", "a")).toEqual(linked);
+      expect(await fillAppId(project, "dev.jagra.sample")).toEqual(linked);
+      expect(await setUpProject(project, { name: "repo" })).toEqual(linked);
+      expect((await readdir(join(outside, "flows"))).length).toBe(0);
+      expect(await readFile(join(outside, "config.yaml"), "utf8")).toBe(
+        "format: 1\n",
+      );
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
   });
 });

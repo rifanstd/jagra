@@ -1,4 +1,12 @@
-import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import {
+  mkdir,
+  mkdtemp,
+  readdir,
+  readFile,
+  rm,
+  symlink,
+  writeFile,
+} from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
@@ -181,7 +189,7 @@ describe("AcpAgent (AGT-9, AGT-17)", () => {
     const ask = async (
       ctx: AgentContext,
       sessionId: string,
-      kind: "edit" | "execute" | "read" | "switch_mode",
+      kind: "edit" | "execute" | "read" | "search" | "think" | "switch_mode",
       path?: string,
     ) => {
       const response = await ctx.request<RequestPermissionResponse>(
@@ -211,10 +219,98 @@ describe("AcpAgent (AGT-9, AGT-17)", () => {
         await ask(ctx, sessionId, "read", join(project, "app", "strings.xml"));
         await ask(ctx, sessionId, "read", join(work, "instructions.md"));
         await ask(ctx, sessionId, "switch_mode");
+        // D-117: a request that names no file could touch anything.
+        await ask(ctx, sessionId, "read");
+        await ask(ctx, sessionId, "search");
+        await ask(ctx, sessionId, "think");
       }),
     );
     await client.start(request);
-    expect(answers).toEqual(["yes", "no", "no", "no", "yes", "no", "no"]);
+    expect(answers).toEqual([
+      "yes",
+      "no",
+      "no",
+      "no",
+      "yes",
+      "no",
+      "no",
+      "no",
+      "no",
+      "no",
+    ]);
+  });
+
+  it("refuses writes that a link could carry out of .jagra/flows (D-117)", async () => {
+    const outside = await mkdtemp(join(tmpdir(), "jagra-acp-outside-"));
+    const outcomes: string[] = [];
+    try {
+      try {
+        await symlink(
+          outside,
+          join(project, ".jagra", "flows", "l"),
+          "junction",
+        );
+      } catch {
+        return;
+      }
+      const { client } = setup(
+        fakeAgent(async ({ ctx, sessionId }) => {
+          for (const path of [
+            // Kept as written: the file system follows `l` before `..`.
+            `${join(project, ".jagra", "flows", "l")}/../escaped.yaml`,
+            join(project, ".jagra", "flows", "l", "escaped.yaml"),
+          ]) {
+            try {
+              await ctx.request(methods.client.fs.writeTextFile, {
+                sessionId,
+                path,
+                content: "escaped",
+              });
+              outcomes.push("written");
+            } catch (e) {
+              outcomes.push(e instanceof RequestError ? "refused" : "other");
+            }
+          }
+        }),
+      );
+      await client.start(request);
+      expect(outcomes).toEqual(["refused", "refused"]);
+      expect(await readdir(outside)).toEqual([]);
+    } finally {
+      await rm(outside, { recursive: true, force: true });
+    }
+  });
+
+  it("refuses writes when .jagra/flows itself is a link a repository shipped (D-117)", async () => {
+    const outside = await mkdtemp(join(tmpdir(), "jagra-acp-outside-"));
+    const outcomes: string[] = [];
+    try {
+      await rm(join(project, ".jagra", "flows"), { recursive: true });
+      try {
+        await symlink(outside, join(project, ".jagra", "flows"), "junction");
+      } catch {
+        return;
+      }
+      const { client } = setup(
+        fakeAgent(async ({ ctx, sessionId }) => {
+          try {
+            await ctx.request(methods.client.fs.writeTextFile, {
+              sessionId,
+              path: flow(),
+              content: "escaped",
+            });
+            outcomes.push("written");
+          } catch (e) {
+            outcomes.push(e instanceof RequestError ? "refused" : "other");
+          }
+        }),
+      );
+      await client.start(request);
+      expect(outcomes).toEqual(["refused"]);
+      expect(await readdir(outside)).toEqual([]);
+    } finally {
+      await rm(outside, { recursive: true, force: true });
+    }
   });
 
   it("reads only inside the project folder for the agent", async () => {

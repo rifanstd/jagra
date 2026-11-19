@@ -75,6 +75,44 @@ describe("planRun (spec section 7, step 1)", () => {
     ]);
   });
 
+  it("holds back an agent's flow that runs a script, itself or through a helper (D-117)", async () => {
+    await write("plain.yaml", flow("- launchApp"));
+    await write("script.yaml", flow("- runScript: send.js"));
+    await write("parts/helper.yaml", flow("- evalScript: ${output.x = 1}"));
+    await write("through.yaml", flow("- runFlow: parts/helper.yaml"));
+    const plan = await planRun({
+      projectFolder: project,
+      chosen: ["plain.yaml", "script.yaml", "through.yaml"],
+      secret: secrets({}),
+      agentFlows: true,
+    });
+    if (!plan.ok) throw new Error(JSON.stringify(plan.error));
+    expect(plan.value.flows.map((f) => basename(f.file))).toEqual([
+      "plain.yaml",
+    ]);
+    expect(plan.value.skipped.map((f) => f.problems[0])).toEqual([
+      {
+        code: "FLOW_AGENT_SCRIPT",
+        file: join(flowsFolder(project), "script.yaml"),
+        line: 3,
+        command: "runScript",
+      },
+      {
+        code: "FLOW_AGENT_SCRIPT",
+        file: join(flowsFolder(project), "parts", "helper.yaml"),
+        line: 3,
+        command: "evalScript",
+      },
+    ]);
+    // A run the user chose runs the same flow (D-117 refuses scripts only from agents).
+    const own = await planRun({
+      projectFolder: project,
+      chosen: ["script.yaml"],
+      secret: secrets({}),
+    });
+    expect(own.ok && own.value.flows.length).toBe(1);
+  });
+
   it("takes only the chosen flows (RUN-2)", async () => {
     await write("a.yaml", flow("- launchApp"));
     await write("b.yaml", flow("- launchApp"));
