@@ -543,3 +543,7 @@ Format of each entry: what was decided, why, and what was considered instead.
 - **Only one request runs at a time.** While it runs, the form for any project says so.
 
 **Why:** The spec names these actions but not how they combine. Creating the next flow must not silently throw away the one on screen. Discard must never delete a flow the user had before. Starting a new agent call from a suggestion still needs the user's press.
+
+### D-116. Claude Code gets a continued request in the prompt
+**Decided:** When Ask agent to fix continues a Claude Code session (`--resume`), the request is not passed with `--append-system-prompt-file`. The prompt itself asks Claude Code to read the instructions file. Every call adds `--add-dir <session folder>`, so Claude Code may read the instructions and the copy of the failure screenshot there. Writing stays limited to `.jagra/flows` by the allow list and `dontAsk` (D-102).
+**Why:** Found in the M10 Done-when check on 2026-11-18 with Claude Code 2.1.325. On `--resume`, Claude Code keeps the session's first system prompt (`--system-prompt-snapshot` is on by default). So a fix sent as an appended system prompt never arrived: Claude Code repeated the first task and left the flow as it was. With the request in the prompt, the same session read the note and the screen texts, changed the flow, and it passed.

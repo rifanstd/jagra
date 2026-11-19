@@ -82,6 +82,8 @@ describe("CliAgent: Claude Code (AGT-10, D-102)", () => {
         "json",
         "--session-id",
         "11111111-2222-3333-4444-555555555555",
+        "--add-dir",
+        work,
         "--restricted",
         "--tools",
         "Read,Glob,Grep,Write,Edit",
@@ -106,6 +108,11 @@ describe("CliAgent: Claude Code (AGT-10, D-102)", () => {
     const args = runner.calls[0]?.args ?? [];
     expect(args.slice(3, 5)).toEqual(["--resume", "abc"]);
     expect(args).not.toContain("--session-id");
+    // The session keeps its first system prompt, so the fix goes in the prompt (D-116).
+    expect(args).not.toContain("--append-system-prompt-file");
+    expect(args.at(-1)).toBe(
+      `Read the file ${request.instructionsFile} and do what it asks, then end with the JSON report your instructions ask for.`,
+    );
   });
 
   it("says it cannot continue a session Claude Code no longer has (AGT-18)", async () => {
