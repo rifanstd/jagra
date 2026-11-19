@@ -1,6 +1,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { Document } from "yaml";
+import { checkJagraFolder } from "../agents/paths.js";
 import { fail, ok, type Result } from "../errors/index.js";
 import { flowsFolder } from "./flows.js";
 
@@ -45,6 +46,8 @@ export async function createFlow(
   if (!fileName) return fail({ code: "FLOW_NAME_INVALID", name });
   const folder = flowsFolder(projectFolder);
   const file = join(folder, fileName);
+  const checked = await checkJagraFolder(projectFolder);
+  if (!checked.ok) return checked;
   try {
     await mkdir(folder, { recursive: true });
     await writeFile(file, flowTemplate(appId, name.trim()), {

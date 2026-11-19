@@ -201,6 +201,8 @@ The safety net must restore files exactly as they were right before the agent st
 
 **Skipped folders** in both cases: `.git`, `.gradle`, `build`, `node_modules`, `.idea`, and `.jagra/flows` (handled separately).
 
+**What the agent could hide or redirect** (D-117). In a git repository Jagra also records the untracked entries, ignored ones included, and the hash of the folder's `.git` entry and the repository's settings files. Afterwards a new untracked entry counts as created, even one the agent hid with its own ignore rules. If the settings changed, Jagra does not run git again and lists `.git` as changed. Every git call turns off `core.fsmonitor`. Links are listed by where they point and never followed, and a file under a link shows as the link. Restore and undo never write or delete through a link.
+
 Backups are deleted when the session ends.
 
 ---

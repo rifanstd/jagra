@@ -39,6 +39,13 @@ process.on("SIGINT", () => {
   console.log("Cancelling...");
   cancel.abort();
 });
+// A CI job that is cancelled or times out sends SIGTERM: cancel the same way, so Maestro's output
+// is masked before the job uploads it (D-117).
+process.on("SIGTERM", () => {
+  if (cancel.signal.aborted) return;
+  console.log("Cancelling...");
+  cancel.abort();
+});
 
 process.exitCode = await main(
   process.argv.slice(2),

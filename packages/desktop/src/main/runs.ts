@@ -154,6 +154,7 @@ export class Runs {
       projectFolder: folder,
       // AGT-21: the review run takes only the new flow, and leaves the user's choice as it is.
       chosen: request.flows ?? local.flows,
+      agentFlows: request.flows !== undefined,
       secret: (name) => options.secrets.get(project.id, name),
       syntax: syntax && ((files) => syntax.settle(files)),
     });

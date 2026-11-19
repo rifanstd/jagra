@@ -18,6 +18,7 @@ import {
   loadConfig,
   loadLocal,
   loadSnapshot,
+  noLinksBetween,
   restore,
   runsFolder,
   sessionFolder,
@@ -319,7 +320,11 @@ export class Ai {
       const file = join(flows, ...flow.split("/"));
       const original =
         current.original?.flow === flow ? current.original.content : null;
-      if (await isInside(flows, file)) {
+      // A link on the way could move the delete outside the project (D-117).
+      if (
+        (await isInside(flows, file)) &&
+        (await noLinksBetween(current.folder, file))
+      ) {
         if (original === null) await rm(file, { force: true });
         else await writeFile(file, original);
       }

@@ -21,7 +21,7 @@ import {
   buildInstructions,
   type FixRequest,
 } from "./instructions.js";
-import { isInside } from "./paths.js";
+import { checkJagraFolder, isInside } from "./paths.js";
 import { readReport, type AgentReport } from "./report.js";
 import {
   backupFolder,
@@ -37,6 +37,10 @@ const NO_GIT: GitClient = {
   changed: () =>
     Promise.resolve(fail({ code: "PROGRAM_NOT_FOUND", program: "git" })),
   show: () =>
+    Promise.resolve(fail({ code: "PROGRAM_NOT_FOUND", program: "git" })),
+  untracked: () =>
+    Promise.resolve(fail({ code: "PROGRAM_NOT_FOUND", program: "git" })),
+  gitDir: () =>
     Promise.resolve(fail({ code: "PROGRAM_NOT_FOUND", program: "git" })),
 };
 
@@ -140,6 +144,8 @@ export async function askForFlow(
       (options.clock ?? new SystemClock()).now(),
     ).toISOString(),
   };
+  const folder = await checkJagraFolder(target.folder);
+  if (!folder.ok) return folder;
   const snapshot = await guard(options, target, session);
   const reply = await call(options, target, session, instructions, (request) =>
     options.client.start(request),
@@ -163,6 +169,8 @@ export async function askForFix(
   const file = `.jagra/flows/${target.flow}`;
   const fix: FixRequest = { ...target.fix, file };
   const session: AgentSession = { ...target.session, flow: target.flow };
+  const folder = await checkJagraFolder(target.folder);
+  if (!folder.ok) return folder;
   const snapshot = await guard(options, target, session);
   if (session.agentSession) {
     const continued = await call(

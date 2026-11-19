@@ -73,6 +73,31 @@ export function variablesNeeded(flow: Flow, list: FlowList): string[] {
   return [...visit(flow, new Set([flow.file]))].sort();
 }
 
+/** Where a flow, or a helper it calls, runs JavaScript on the computer (D-117). */
+export function scriptsUsed(
+  flow: Flow,
+  list: FlowList,
+): { file: string; line: number; command: string }[] {
+  const byFile = new Map(
+    [...list.flows, ...list.helpers, ...list.others].map((f) => [f.file, f]),
+  );
+  const found: { file: string; line: number; command: string }[] = [];
+  const seen = new Set<string>();
+  const visit = (current: Flow) => {
+    if (seen.has(current.file)) return;
+    seen.add(current.file);
+    for (const script of current.scripts) {
+      found.push({ file: current.file, ...script });
+    }
+    for (const call of current.calls) {
+      const helper = byFile.get(call.file);
+      if (helper) visit(helper);
+    }
+  };
+  visit(flow);
+  return found;
+}
+
 async function readFolder(folder: string, isHelper: boolean): Promise<Flow[]> {
   let names: string[];
   try {

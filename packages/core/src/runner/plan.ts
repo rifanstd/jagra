@@ -1,7 +1,11 @@
 import { basename } from "node:path";
 import { fail, ok, type FlowProblem, type Result } from "../errors/index.js";
 import type { Flow } from "../project/flow.js";
-import { discoverFlows, variablesNeeded } from "../project/flows.js";
+import {
+  discoverFlows,
+  scriptsUsed,
+  variablesNeeded,
+} from "../project/flows.js";
 
 export interface PlanInput {
   projectFolder: string;
@@ -14,6 +18,11 @@ export interface PlanInput {
    * passes it; the CLI does not, so a run in CI does not wait for it.
    */
   syntax?: (files: string[]) => Promise<Map<string, FlowProblem>>;
+  /**
+   * The chosen flows were written by an agent (the AGT-21 review run). A flow that runs
+   * JavaScript on the computer, itself or through a helper, is held back (D-04, D-117).
+   */
+  agentFlows?: boolean;
 }
 
 export interface RunPlan {
@@ -35,6 +44,19 @@ export async function planRun(input: PlanInput): Promise<Result<RunPlan>> {
   const chosen = input.chosen
     ? list.flows.filter((f) => input.chosen?.includes(basename(f.file)))
     : list.flows;
+  if (input.agentFlows) {
+    for (const flow of chosen) {
+      const script = scriptsUsed(flow, list)[0];
+      if (script) {
+        flow.problems.push({
+          code: "FLOW_AGENT_SCRIPT",
+          file: script.file,
+          line: script.line,
+          command: script.command,
+        });
+      }
+    }
+  }
   const refused =
     (await input.syntax?.(
       chosen.filter((f) => f.problems.length === 0).map((f) => f.file),
@@ -45,7 +67,11 @@ export async function planRun(input: PlanInput): Promise<Result<RunPlan>> {
   }
   const flows = chosen.filter((f) => f.problems.length === 0);
   const skipped = chosen.filter((f) => f.problems.length > 0);
-  if (flows.length === 0) return fail({ code: "NO_FLOWS" });
+  if (flows.length === 0) {
+    // The review run has one flow: say why it cannot run rather than that nothing can.
+    const reason = input.agentFlows ? skipped[0]?.problems[0] : undefined;
+    return fail(reason ?? { code: "NO_FLOWS" });
+  }
 
   const needs: Record<string, string[]> = {};
   const values: Record<string, string> = {};

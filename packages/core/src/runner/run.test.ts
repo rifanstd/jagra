@@ -39,6 +39,7 @@ const flow = (name: string, variables: string[] = []): Flow => ({
   steps: [],
   calls: [],
   variables,
+  scripts: [],
   problems: [],
 });
 

@@ -7,6 +7,10 @@ import type { GitClient } from "../ports/git.js";
  */
 export class FakeGitClient implements GitClient {
   changedFiles: string[] = [];
+  /** Untracked entries, ignored ones included (`untracked`). */
+  untrackedEntries: string[] = [];
+  /** What `gitDir` answers. */
+  gitFolder = "/repo/.git";
   private inRepository = false;
   private commit: string | undefined;
   private readonly committed = new Map<string, Uint8Array>();
@@ -33,6 +37,18 @@ export class FakeGitClient implements GitClient {
   changed(): Promise<Result<string[]>> {
     return this.inRepository
       ? Promise.resolve(ok([...this.changedFiles].sort()))
+      : this.outside();
+  }
+
+  untracked(): Promise<Result<string[]>> {
+    return this.inRepository
+      ? Promise.resolve(ok([...this.untrackedEntries].sort()))
+      : this.outside();
+  }
+
+  gitDir(): Promise<Result<string>> {
+    return this.inRepository
+      ? Promise.resolve(ok(this.gitFolder))
       : this.outside();
   }
 

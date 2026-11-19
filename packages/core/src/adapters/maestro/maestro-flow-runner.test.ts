@@ -1,4 +1,4 @@
-import { mkdirSync, writeFileSync } from "node:fs";
+import { chmodSync, mkdirSync, writeFileSync } from "node:fs";
 import { mkdtemp, readdir, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -31,6 +31,8 @@ interface Writes {
   exit?: number;
   /** Keep running until stopped. */
   hang?: boolean;
+  /** Files among `files` made read-only, so masking them fails. */
+  readOnly?: string[];
 }
 
 /** A Maestro that writes the given files into `--debug-output` and exits. */
@@ -43,6 +45,8 @@ function setup(writes: Writes) {
     for (const [path, text] of Object.entries(writes.files ?? {})) {
       mkdirSync(join(flowDir, path, ".."), { recursive: true });
       writeFileSync(join(flowDir, path), text);
+      if (writes.readOnly?.includes(path))
+        chmodSync(join(flowDir, path), 0o444);
     }
     if (!writes.hang) writeFileSync(report, "<html>report</html>");
     return writes.hang
@@ -224,6 +228,24 @@ describe("MaestroFlowRunner and secrets (RUN-11, RES-7)", () => {
       const text = await readFile(join(entry.parentPath, entry.name), "utf8");
       expect(text, entry.name).not.toContain("hunter2");
     }
+  });
+});
+
+describe("MaestroFlowRunner when masking fails (D-48, D-117)", () => {
+  it("keeps none of the output it could not mask", async () => {
+    const { flows } = setup({
+      exit: 1,
+      files: { "logs/maestro.log": "typed hunter2\n" },
+      readOnly: ["logs/maestro.log"],
+    });
+    const result = await flows.run(
+      request({ variables: { PASSWORD: "hunter2" } }),
+    );
+    expect(result).toMatchObject({
+      ok: false,
+      error: { code: "OUTPUT_MASK_FAILED" },
+    });
+    expect(await readdir(out).catch(() => [])).toEqual([]);
   });
 });
 

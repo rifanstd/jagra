@@ -15,6 +15,7 @@ Rules:
 - Write only inside \`.jagra/flows\`. Do not create, change or delete any other file.
 - Do not run any command: not Maestro, not adb, not a build, not a script.
 - Never use Maestro's AI commands: \`assertWithAI\`, \`assertNoDefectsWithAI\` and \`extractTextWithAI\`.
+- Never use \`runScript\`, \`evalScript\` or JavaScript inside \`\${...}\`: Jagra does not run a flow that runs code on the computer.
 - When the project folder has the app's source code, read it and use the exact text of buttons, fields and messages, for example from string resources and layouts.
 - Keep every check the scenario asks for. If the code shows the app does not do what the scenario expects, keep the check as the scenario wants it and report a possible bug instead of changing the check.
 

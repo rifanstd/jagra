@@ -126,7 +126,7 @@ export {
   sessionFolder,
   type AgentSession,
 } from "./agents/session.js";
-export { isInside } from "./agents/paths.js";
+export { checkJagraFolder, isInside, noLinksBetween } from "./agents/paths.js";
 export { MaestroSyntaxChecker } from "./adapters/maestro/maestro-syntax-checker.js";
 export { SyntaxChecks, type SyntaxState } from "./project/syntax-checks.js";
 export {

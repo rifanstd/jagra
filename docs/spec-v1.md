@@ -172,7 +172,7 @@ Kept by Jagra on the user's machine, never in git: the APK path when chosen by h
 - **PRJ-8** If a project folder no longer exists (moved or deleted), the project list says so and offers a Locate button to pick the new place.
 - **PRJ-9** If `format` in `config.yaml` is higher than this version of Jagra understands, Jagra must not touch the folder and must tell the user to update Jagra. Version 1 only knows format 1.
 - **PRJ-10** If `config.yaml` or any flow file cannot be read, Jagra shows the file and the line with the problem and keeps everything else usable (see `REL-6`).
-- **PRJ-11** Jagra must never write to the project folder outside `.jagra`, except when the user explicitly restores a file in the agent safety net (see section 10).
+- **PRJ-11** Jagra must never write to the project folder outside `.jagra`, except when the user explicitly restores a file in the agent safety net (see section 10). If `.jagra`, `.jagra/flows` or `.jagra/flows/parts` is a link or not a folder, Jagra writes nothing there and says so (D-117).
 
 ### Done when
 
@@ -295,7 +295,7 @@ A run takes the newest APK, puts it on one device, starts Mockoon if the project
 - **RES-4** Opening a flow shows its steps in plain language with a mark on each (passed, failed, not run), the same way as the Review flow screen in section 10. For a failed flow it also shows the failing step, Maestro's reason, the screenshot at the moment of failure, and any crash or ANR report. Maestro's raw output is available under "Show details". A button opens the flow file in the user's editor.
 - **RES-5** If a failure screenshot is entirely or almost entirely black, Jagra shows a notice: the app probably uses `FLAG_SECURE`, which blocks screenshots; the fix is to turn it off in debug builds only.
 - **RES-6** Every run produces an HTML report built from Maestro's own report output. Because Maestro runs once per flow (`RUN-5`), Jagra adds a small index page that lists every flow with its status and links to Maestro's report for that flow. "Open report" opens the index in the default browser. The whole report folder can be zipped and sent to QA.
-- **RES-7** Secret values must be masked in every place Jagra shows or saves: Results, flow detail, logs and the HTML report. If Maestro's report includes secret values, Jagra replaces them before saving (`SEC-4`).
+- **RES-7** Secret values must be masked in every place Jagra shows or saves: Results, flow detail, logs and the HTML report. If Maestro's report includes secret values, Jagra replaces them before saving (`SEC-4`). If they cannot be replaced, Jagra deletes that flow's output instead of keeping it (D-117).
 - **RES-8** Jagra keeps the last 20 runs per project. When a new run is saved, the oldest runs beyond 20 are deleted with all their files.
 - **RES-9** The History screen lists a project's runs, newest first, with time, APK version, summary and status, including Cancelled, Stopped and Interrupted runs. Opening a run shows its Results screen.
 - **RES-10** "Run again" on the Results screen starts a new run with the same flows on the same device, using the newest APK at that moment.
@@ -401,7 +401,7 @@ ACP is the Agent Client Protocol, an open standard for apps to talk to coding ag
 ### Requirements: what the agent may do
 
 - **AGT-8** The agent may read anything in the project folder. It may write only inside `.jagra/flows` (including `parts`). It must not run flows, Maestro, `adb` or any command that touches a device.
-- **AGT-9** For ACP agents, Jagra answers the agent's permission requests: writes inside `.jagra/flows` are allowed, every other write and every terminal command is refused.
+- **AGT-9** For ACP agents, Jagra answers the agent's permission requests: writes inside `.jagra/flows` are allowed, every other write and every terminal command is refused. A request that names no file is refused (D-117).
 - **AGT-10** For Claude Code, Jagra uses its command line permission settings to allow reading and to allow writing only inside `.jagra/flows`. For Codex and custom agents, the rule is given in the instructions and enforced afterwards by the safety net (`AGT-19`).
 
 ### Requirements: first use
@@ -423,12 +423,12 @@ ACP is the Agent Client Protocol, an open standard for apps to talk to coding ag
 
 ### Requirements: safety net
 
-- **AGT-19** Right before the agent starts, Jagra records the state of the project folder. Right after the agent stops for any reason, Jagra compares. Any file created, changed or deleted outside `.jagra/flows` opens the warning (screen 14) listing those files, with View changes, Restore (the main button) and Keep. Restore puts every listed file back as it was right before the agent started. Changes the user made before the agent started are never counted and never undone. How the state is recorded, for folders with and without git, is in `architecture.md`.
+- **AGT-19** Right before the agent starts, Jagra records the state of the project folder. Right after the agent stops for any reason, Jagra compares. Any file created, changed or deleted outside `.jagra/flows` opens the warning (screen 14) listing those files, with View changes, Restore (the main button) and Keep. Restore puts every listed file back as it was right before the agent started. Changes the user made before the agent started are never counted and never undone. Restore never writes or deletes through a link. How the state is recorded, for folders with and without git, is in `architecture.md`.
 - **AGT-20** If the agent changed or deleted flows in `.jagra/flows` other than the one it was asked to write, the Review flow screen lists them with their changes, and the user can undo each one.
 
 ### Requirements: review
 
-- **AGT-21** After the agent stops and the safety net has run, Jagra runs the new flow once on the chosen device, with the same steps as a normal run (install, clear data, Mockoon, time limit, secrets). If no device is ready, Jagra shows the flow without a result and asks the user to choose a device and run it.
+- **AGT-21** After the agent stops and the safety net has run, Jagra runs the new flow once on the chosen device, with the same steps as a normal run (install, clear data, Mockoon, time limit, secrets). If no device is ready, Jagra shows the flow without a result and asks the user to choose a device and run it. A flow the agent wrote that runs code on the computer (`runScript`, `evalScript`, or JavaScript inside `${...}`), itself or through a helper, is not run, and the screen says why (D-117).
 - **AGT-22** The Review flow screen shows the flow as steps in plain language. Actions (open, tap, type, scroll) and checks (something must be visible or not visible) look different, so the user can see at a glance what the flow really tests. The YAML can be shown instead.
 - **AGT-23** After the run, every step has a mark: passed, failed or not run.
 - **AGT-24** When the flow fails, Jagra explains it without AI. If an action step failed, the note says this is likely a problem in the flow, such as a wrong button name, though the app's screen may also have changed. If every action passed and a check failed, the note says this is more likely a bug in the app, though the scenario's expectation may also be wrong. Both notes say "likely", never "certainly".
