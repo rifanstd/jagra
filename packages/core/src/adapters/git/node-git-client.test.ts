@@ -3,6 +3,7 @@ import {
   mkdir,
   mkdtemp,
   readFile,
+  realpath,
   rm,
   unlink,
   writeFile,
@@ -113,9 +114,10 @@ describe("NodeGitClient (AGT-19, D-114)", () => {
       value: ["build/", "buildSrc/"],
     });
     const gitDir = await git.gitDir(app);
-    const slashes = (path: string) => path.replace(/\\/g, "/");
-    expect(gitDir.ok && slashes(gitDir.value)).toBe(
-      `${slashes(join(root, "repo"))}/.git`,
+    if (!gitDir.ok) throw new Error("no git folder");
+    // Temporary folders have other spellings (/private/var on macOS, short names on Windows).
+    expect(await realpath(gitDir.value)).toBe(
+      await realpath(join(root, "repo", ".git")),
     );
   });
 
