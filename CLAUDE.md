@@ -4,7 +4,7 @@ Jagra is an open source desktop app (Windows and macOS) that tests Android build
 
 ## Current state
 
-- Current milestone: **M10** (see `docs/plan.md`). Update this line when a milestone is approved.
+- Current milestone: **M11** (see `docs/plan.md`). Update this line when a milestone is approved.
 
 ## Read before working
 
